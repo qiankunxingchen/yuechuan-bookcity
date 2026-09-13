@@ -312,6 +312,52 @@ body.night .search-box{background:var(--card)}
 .site-footer .f-logo{font-family:var(--serif);font-weight:900;color:var(--brand);font-size:16px;margin-bottom:6px}
 .site-footer p{line-height:1.9}
 
+/* ============ 登录/注册弹窗 ============ */
+.modal-mask{
+  position:fixed;inset:0;background:rgba(23,33,29,.55);backdrop-filter:blur(4px);
+  z-index:90;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-mask.show{display:flex}
+.modal{
+  background:var(--card);border-radius:20px;width:100%;max-width:400px;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;animation:toastIn .25s ease;
+}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+.modal-head h3{font-family:var(--serif);font-size:19px;font-weight:900}
+.modal-close{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--card-soft);font-size:16px;flex-shrink:0}
+.modal-close:hover{background:var(--line)}
+.auth-tabs{display:flex;gap:6px;padding:18px 24px 0}
+.auth-tab{flex:1;padding:10px;border-radius:10px;text-align:center;font-size:14px;font-weight:500;color:var(--ink-soft);background:var(--card-soft)}
+.auth-tab.active{background:var(--brand);color:#fff}
+.modal-body{padding:20px 24px 26px}
+.modal-body .field{margin-bottom:14px}
+.modal-body .btn{width:100%;margin-top:6px}
+.auth-switch{text-align:center;font-size:13px;color:var(--ink-soft);margin-top:14px}
+.auth-switch a{color:var(--brand);cursor:pointer;font-weight:500}
+.auth-hint{font-size:12px;color:var(--ink-faint);text-align:center;margin-top:12px;line-height:1.7}
+.captcha-row{display:flex;align-items:center;gap:10px}
+.captcha-row input{padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--paper);outline:none;font-size:15px;letter-spacing:2px;width:100%}
+.captcha-row input:focus{border-color:var(--brand)}
+.user-area{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.user-badge{
+  display:flex;align-items:center;gap:8px;padding:5px 14px 5px 6px;border-radius:999px;
+  background:var(--brand-soft);color:var(--brand-deep);font-size:13px;font-weight:500;cursor:pointer;
+}
+.user-badge .u-avatar{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0}
+.user-badge:hover{background:#CDE2DA}
+.user-menu{
+  position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);min-width:170px;padding:6px;display:none;z-index:60;
+}
+.user-menu.show{display:block}
+.user-menu a,.user-menu button{
+  display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:9px 12px;
+  border-radius:8px;font-size:14px;color:var(--ink);
+}
+.user-menu a:hover,.user-menu button:hover{background:var(--card-soft)}
+.user-menu .um-logout{color:var(--danger)}
+.user-wrap{position:relative}
+
 /* ============ Toast ============ */
 #toast-wrap{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:8px;align-items:center}
 .toast{
@@ -387,10 +433,31 @@ body.night .search-box{background:var(--card)}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
       </div>
-      <button class="btn btn-accent btn-sm" onclick="location.hash='#/create'">写小说</button>
+      <div id="auth-area"><!-- 登录按钮 / 用户菜单由 JS 渲染 --></div>
+      <button class="btn btn-accent btn-sm" onclick="gotoCreate()">写小说</button>
     </div>
   </div>
 </header>
+
+<!-- ============ 登录/注册弹窗 ============ -->
+<div class="modal-mask" id="auth-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="auth-title">登录</h3>
+      <button class="modal-close" onclick="closeAuthModal()" aria-label="关闭">✕</button>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">登录</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">注册新账号</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label id="account-label">邮箱</label><input id="auth-account" maxlength="50" placeholder="name@example.com" autocomplete="username"></div>
+      <div class="field" id="nick-field" style="display:none"><label>昵称 / 笔名</label><input id="auth-nickname" maxlength="20" placeholder="选填，默认取邮箱前缀"></div>
+      <button class="btn btn-primary" id="auth-submit" onclick="sendEmailCode()">发送登录链接</button>
+      <p class="auth-hint" id="auth-hint">点击发送后，去邮箱打开我们发来的邮件，点里面的「Sign in」按钮即可登录</p>
+    </div>
+  </div>
+</div>
 
 <main id="app"><div class="loading"><div class="spinner"></div><p>正在打开书城…</p></div></main>
 
@@ -477,20 +544,43 @@ const API = {
   },
   createChapter(data){ return this.request("POST","chapters",data); },
   updateChapter(id, data){ return this.request("PATCH","chapters",data,"id=eq." + id); },
-  deleteChapter(id){ return this.request("DELETE","chapters",null,"id=eq." + id); }
+  deleteChapter(id){ return this.request("DELETE","chapters",null,"id=eq." + id); },
+  /* 账号（邮箱登录链接，Supabase Auth OTP） */
+  async sendOtp(email){
+    const cfg = getConfig();
+    const base = cfg.url.replace(/\/+$/,"");
+    /* redirect_to：点击邮件链接后跳回本站自动登录 */
+    const redirect = location.origin + location.pathname + "#/home";
+    const res = await fetch(base + "/auth/v1/otp?redirect_to=" + encodeURIComponent(redirect), {
+      method: "POST",
+      headers: { "apikey": cfg.key, "Content-Type": "application/json" },
+      body: JSON.stringify({ email, create_user: true })
+    });
+    if(!res.ok){
+      let msg = "登录链接发送失败";
+      try{ const j = await res.json(); msg = j.msg || j.error_description || msg; }catch(e){}
+      throw new Error(msg);
+    }
+    return res.json();
+  },
+  getOrCreateUser(email){ return this.request("POST","rpc/get_or_create_user",{p_email:email}); },
+  updatePenName(account, new_name){ return this.request("POST","rpc/update_pen_name",{p_account:account,p_new_name:new_name}); }
 };
 
 /* ============ 3. 本地状态 ============ */
 const Store = {
-  get authorKey(){
-    let k = localStorage.getItem("yc_author_key");
-    if(!k){
-      k = crypto.randomUUID ? crypto.randomUUID() : "k" + Date.now() + Math.random().toString(16).slice(2);
-      localStorage.setItem("yc_author_key", k);
-    }
-    return k;
+  /* 账号体系：登录后才有 authorKey；游客无 authorKey（只能浏览阅读） */
+  get auth(){
+    try{ return JSON.parse(localStorage.getItem("yc_auth") || "null"); }catch(e){ return null; }
   },
-  get penName(){ return localStorage.getItem("yc_pen_name") || ""; },
+  set auth(v){
+    if(v) localStorage.setItem("yc_auth", JSON.stringify(v));
+    else localStorage.removeItem("yc_auth");
+  },
+  get isLoggedIn(){ return !!(this.auth && this.auth.authorKey); },
+  get authorKey(){ return this.auth ? this.auth.authorKey : null; },
+  get username(){ return this.auth ? this.auth.username : ""; },
+  get penName(){ return localStorage.getItem("yc_pen_name") || (this.auth && this.auth.username ? this.auth.username : ""); },
   set penName(v){ localStorage.setItem("yc_pen_name", v); },
   get favorites(){ try{ return JSON.parse(localStorage.getItem("yc_favs") || "[]"); }catch(e){ return []; } },
   set favorites(v){ localStorage.setItem("yc_favs", JSON.stringify(v)); },
@@ -535,6 +625,172 @@ function emptyHtml(icon, text, btn){
     '<p>' + text + '</p>' + (btn||"") + '</div>';
 }
 
+/* ============ 账号系统（游客 / 账号模式） ============ */
+let authMode = "login"; /* login | register */
+
+function renderAuthArea(){
+  const area = $("#auth-area");
+  if(!area) return;
+  if(Store.isLoggedIn){
+    const u = Store.username;
+    area.innerHTML =
+      '<div class="user-area">' +
+        '<div class="user-wrap">' +
+          '<div class="user-badge" onclick="toggleUserMenu()">' +
+            '<span class="u-avatar">' + esc((u||"阅").slice(0,1)) + '</span>' +
+            '<span>' + esc(u) + '</span>' +
+          '</div>' +
+          '<div class="user-menu" id="user-menu">' +
+            '<a href="#/create" onclick="closeUserMenu()">我的作品</a>' +
+            '<a href="#/shelf" onclick="closeUserMenu()">我的书架</a>' +
+            '<button class="um-logout" onclick="logout()">退出登录</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  } else {
+    area.innerHTML =
+      '<button class="btn btn-ghost btn-sm" onclick="openAuthModal(\'login\')">登录 / 注册</button>';
+  }
+}
+
+function toggleUserMenu(){
+  const m = $("#user-menu");
+  if(m) m.classList.toggle("show");
+}
+function closeUserMenu(){
+  const m = $("#user-menu");
+  if(m) m.classList.remove("show");
+}
+
+function openAuthModal(mode){
+  authMode = mode || "login";
+  $("#auth-modal").classList.add("show");
+  switchAuthTab(authMode);
+  setTimeout(()=>{ const i = $("#auth-account"); if(i) i.focus(); }, 60);
+}
+function closeAuthModal(){
+  $("#auth-modal").classList.remove("show");
+}
+
+/* ============ 邮箱验证码登录 ============ */
+let otpCooldown = 0; /* 发送倒计时 */
+
+/* 只允许邮箱 */
+function validAccount(v){
+  v = v.trim();
+  return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(v);
+}
+
+/* 发送邮箱登录链接（60 秒内只能发一次，防刷） */
+async function sendEmailCode(){
+  const account = $("#auth-account").value.trim();
+  if(!account){ toast("请先输入邮箱", "err"); return; }
+  if(!validAccount(account)){ toast("请输入正确的邮箱", "err"); return; }
+  if(otpCooldown > 0){ toast("发送太频繁，请 " + otpCooldown + " 秒后再试", "err"); return; }
+  const btn = $("#auth-submit");
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "发送中…";
+  try{
+    /* 未注册的邮箱会自动创建账号 */
+    await API.sendOtp(account);
+    toast("登录链接已发送到邮箱，请查收并点击链接完成登录");
+    closeAuthModal();
+    /* 倒计时 60 秒（防止频繁发送） */
+    otpCooldown = 60;
+    const timer = setInterval(()=>{
+      otpCooldown--;
+      if(otpCooldown <= 0){
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    }, 1000);
+  }catch(err){
+    toast(err.message || "发送失败，请稍后再试", "err");
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+}
+
+/* 从 Supabase 登录链接跳回时，自动完成登录 */
+async function handleMagicLink(){
+  const h = location.hash || "";
+  if(!h || h.indexOf("access_token") < 0) return;
+  /* 解析 URL 片段里的令牌 */
+  const parts = h.replace(/^#/, "").split("&");
+  const params = {};
+  parts.forEach(p=>{ const i = p.indexOf("="); if(i > 0) params[p.slice(0,i)] = decodeURIComponent(p.slice(i+1)); });
+  const accessToken = params.access_token;
+  if(!accessToken) return;
+  /* 先清掉地址栏里的令牌，避免泄露 */
+  try{ history.replaceState(null, "", location.pathname + location.search); }
+  catch(e){ location.hash = "#/home"; }
+  try{
+    /* 用令牌换取邮箱 */
+    const cfg = getConfig();
+    const res = await fetch(cfg.url.replace(/\/+$/,"") + "/auth/v1/user", {
+      headers: { "apikey": cfg.key, "Authorization": "Bearer " + accessToken }
+    });
+    if(!res.ok) throw new Error("链接已失效，请重新发送");
+    const user = await res.json();
+    const email = (user && (user.email || (user.user && user.user.email))) || "";
+    if(!email) throw new Error("无法获取邮箱");
+    /* 获取或创建本站账号 */
+    const acc = await API.getOrCreateUser(email);
+    Store.auth = { account: email, username: acc.pen_name || email, authorKey: acc.author_key };
+    Store.penName = acc.pen_name || email;
+    renderAuthArea();
+    toast(acc.is_new ? "注册成功，欢迎加入阅川书城！" : "登录成功，欢迎回来！");
+    if(parseHash().path === "create") renderCreate();
+  }catch(err){
+    toast(err.message || "登录失败，请重新发送登录链接", "err");
+  }
+}
+
+function switchAuthTab(mode){
+  authMode = mode;
+  $("#tab-login").classList.toggle("active", mode === "login");
+  $("#tab-register").classList.toggle("active", mode === "register");
+  $("#auth-title").textContent = mode === "login" ? "登录" : "注册新账号";
+  $("#auth-submit").textContent = mode === "login" ? "发送登录链接" : "发送登录链接并注册";
+  $("#nick-field").style.display = mode === "register" ? "block" : "none";
+  $("#auth-hint").textContent = mode === "login"
+    ? "输入邮箱并发送登录链接，打开邮件点「Sign in」即完成登录；未注册的邮箱将自动创建账号"
+    : "注册即表示你同意作品内容由作者本人负责，本站不承担侵权责任";
+}
+
+function logout(){
+  Store.auth = null;
+  closeUserMenu();
+  renderAuthArea();
+  toast("已退出登录");
+  if(parseHash().path === "create") renderCreate();
+}
+
+/* 创作入口：游客先登录 */
+function gotoCreate(){
+  if(!Store.isLoggedIn){
+    openAuthModal("login");
+    toast("请先登录，登录后才能创作发布", "err");
+    return;
+  }
+  location.hash = "#/create";
+}
+
+document.addEventListener("click", e=>{
+  const menu = $("#user-menu");
+  if(menu && menu.classList.contains("show") && !e.target.closest(".user-wrap")){
+    menu.classList.remove("show");
+  }
+});
+document.addEventListener("keydown", e=>{
+  if(e.key === "Escape" && $("#auth-modal").classList.contains("show")) closeAuthModal();
+  if(e.key === "Enter" && $("#auth-modal").classList.contains("show") && document.activeElement && document.activeElement.id.startsWith("auth-")){
+    sendEmailCode();
+  }
+});
+
 function parseHash(){
   const raw = location.hash.replace(/^#\/?/, "");
   const [path, queryStr] = raw.split("?");
@@ -553,7 +809,7 @@ function renderHome(){
       '<h1>人人可写，人人可读<br>让每一部作品都被看见</h1>' +
       '<p>阅川书城是一个开放的小说创作与阅读空间。无论是灵感乍现的短篇，还是细水长流的长篇连载，都可以在这里安家。没有门槛，动笔即是作者。</p>' +
       '<div class="hero-actions">' +
-        '<button class="btn btn-light" onclick="location.hash=\'#/create\'">开始创作</button>' +
+        '<button class="btn btn-light" onclick="gotoCreate()">开始创作</button>' +
         '<button class="btn btn-ghost-dark" onclick="location.hash=\'#/library\'">逛书库</button>' +
       '</div>' +
     '</div>' +
@@ -577,7 +833,7 @@ function renderHome(){
   /* 热门榜（横排） */
   API.listWorks({sort:"views", limit:6}).then(works=>{
     if(!works || !works.length){
-      $("#sec-hot").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/><circle cx="14" cy="34" r="4"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="location.hash=\'#/create\'">开始创作</button>');
+      $("#sec-hot").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/><circle cx="14" cy="34" r="4"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
       return;
     }
     const items = works.map((w,i)=>
@@ -598,7 +854,7 @@ function renderHome(){
   /* 最新（卡片网格） */
   API.listWorks({sort:"created", limit:9}).then(works=>{
     if(!works || !works.length){
-      $("#sec-new").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="location.hash=\'#/create\'">开始创作</button>');
+      $("#sec-new").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
       return;
     }
     const grid = '<div class="book-grid">' + works.map(w=>
@@ -651,7 +907,7 @@ async function loadLibrary(cat, q, sort){
   try{
     const works = await API.listWorks({category:cat, q:q||undefined, sort:sort || "created", limit:60});
     if(!works || !works.length){
-      grid.innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/>', q ? "没有找到相关作品，换个关键词试试" : "这个分类还没有作品，来写第一部吧", '<button class="btn btn-accent" onclick="location.hash=\'#/create\'">开始创作</button>');
+      grid.innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/>', q ? "没有找到相关作品，换个关键词试试" : "这个分类还没有作品，来写第一部吧", '<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
       return;
     }
     grid.innerHTML = '<div class="book-grid">' + works.map(w=>
@@ -812,6 +1068,33 @@ function renderCreate(){
   const editId = parseHash().params.get("edit");
   if(editId) return renderChapterEditor(editId);
 
+  /* 游客模式：提示登录后才能创作 */
+  if(!Store.isLoggedIn){
+    app.innerHTML =
+    '<section class="page">' +
+      '<div class="page-title">创作中心</div>' +
+      '<p class="page-sub">写下你的故事，让全世界看到</p>' +
+      '<div class="create-hero">' +
+        '<h2>登录后开始创作</h2>' +
+        '<p>阅川书城支持两种模式：<b>游客模式</b>可以自由浏览和阅读全部作品；<b>账号模式</b>登录后即可创作、发布并管理自己的作品。</p>' +
+        '<div class="hero-actions" style="margin-top:20px">' +
+          '<button class="btn btn-primary" onclick="openAuthModal(\'login\')">登录</button>' +
+          '<button class="btn btn-accent" onclick="openAuthModal(\'register\')">注册新账号</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-card">' +
+        '<h3>账号模式的好处</h3>' +
+        '<div style="font-size:14px;color:var(--ink-soft);line-height:2.2">' +
+          '· 发布作品后所有人可见，永久保存在云端<br>' +
+          '· 随时管理自己的作品：写新章节、编辑、删除<br>' +
+          '· 笔名属于你的账号，作品归属清晰<br>' +
+          '· 换电脑登录同一账号，作品依然在' +
+        '</div>' +
+      '</div>' +
+    '</section>';
+    return;
+  }
+
   app.innerHTML =
   '<section class="page">' +
     '<div class="page-title">创作中心</div>' +
@@ -872,9 +1155,10 @@ async function publishWork(){
   const cat = $("#nw-cat").value;
   const status = $("#nw-status").value;
   const intro = $("#nw-intro").value.trim();
-  const author = $("#pen-input").value.trim() || Store.penName || "匿名作者";
+  const author = $("#pen-input").value.trim() || Store.penName || Store.username || "匿名作者";
 
   if(!title){ toast("请填写书名", "err"); return; }
+  if(!Store.isLoggedIn){ toast("请先登录再发布作品", "err"); openAuthModal("login"); return; }
 
   const btn = event.target;
   btn.disabled = true;
@@ -937,6 +1221,7 @@ async function deleteWork(id, title){
 
 /* ============ 章节编辑器 ============ */
 async function renderChapterEditor(workId){
+  if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); location.hash = "#/create"; return; }
   app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
   try{
     const [workArr, chapters] = await Promise.all([API.getWork(workId), API.listChapters(workId)]);
@@ -1177,6 +1462,9 @@ window.addEventListener("hashchange", route);
 
 /* 夜间模式恢复 */
 if(Store.night) document.body.classList.add("night");
+
+/* 从邮箱登录链接跳回时，自动完成登录 */
+handleMagicLink();
 
 /* 回车搜索 */
 document.addEventListener("keydown", e=>{
