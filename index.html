@@ -1163,11 +1163,22 @@ function renderCreate(){
   loadMyWorks();
 }
 
-function savePenName(){
+async function savePenName(){
   const v = $("#pen-input").value.trim();
   if(!v){ toast("笔名不能为空", "err"); return; }
-  Store.penName = v;
-  toast("笔名已保存：" + v);
+  if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+  const btn = $("#pen-input").nextElementSibling;
+  if(btn){ btn.disabled = true; btn.textContent = "保存中…"; }
+  try{
+    /* 先到数据库查重并保存，重名会直接报错 */
+    await API.updatePenName(Store.auth.account, v);
+    Store.penName = v;
+    toast("笔名已保存：" + v);
+  }catch(err){
+    toast(err.message || "笔名保存失败", "err");
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = "保存笔名"; }
+  }
 }
 
 async function publishWork(){
@@ -1183,6 +1194,11 @@ async function publishWork(){
   const btn = event.target;
   btn.disabled = true;
   try{
+    /* 发布前校验笔名唯一（输入框笔名与已保存的不同时，先查重保存） */
+    if(author !== Store.penName){
+      await API.updatePenName(Store.auth.account, author);
+      Store.penName = author;
+    }
     const theme = parseInt($$("#theme-pick .cat-chip.active")[0]?.dataset?.theme || "0", 10);
     const res = await API.createWork({
       title, author, category: catTag(cat), intro, status,
