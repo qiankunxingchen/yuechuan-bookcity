@@ -400,6 +400,66 @@ body.night .search-box{background:var(--card)}
 .setup-card code{background:var(--paper);border:1px solid var(--line);padding:2px 8px;border-radius:6px;font-size:13px;word-break:break-all}
 .setup-card .field{text-align:left}
 
+/* ============ 公告栏 ============ */
+.ann-list{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);border-radius:12px;padding:4px 16px;margin:0 0 22px}
+.ann-item{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.ann-item:last-child{border-bottom:none}
+.ann-badge{flex-shrink:0;background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;border-radius:20px;letter-spacing:.5px}
+.ann-title{font-weight:600;font-size:14px;color:var(--ink)}
+.ann-content{font-size:13px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ann-date{margin-left:auto;font-size:12px;color:var(--ink-faint);flex-shrink:0}
+
+/* ============ 封面图片 ============ */
+.book-cover.cover-img{overflow:hidden}
+.book-cover.cover-img img{width:100%;height:100%;object-fit:cover;display:block}
+.book-cover.cover-img.ct-0{background:linear-gradient(135deg,#2C6E5F,#146B5B)}
+
+/* ============ 评论区 ============ */
+.comment-box{margin-top:34px;padding-top:6px}
+.cmt-input-row{display:flex;gap:10px;align-items:flex-end;margin:14px 0 18px}
+.cmt-input-row textarea{flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;resize:vertical}
+.cmt-input-row textarea:focus{outline:none;border-color:var(--brand)}
+.cmt-item{padding:14px 2px;border-bottom:1px solid var(--line)}
+.cmt-item:last-child{border-bottom:none}
+.cmt-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.cmt-name{font-size:13px;font-weight:600;color:var(--brand);cursor:pointer}
+.cmt-name:hover{text-decoration:underline}
+.cmt-date{font-size:12px;color:var(--ink-faint)}
+.cmt-body{font-size:14px;color:var(--ink-soft);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.cmt-empty{text-align:center;color:var(--ink-faint);font-size:13px;padding:18px 0}
+.detail-author{font-weight:600;color:var(--brand);cursor:pointer}
+.detail-author:hover{text-decoration:underline}
+#like-btn.liked{color:#C0392B;border-color:#C0392B}
+
+/* ============ 聊天室 ============ */
+.chat-page{max-width:860px}
+.chat-shell{display:flex;flex-direction:column;height:calc(100vh - 260px);min-height:380px;border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden}
+.chat-list{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;background:var(--paper)}
+.chat-msg{max-width:78%;align-self:flex-start;background:var(--card);border:1px solid var(--line);border-radius:12px;border-top-left-radius:2px;padding:9px 13px}
+.chat-msg.mine{align-self:flex-end;background:#E4EFEA;border-color:#C9DFD6;border-top-left-radius:12px;border-top-right-radius:2px}
+.chat-name{font-size:12px;font-weight:600;color:var(--brand);cursor:pointer;margin-right:8px}
+.chat-name:hover{text-decoration:underline}
+.chat-time{font-size:11px;color:var(--ink-faint)}
+.chat-text{font-size:14px;color:var(--ink);margin-top:4px;line-height:1.6;word-break:break-word;white-space:pre-wrap}
+.chat-input-row{display:flex;gap:10px;padding:12px 14px;border-top:1px solid var(--line);background:var(--card)}
+.chat-input-row input{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink)}
+.chat-input-row input:focus{outline:none;border-color:var(--brand)}
+.chat-empty{text-align:center;color:var(--ink-faint);font-size:13px;padding:26px 0}
+
+/* ============ 用户主页 / 关注列表 ============ */
+.follow-list{display:flex;flex-direction:column;gap:8px}
+.follow-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;transition:border-color .2s}
+.follow-item:hover{border-color:var(--brand)}
+.fu-avatar{width:38px;height:38px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0}
+.fu-body{flex:1}
+.fu-name{font-size:14px;font-weight:600;color:var(--ink)}
+.fu-meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
+
+/* ============ 封面上传 ============ */
+.cover-upload{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cover-preview{width:88px;height:120px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.cover-preview img{width:100%;height:100%;object-fit:cover;display:block}
+
 /* ============ 响应式 ============ */
 @media (max-width:768px){
   .header-inner{padding:10px 14px;gap:10px;flex-wrap:wrap}
@@ -418,6 +478,9 @@ body.night .search-box{background:var(--card)}
   .chapter-content{font-size:17px}
   .reader-top{top:56px}
   .my-works{grid-template-columns:1fr}
+  .chat-shell{height:calc(100vh - 320px)}
+  .ann-content{display:none}
+  .chat-msg{max-width:92%}
 }
 @media (max-width:420px){
   .book-grid{grid-template-columns:repeat(3,1fr);gap:12px}
@@ -441,6 +504,7 @@ body.night .search-box{background:var(--card)}
     <nav class="main-nav">
       <a href="#/home" data-nav="home">首页</a>
       <a href="#/library" data-nav="library">书库</a>
+      <a href="#/chat" data-nav="chat">聊天室</a>
       <a href="#/create" data-nav="create">创作中心</a>
       <a href="#/shelf" data-nav="shelf">我的书架</a>
     </nav>
@@ -612,7 +676,33 @@ const API = {
   login(account, pwd){ return this.request("POST","rpc/login_user",{p_account:account,p_pwd:pwd}); },
   getSecurityQuestion(account){ return this.request("POST","rpc/get_security_question",{p_account:account}); },
   resetPassword(account, answer, new_pwd){ return this.request("POST","rpc/reset_password",{p_account:account,p_answer:answer,p_new_pwd:new_pwd}); },
-  updatePenName(account, pwd, new_name){ return this.request("POST","rpc/update_pen_name",{p_account:account,p_pwd:pwd,p_new_name:new_name}); }
+  updatePenName(account, pwd, new_name){ return this.request("POST","rpc/update_pen_name",{p_account:account,p_pwd:pwd,p_new_name:new_name}); },
+  /* 公告 */
+  listAnnouncements(limit=5){ return this.request("GET","announcements",null,"select=*&order=created_at.desc&limit=" + limit); },
+  createAnnouncement(title, content){ return this.request("POST","announcements",{title, content}); },
+  /* 评论 */
+  listComments(workId, limit=50){ return this.request("GET","comments",null,"select=*&work_id=eq." + workId + "&order=created_at.asc&limit=" + limit); },
+  createComment(authorKey, workId, content){ return this.request("POST","rpc/create_comment",{p_author_key:authorKey,p_work_id:workId,p_content:content}); },
+  /* 点赞 */
+  toggleLike(authorKey, workId){ return this.request("POST","rpc/toggle_like",{p_author_key:authorKey,p_work_id:workId}); },
+  getLikeCount(workId){
+    const cfg = getConfig();
+    return fetch(cfg.url.replace(/\/+$/,"") + "/rest/v1/likes?select=id&work_id=eq." + workId, {
+      headers: { "apikey": cfg.key, "Authorization": "Bearer " + cfg.key, "Prefer": "count=exact" }
+    }).then(res=>{
+      const range = res.headers.get("content-range") || "";
+      const m = range.match(/\/(\d+)$/);
+      return m ? parseInt(m[1], 10) : 0;
+    }).catch(()=>0);
+  },
+  getUserLikes(workId, account){ return this.request("GET","likes",null,"select=id&work_id=eq." + workId + "&account=eq." + encodeURIComponent(account)); },
+  /* 关注 */
+  toggleFollow(authorKey, target){ return this.request("POST","rpc/toggle_follow",{p_author_key:authorKey,p_target:target}); },
+  getUserProfile(penName){ return this.request("POST","rpc/get_user_profile",{p_pen_name:penName}); },
+  listFollowUsers(penName, type){ return this.request("POST","rpc/list_follow_users",{p_pen_name:penName,p_type:type}); },
+  /* 聊天室 */
+  listMessages(limit=100){ return this.request("GET","messages",null,"select=*&order=created_at.desc&limit=" + limit); },
+  sendMessage(authorKey, content){ return this.request("POST","rpc/send_message",{p_author_key:authorKey,p_content:content}); }
 };
 
 /* ============ 3. 本地状态 ============ */
@@ -645,9 +735,11 @@ const $ = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmtDate = s => { if(!s) return ""; const d = new Date(s); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); };
+const fmtTime = s => { if(!s) return ""; const d = new Date(s); return String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0") + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); };
 
 const CATEGORIES = ["玄幻","都市","言情","科幻","悬疑","历史","校园","其他"];
 function catTag(c){ return CATEGORIES.includes(c) ? c : "其他"; }
+let chosenCover = ""; /* 创建页待发布的封面 base64 */
 
 function toast(msg, type){
   const w = $("#toast-wrap");
@@ -659,6 +751,11 @@ function toast(msg, type){
 }
 
 function coverHtml(work, cls){
+  if(work && work.cover && work.cover.length > 20){
+    return '<div class="book-cover cover-img ' + (cls||"") + '">' +
+      '<img src="' + work.cover + '" alt="' + esc(work.title) + '" loading="lazy" onerror="this.parentNode.classList.add(\'ct-0\');this.remove()">' +
+      '</div>';
+  }
   const theme = (work.cover_theme ?? 0) % 8;
   return '<div class="book-cover ct-' + theme + ' ' + (cls||"") + '">' +
     '<div class="cover-title">' + esc(work.title) + '</div>' +
@@ -974,6 +1071,7 @@ const app = $("#app");
 function renderHome(){
   app.innerHTML =
   '<section class="page">' +
+    '<div id="announce-box"></div>' +
     '<div class="hero">' +
       '<div class="hero-kicker">YUE CHUAN BOOK CITY</div>' +
       '<h1>人人可写，人人可读<br>让每一部作品都被看见</h1>' +
@@ -981,6 +1079,7 @@ function renderHome(){
       '<div class="hero-actions">' +
         '<button class="btn btn-light" onclick="gotoCreate()">开始创作</button>' +
         '<button class="btn btn-ghost-dark" onclick="location.hash=\'#/library\'">逛书库</button>' +
+        '<button class="btn btn-ghost-dark" onclick="location.hash=\'#/chat\'">进聊天室</button>' +
       '</div>' +
     '</div>' +
 
@@ -999,6 +1098,9 @@ function renderHome(){
       loadingHtml() +
     '</div>' +
   '</section>';
+
+  /* 公告栏 */
+  loadAnnouncements();
 
   /* 热门榜（横排） */
   API.listWorks({sort:"views", limit:6}).then(works=>{
@@ -1037,6 +1139,25 @@ function renderHome(){
   }).catch(err=>{
     $("#sec-new").querySelector(".loading").outerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
   });
+}
+
+function loadAnnouncements(){
+  const box = $("#announce-box");
+  if(!box) return;
+  API.listAnnouncements(5).then(list=>{
+    if(!list || !list.length){
+      box.style.display = "none";
+      return;
+    }
+    const items = list.map(a =>
+      '<div class="ann-item">' +
+        '<span class="ann-badge">公告</span>' +
+        '<span class="ann-title">' + esc(a.title) + '</span>' +
+        (a.content ? '<span class="ann-content">' + esc(a.content) + '</span>' : "") +
+        '<span class="ann-date">' + fmtDate(a.created_at) + '</span>' +
+      '</div>').join("");
+    box.innerHTML = '<div class="ann-list">' + items + '</div>';
+  }).catch(()=>{ box.style.display = "none"; });
 }
 
 function renderLibrary(){
@@ -1096,12 +1217,19 @@ function renderBook(){
   if(!id){ location.hash = "#/library"; return; }
   app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
 
-  Promise.all([API.getWork(id), API.listChapters(id)]).then(([workArr, chapters])=>{
+  Promise.all([API.getWork(id), API.listChapters(id)]).then(async ([workArr, chapters])=>{
     const work = workArr && workArr[0];
     if(!work){ app.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "作品不存在或已被删除", '<button class="btn btn-ghost" onclick="location.hash=\'#/library\'">返回书库</button>'); return; }
 
     /* 阅读量 +1 */
     API.addViews(id, work.views || 0).catch(()=>{});
+
+    /* 点赞数 / 我是否点过赞 / 评论列表 并行拉取 */
+    const [likeCount, myLike, comments] = await Promise.all([
+      API.getLikeCount(id),
+      Store.isLoggedIn ? API.getUserLikes(id, Store.auth.account).then(a=>!!(a && a.length)).catch(()=>false) : Promise.resolve(false),
+      API.listComments(id).catch(()=>[])
+    ]);
 
     const isMine = work.author_key === Store.authorKey;
     const favs = Store.favorites;
@@ -1121,6 +1249,15 @@ function renderBook(){
       ).join("");
     }
 
+    const commentHtml = comments && comments.length
+      ? comments.map(c =>
+        '<div class="cmt-item">' +
+          '<div class="cmt-head"><span class="cmt-name" onclick="location.hash=\'#/user?name=' + encodeURIComponent(c.pen_name) + '\'">' + esc(c.pen_name) + '</span>' +
+          '<span class="cmt-date">' + fmtTime(c.created_at) + '</span></div>' +
+          '<div class="cmt-body">' + esc(c.content) + '</div>' +
+        '</div>').join("")
+      : '<div class="cmt-empty">还没有评论，来说两句吧～</div>';
+
     app.innerHTML =
     '<section class="page">' +
       '<div class="detail-top">' +
@@ -1132,14 +1269,16 @@ function renderBook(){
             '<span class="tag tag-amber">' + esc(work.status) + '</span>' +
           '</div>' +
           '<div class="detail-stats">' +
-            '<span>' + esc(work.author) + '</span>' +
+            '<a class="detail-author" href="#/user?name=' + encodeURIComponent(work.author) + '">' + esc(work.author) + '</a>' +
             '<span>' + (work.views||0) + ' 阅读</span>' +
             '<span>' + chs.length + ' 章</span>' +
+            '<span>' + (likeCount||0) + ' 点赞</span>' +
             '<span>' + fmtDate(work.created_at) + ' 发布</span>' +
           '</div>' +
           '<div class="detail-actions">' +
             '<button class="btn btn-primary" onclick="' + (chs.length ? "location.hash=\'#/read?id=" + id + "&ch=" + (last && last.ch !== undefined ? last.ch : 0) + "\'" : "toast(\'这本书还没有章节，等作者更新吧\')") + '">' + (chs.length ? "开始阅读" : "暂无章节") + '</button>' +
             '<button class="btn btn-ghost" id="fav-btn" onclick="toggleFav(\'' + id + '\')">' + (isFav ? "已加入书架" : "加入书架") + '</button>' +
+            '<button class="btn btn-ghost" id="like-btn" onclick="toggleLike(\'' + id + '\')">' + (myLike ? "♥ 已赞" : "♡ 点赞") + ' <span id="like-count">' + (likeCount||0) + '</span></button>' +
             (isMine ? '<button class="btn btn-accent" onclick="location.hash=\'#/create?edit=' + id + '\'">管理作品</button>' : "") +
           '</div>' +
         '</div>' +
@@ -1149,10 +1288,70 @@ function renderBook(){
         '<div class="chapter-list-head"><span>目录 · 共 ' + chs.length + ' 章</span>' + (isMine ? '<button class="btn btn-accent btn-sm" onclick="location.hash=\'#/create?edit=' + id + '\'">写新章节</button>' : "") + '</div>' +
         chapterHtml +
       '</div>' +
+      '<div class="comment-box">' +
+        '<div class="section-head"><h2 class="section-title">评论区 · ' + ((comments && comments.length) || 0) + '</h2></div>' +
+        '<div class="cmt-input-row">' +
+          '<textarea id="cmt-input" maxlength="500" rows="2" placeholder="' + (Store.isLoggedIn ? "写下你的评论…" : "登录后才能评论") + '"></textarea>' +
+          '<button class="btn btn-primary btn-sm" onclick="sendComment(\'' + id + '\')">发表评论</button>' +
+        '</div>' +
+        '<div class="cmt-list" id="cmt-list">' + commentHtml + '</div>' +
+      '</div>' +
     '</section>';
   }).catch(err=>{
     app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message), '<button class="btn btn-ghost" onclick="location.hash=\'#/library\'">返回书库</button>') + '</section>';
   });
+}
+
+/* 点赞切换（需登录） */
+async function toggleLike(workId){
+  if(!Store.isLoggedIn){ toast("请先登录，登录后才能点赞", "err"); openAuthModal("login"); return; }
+  const btn = $("#like-btn");
+  if(btn) btn.disabled = true;
+  try{
+    const res = await API.toggleLike(Store.authorKey, workId);
+    const liked = !!(res && res.liked);
+    const count = await API.getLikeCount(workId);
+    if(btn){
+      btn.disabled = false;
+      btn.innerHTML = (liked ? "♥ 已赞" : "♡ 点赞") + ' <span id="like-count">' + (count||0) + '</span>';
+      btn.classList.toggle("liked", liked);
+    }
+    toast(liked ? "点赞成功" : "已取消点赞");
+  }catch(err){
+    if(btn) btn.disabled = false;
+    toast(err.message || "操作失败", "err");
+  }
+}
+
+/* 发表评论（需登录） */
+async function sendComment(workId){
+  if(!Store.isLoggedIn){ toast("请先登录，登录后才能评论", "err"); openAuthModal("login"); return; }
+  const input = $("#cmt-input");
+  const content = (input ? input.value : "").trim();
+  if(!content){ toast("评论内容不能为空", "err"); return; }
+  const btn = input && input.nextElementSibling;
+  if(btn) btn.disabled = true;
+  try{
+    await API.createComment(Store.authorKey, workId, content);
+    toast("评论已发布");
+    if(input) input.value = "";
+    const comments = await API.listComments(workId);
+    const list = $("#cmt-list");
+    if(list){
+      list.innerHTML = comments && comments.length
+        ? comments.map(c =>
+          '<div class="cmt-item">' +
+            '<div class="cmt-head"><span class="cmt-name" onclick="location.hash=\'#/user?name=' + encodeURIComponent(c.pen_name) + '\'">' + esc(c.pen_name) + '</span>' +
+            '<span class="cmt-date">' + fmtTime(c.created_at) + '</span></div>' +
+            '<div class="cmt-body">' + esc(c.content) + '</div>' +
+          '</div>').join("")
+        : '<div class="cmt-empty">还没有评论，来说两句吧～</div>';
+    }
+  }catch(err){
+    toast(err.message || "评论失败", "err");
+  }finally{
+    if(btn) btn.disabled = false;
+  }
 }
 
 function renderReader(){
@@ -1291,6 +1490,15 @@ function renderCreate(){
       '<div class="field"><label>封面配色</label><div class="cat-chips" id="theme-pick" style="margin:0">' +
         [0,1,2,3,4,5,6,7].map(i => '<button type="button" class="cat-chip theme-swatch ts-' + i + (i===0?" active":"") + '" data-theme="' + i + '" title="主题 ' + (i+1) + '"></button>').join("") +
       '</div></div>' +
+      '<div class="field"><label>封面图片（可选，上传后覆盖配色封面）</label>' +
+        '<div class="cover-upload">' +
+          '<input type="file" id="nw-cover" accept="image/*" style="display:none">' +
+          '<button type="button" class="btn btn-ghost" onclick="document.getElementById(\'nw-cover\').click()">选择图片</button>' +
+          '<div class="cover-preview" id="cover-preview" style="display:none"></div>' +
+          '<button type="button" class="btn btn-ghost btn-sm" id="cover-clear" style="display:none" onclick="clearCover()">移除图片</button>' +
+        '</div>' +
+        '<div class="hint">建议横版或竖版图片，上传后自动压缩保存</div>' +
+      '</div>' +
       '<button class="btn btn-primary" onclick="publishWork()">发布作品</button>' +
     '</div>' +
 
@@ -1301,6 +1509,7 @@ function renderCreate(){
   '</section>';
 
   let chosenTheme = 0;
+  chosenCover = ""; /* 全局：本次待发布的封面 base64 */
   $("#theme-pick").addEventListener("click", e=>{
     const chip = e.target.closest("[data-theme]");
     if(!chip) return;
@@ -1309,8 +1518,52 @@ function renderCreate(){
     chip.classList.add("active");
   });
 
+  const coverInput = $("#nw-cover");
+  if(coverInput){
+    coverInput.addEventListener("change", ()=>{
+      const file = coverInput.files && coverInput.files[0];
+      if(!file) return;
+      if(!/^image\//.test(file.type)){ toast("请选择图片文件", "err"); return; }
+      if(file.size > 8*1024*1024){ toast("图片太大，请选 8MB 以内的图片", "err"); return; }
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        const img = new Image();
+        img.onload = ()=>{
+          /* 压缩：最长边 400px，JPEG 0.72 质量 */
+          const MAX = 400;
+          let w = img.width, h = img.height;
+          const scale = Math.min(1, MAX / Math.max(w, h));
+          w = Math.round(w * scale); h = Math.round(h * scale);
+          const canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#F5F0E4";
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          chosenCover = canvas.toDataURL("image/jpeg", 0.72);
+          const preview = $("#cover-preview");
+          const clear = $("#cover-clear");
+          if(preview){ preview.style.display = "block"; preview.innerHTML = '<img src="' + chosenCover + '" alt="封面预览">'; }
+          if(clear) clear.style.display = "inline-block";
+          toast("封面已就绪");
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   $("#nw-cat").value = "玄幻";
   loadMyWorks();
+}
+
+function clearCover(){
+  const input = $("#nw-cover");
+  if(input) input.value = "";
+  const preview = $("#cover-preview");
+  if(preview){ preview.style.display = "none"; preview.innerHTML = ""; }
+  const clear = $("#cover-clear");
+  if(clear) clear.style.display = "none";
 }
 
 async function savePenName(){
@@ -1354,8 +1607,10 @@ async function publishWork(){
     const theme = parseInt($$("#theme-pick .cat-chip.active")[0]?.dataset?.theme || "0", 10);
     const res = await API.createWork({
       title, author, category: catTag(cat), intro, status,
-      cover_theme: theme, views: 0, author_key: Store.authorKey
+      cover_theme: theme, views: 0, author_key: Store.authorKey,
+      cover: chosenCover || null
     });
+    chosenCover = "";
     Store.penName = author;
     toast("《" + title + "》发布成功！现在可以写章节了");
     if(res && res[0]){
@@ -1581,6 +1836,171 @@ function toggleFav(id){
   if(btn) btn.textContent = favs.includes(id) ? "已加入书架" : "加入书架";
 }
 
+/* ============ 聊天室 ============ */
+let chatTimer = null;
+function renderChat(){
+  if(chatTimer) clearInterval(chatTimer);
+  app.innerHTML =
+  '<section class="page chat-page">' +
+    '<div class="page-title">聊天室</div>' +
+    '<p class="page-sub">' + (Store.isLoggedIn ? '以 <b>' + esc(Store.penName) + '</b> 的身份和大家聊天' : '登录后即可发言，游客只能围观') + '</p>' +
+    '<div class="chat-shell">' +
+      '<div class="chat-list" id="chat-list">' + loadingHtml() + '</div>' +
+      '<div class="chat-input-row">' +
+        '<input id="chat-input" maxlength="200" placeholder="' + (Store.isLoggedIn ? "说点什么…（回车发送）" : "登录后才能发言") + '"' + (Store.isLoggedIn ? "" : " disabled") + '>' +
+        '<button class="btn btn-primary btn-sm" id="chat-send" onclick="sendChat()"' + (Store.isLoggedIn ? "" : " disabled") + '>发送</button>' +
+      '</div>' +
+    '</div>' +
+  '</section>';
+
+  loadChatMessages();
+  /* 每 5 秒自动刷新 */
+  chatTimer = setInterval(loadChatMessages, 5000);
+}
+
+async function loadChatMessages(){
+  const list = $("#chat-list");
+  if(!list) return;
+  try{
+    const msgs = await API.listMessages(100);
+    if(!msgs || !msgs.length){
+      if(list.querySelector(".loading")) list.innerHTML = '<div class="chat-empty">还没有消息，来聊第一句吧～</div>';
+      return;
+    }
+    const html = msgs.slice().reverse().map(m =>
+      '<div class="chat-msg' + (Store.isLoggedIn && m.account === Store.auth.account ? " mine" : "") + '">' +
+        '<span class="chat-name" onclick="location.hash=\'#/user?name=' + encodeURIComponent(m.pen_name) + '\'">' + esc(m.pen_name) + '</span>' +
+        '<span class="chat-time">' + fmtTime(m.created_at) + '</span>' +
+        '<div class="chat-text">' + esc(m.content) + '</div>' +
+      '</div>').join("");
+    list.innerHTML = html;
+    list.scrollTop = list.scrollHeight;
+  }catch(err){
+    if(list.querySelector(".loading")) list.innerHTML = '<div class="chat-empty">加载失败：' + esc(err.message) + '</div>';
+  }
+}
+
+async function sendChat(){
+  if(!Store.isLoggedIn){ toast("请先登录，登录后才能发言", "err"); openAuthModal("login"); return; }
+  const input = $("#chat-input");
+  const content = (input ? input.value : "").trim();
+  if(!content){ toast("消息不能为空", "err"); return; }
+  const btn = $("#chat-send");
+  if(btn) btn.disabled = true;
+  try{
+    await API.sendMessage(Store.authorKey, content);
+    if(input) input.value = "";
+    await loadChatMessages();
+  }catch(err){
+    toast(err.message || "发送失败", "err");
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+
+/* ============ 用户主页 ============ */
+function renderUserPage(){
+  const name = parseHash().params.get("name") || "";
+  if(!name){ location.hash = "#/home"; return; }
+  app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
+
+  API.getUserProfile(name).then(async profile=>{
+    const works = await API.listWorks({q:name}).catch(()=>[]);
+    const mine = !!profile.works_count;
+    /* 我的关注状态 */
+    let following = false;
+    if(Store.isLoggedIn && Store.auth.account !== profile.account){
+      const f = await API.request("GET","follows",null,"select=id&follower=eq." + encodeURIComponent(Store.auth.account) + "&following=eq." + encodeURIComponent(profile.account)).catch(()=>[]);
+      following = !!(f && f.length);
+    }
+    const isMe = Store.isLoggedIn && Store.auth.account === profile.account;
+    const myWorks = works.filter(w=>w.author === profile.pen_name);
+
+    app.innerHTML =
+    '<section class="page">' +
+      '<div class="me-card">' +
+        '<div class="me-avatar">' + esc((profile.pen_name || "阅").slice(0,1).toUpperCase()) + '</div>' +
+        '<div class="me-name">' + esc(profile.pen_name) + '</div>' +
+        '<div class="me-email">' + (isMe ? esc(profile.account) : "阅川书城作者") + '</div>' +
+        '<div class="me-stats">' +
+          '<div class="me-stat" style="cursor:pointer" onclick="showFollowTab(\'following\')"><b>' + (profile.following_count||0) + '</b><span>关注</span></div>' +
+          '<div class="me-stat" style="cursor:pointer" onclick="showFollowTab(\'follower\')"><b>' + (profile.follower_count||0) + '</b><span>粉丝</span></div>' +
+          '<div class="me-stat"><b>' + (profile.works_count||0) + '</b><span>作品</span></div>' +
+        '</div>' +
+        (isMe
+          ? '<div class="me-actions"><button class="btn btn-primary" onclick="location.hash=\'#/create\'">开始创作</button><button class="btn btn-ghost" onclick="location.hash=\'#/me\'">我的主页</button></div>'
+          : '<div class="me-actions"><button class="btn ' + (following ? "btn-ghost" : "btn-primary") + '" id="follow-btn" onclick="toggleFollow(\'' + encodeURIComponent(profile.account) + '\')">' + (following ? "已关注" : "+ 关注") + '</button></div>') +
+      '</div>' +
+      '<div class="section">' +
+        '<div class="section-head"><h2 class="section-title">' + esc(profile.pen_name) + ' 的作品</h2></div>' +
+        '<div class="book-grid" id="user-works">' +
+          (myWorks.length ? myWorks.map(w=>
+            '<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+              coverHtml(w) +
+              '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
+              '<div class="b-meta">' + esc(w.category) + ' · ' + (w.views||0) + ' 阅读</div></div></div>'
+          ).join("") : emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "还没有发布作品")) +
+        '</div>' +
+      '</div>' +
+      '<div class="section" id="follow-section" style="display:none">' +
+        '<div class="section-head"><h2 class="section-title" id="follow-title">关注</h2></div>' +
+        '<div id="follow-list">' + loadingHtml() + '</div>' +
+      '</div>' +
+    '</section>';
+  }).catch(err=>{
+    app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', err.message || "用户不存在", '<button class="btn btn-ghost" onclick="location.hash=\'#/home\'">返回首页</button>') + '</section>';
+  });
+}
+
+/* 关注/粉丝列表 */
+async function showFollowTab(type){
+  const name = parseHash().params.get("name") || "";
+  const sec = $("#follow-section");
+  const title = $("#follow-title");
+  const list = $("#follow-list");
+  if(!sec || !list) return;
+  sec.style.display = "block";
+  title.textContent = type === "following" ? "TA 的关注" : "TA 的粉丝";
+  list.innerHTML = loadingHtml();
+  try{
+    const users = await API.listFollowUsers(name, type);
+    if(!users || !users.length){
+      list.innerHTML = '<div class="cmt-empty">还没有人</div>';
+      return;
+    }
+    list.innerHTML = '<div class="follow-list">' + users.map(u=>
+      '<div class="follow-item" onclick="location.hash=\'#/user?name=' + encodeURIComponent(u.pen_name) + '\'">' +
+        '<div class="fu-avatar">' + esc((u.pen_name||"阅").slice(0,1).toUpperCase()) + '</div>' +
+        '<div class="fu-body"><div class="fu-name">' + esc(u.pen_name) + '</div>' +
+        '<div class="fu-meta">' + (u.works_count||0) + ' 部作品</div></div>' +
+      '</div>').join("") + '</div>';
+  }catch(err){
+    list.innerHTML = '<div class="cmt-empty">加载失败：' + esc(err.message) + '</div>';
+  }
+}
+
+/* 关注/取关切换（需登录） */
+async function toggleFollow(targetAccount){
+  if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+  const target = decodeURIComponent(targetAccount);
+  const btn = $("#follow-btn");
+  if(btn) btn.disabled = true;
+  try{
+    const res = await API.toggleFollow(Store.authorKey, target);
+    const followed = !!(res && res.followed);
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = followed ? "已关注" : "+ 关注";
+      btn.classList.toggle("btn-ghost", followed);
+      btn.classList.toggle("btn-primary", !followed);
+    }
+    toast(followed ? "关注成功" : "已取消关注");
+  }catch(err){
+    if(btn) btn.disabled = false;
+    toast(err.message || "操作失败", "err");
+  }
+}
+
 /* ============ 我的（个人中心） ============ */
 function renderMe(){
   /* 未登录：提示先登录 */
@@ -1614,11 +2034,22 @@ function renderMe(){
       '<div class="me-stats">' +
         '<div class="me-stat"><b id="me-works-count">0</b><span>我的作品</span></div>' +
         '<div class="me-stat"><b>' + favCount + '</b><span>书架收藏</span></div>' +
+        '<div class="me-stat" style="cursor:pointer" onclick="location.hash=\'#/user?name=' + encodeURIComponent(Store.penName) + '\'"><b id="me-following-count">0</b><span>关注</span></div>' +
+        '<div class="me-stat" style="cursor:pointer" onclick="location.hash=\'#/user?name=' + encodeURIComponent(Store.penName) + '\'"><b id="me-follower-count">0</b><span>粉丝</span></div>' +
       '</div>' +
       '<div class="me-actions">' +
         '<button class="btn btn-primary" onclick="location.hash=\'#/create\'">开始创作</button>' +
         '<button class="btn btn-ghost" onclick="location.hash=\'#/shelf\'">我的书架</button>' +
+        '<button class="btn btn-ghost" onclick="location.hash=\'#/user?name=' + encodeURIComponent(Store.penName) + '\'">我的主页</button>' +
         '<button class="btn btn-danger" onclick="logout()">退出登录</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="section" id="owner-panel" style="display:none">' +
+      '<div class="section-head"><h2 class="section-title">站长公告</h2></div>' +
+      '<div class="form-card">' +
+        '<div class="field"><label>公告标题</label><input id="ann-title" maxlength="30" placeholder="公告标题"></div>' +
+        '<div class="field"><label>公告内容</label><textarea id="ann-content" maxlength="200" rows="2" placeholder="公告内容（选填）"></textarea></div>' +
+        '<button class="btn btn-primary" onclick="publishAnnouncement()">发布公告</button>' +
       '</div>' +
     '</div>' +
     '<div class="section">' +
@@ -1629,6 +2060,39 @@ function renderMe(){
 
   /* 拉取我的作品 */
   loadMyWorksInto("#me-works", "#me-works-count");
+
+  /* 关注/粉丝数 + 站长面板 */
+  API.getUserProfile(Store.penName).then(p=>{
+    const fc = $("#me-following-count");
+    const fr = $("#me-follower-count");
+    if(fc) fc.textContent = p.following_count || 0;
+    if(fr) fr.textContent = p.follower_count || 0;
+  }).catch(()=>{});
+
+  const ownerEmail = localStorage.getItem("yc_owner") || "";
+  const panel = $("#owner-panel");
+  if(panel && ownerEmail && Store.auth.account === ownerEmail){
+    panel.style.display = "block";
+  }
+}
+
+/* 站长发布公告 */
+async function publishAnnouncement(){
+  const title = $("#ann-title").value.trim();
+  const content = $("#ann-content").value.trim();
+  if(!title){ toast("请填写公告标题", "err"); return; }
+  const btn = event.target;
+  btn.disabled = true;
+  try{
+    await API.createAnnouncement(title, content);
+    toast("公告已发布，首页可见");
+    $("#ann-title").value = "";
+    $("#ann-content").value = "";
+  }catch(err){
+    toast(err.message || "发布失败", "err");
+  }finally{
+    btn.disabled = false;
+  }
 }
 
 /* 复用 loadMyWorks 的查询逻辑，把结果渲染到指定容器 */
@@ -1678,6 +2142,7 @@ function renderSetup(){
     '</div>' +
     '<div class="field"><label>Supabase 项目地址（Project URL）</label><input id="setup-url" placeholder="https://xxxx.supabase.co"></div>' +
     '<div class="field"><label>anon public key</label><textarea id="setup-key" rows="3" placeholder="eyJhbGciOiJIUzI1NiIs…"></textarea></div>' +
+    '<div class="field"><label>站长邮箱（可选，用于发布公告，填你的注册邮箱）</label><input id="setup-owner" maxlength="50" placeholder="name@example.com"></div>' +
     '<button class="btn btn-primary" onclick="saveSetup()">保存并进入书城</button>' +
   '</div></section>';
 }
@@ -1688,6 +2153,8 @@ function saveSetup(){
   if(!url || !key){ toast("请完整填写两项配置", "err"); return; }
   localStorage.setItem("yc_sb_url", url);
   localStorage.setItem("yc_sb_key", key);
+  const owner = $("#setup-owner").value.trim();
+  if(owner) localStorage.setItem("yc_owner", owner);
   toast("配置已保存，正在进入书城");
   location.hash = "#/home";
 }
@@ -1721,8 +2188,12 @@ async function route(){
     case "create": renderCreate(); break;
     case "shelf": renderShelf(); break;
     case "me": renderMe(); break;
+    case "chat": renderChat(); break;
+    case "user": renderUserPage(); break;
     default: renderHome();
   }
+  /* 离开聊天室时停止轮询 */
+  if(path !== "chat" && chatTimer){ clearInterval(chatTimer); chatTimer = null; }
   window.scrollTo({top:0});
 }
 
