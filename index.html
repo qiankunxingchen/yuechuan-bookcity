@@ -832,56 +832,33 @@ function closeAuthModal(){
   $("#auth-modal").classList.remove("show");
 }
 
-/* ============ 图形验证码 ============ */
-let captchaCode = "";
-const CAPTCHA_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; /* 去掉易混淆的 0/O/1/I */
+/* ============ 算术验证码（简单版） ============ */
+let captchaAnswer = 0;
 function drawCaptcha(canvasId){
+  /* 生成随机加法题 1~9 + 1~9 */
+  const a = 1 + Math.floor(Math.random()*9);
+  const b = 1 + Math.floor(Math.random()*9);
+  captchaAnswer = a + b;
+  /* 把题目显示在 canvas 位置（用文字覆盖） */
   const canvas = $("#" + (canvasId || "captcha-canvas"));
-  if(!canvas) return;
-  const ctx = canvas.getContext("2d");
-  /* 随机 4 位字符 */
-  let code = "";
-  for(let i=0;i<4;i++) code += CAPTCHA_CHARS[Math.floor(Math.random()*CAPTCHA_CHARS.length)];
-  captchaCode = code;
-  /* 背景 */
-  ctx.fillStyle = "#F0E9D8";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  /* 干扰线 */
-  for(let i=0;i<4;i++){
-    ctx.strokeStyle = "rgba(20,107,91," + (0.2 + Math.random()*0.3) + ")";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(Math.random()*canvas.width, Math.random()*canvas.height);
-    ctx.lineTo(Math.random()*canvas.width, Math.random()*canvas.height);
-    ctx.stroke();
-  }
-  /* 干扰点 */
-  for(let i=0;i<30;i++){
-    ctx.fillStyle = "rgba(201,138,45," + (0.2 + Math.random()*0.4) + ")";
-    ctx.beginPath();
-    ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, 1, 0, Math.PI*2);
-    ctx.fill();
-  }
-  /* 字符 */
-  const colors = ["#0D4F43","#8A4A2B","#3B2E58","#23465A","#5A2438"];
-  for(let i=0;i<code.length;i++){
-    ctx.font = "bold " + (22 + Math.floor(Math.random()*5)) + "px 'Noto Sans SC', sans-serif";
-    ctx.fillStyle = colors[Math.floor(Math.random()*colors.length)];
-    ctx.save();
-    ctx.translate(16 + i*24, 29);
-    ctx.rotate((Math.random()-0.5)*0.5);
-    ctx.fillText(code[i], 0, 0);
-    ctx.restore();
+  if(canvas){
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#F0E9D8";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "#146B5B";
+    ctx.font = "bold 20px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(a + " + " + b + " = ?", canvas.width/2, canvas.height/2);
   }
 }
 
 function checkCaptcha(inputId){
   const input = $("#" + (inputId || "auth-captcha"));
-  const c = (input ? input.value : "").trim().toUpperCase();
+  const c = (input ? input.value : "").trim();
   if(!c){ toast("请输入验证码", "err"); return false; }
-  if(c !== captchaCode){
-    toast("验证码错误，已换一张", "err");
-    /* 根据输入框找对应的 canvas */
+  if(parseInt(c, 10) !== captchaAnswer){
+    toast("算错了，再试一次", "err");
     const canvasId = (inputId === "f-captcha") ? "f-captcha-canvas" : "captcha-canvas";
     drawCaptcha(canvasId);
     if(input) input.value = "";
