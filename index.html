@@ -720,7 +720,8 @@ const API = {
   tipSummary(authorKey){ return this.request("POST","rpc/tip_summary",{p_author_key:authorKey}); },
   listTipsReceived(authorKey, limit){ return this.request("POST","rpc/list_tips_received",{p_author_key:authorKey,p_limit:limit||50}); },
   applyContract(authorKey, workId, penName, workTitle, reason){ return this.request("POST","rpc/apply_contract",{p_author_key:authorKey,p_work_id:workId,p_pen_name:penName,p_work_title:workTitle,p_reason:reason}); },
-  updatePenName(account, pwd, newName){ return this.request("POST","rpc/update_pen_name",{p_account:account,p_pwd:pwd,p_new_name:newName}); }
+  updatePenName(account, pwd, newName){ return this.request("POST","rpc/update_pen_name",{p_account:account,p_pwd:pwd,p_new_name:newName}); },
+  updateAvatar(account, url){ return this.request("POST","rpc/update_avatar",{p_account:account,p_avatar_url:url}); }
 };
 
 /* ============ 3. 本地状态 ============ */
@@ -968,6 +969,7 @@ async function submitAuth(){
       const res = await API.loginWithPwd(email, pwd);
       Store.auth = { account: email, username: res.pen_name || email, authorKey: res.author_key };
       Store.penName = res.pen_name || email;
+      Store.avatar = res.avatar_url || "";
       toast("登录成功，欢迎回来！");
       closeAuthModal();
       renderAuthArea();
@@ -2092,12 +2094,17 @@ function renderMe(){
   const u = Store.username || "读者";
   const email = (Store.auth && Store.auth.account) || "";
   const favCount = Store.favorites.length;
+  const avatarUrl = Store.avatar || "";
   const initial = (u || "阅").slice(0,1).toUpperCase();
 
   app.innerHTML =
   '<section class="page">' +
     '<div class="me-card">' +
-      '<div class="me-avatar">' + esc(initial) + '</div>' +
+      '<div class="me-avatar" onclick="document.getElementById(\'avatar-input\').click()" style="cursor:pointer;position:relative" title="点击上传头像">' +
+        (avatarUrl ? '<img src="' + esc(avatarUrl) + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="头像">' : esc(initial)) +
+        '<div style="position:absolute;bottom:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:8px">上传</div>' +
+      '</div>' +
+      '<input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">' +
       '<div class="me-name">' + esc(u) + '</div>' +
       '<div class="me-email">' + esc(email) + '</div>' +
       '<div class="me-stats">' +
@@ -2477,6 +2484,50 @@ function openContractModal(){
       btn.disabled = false; btn.textContent = "提交申请";
     }
   };
+}
+
+/* ============ 头像上传 ============ */
+async function uploadAvatar(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){ toast("图片不能超过 2MB", "err"); return; }
+  toast("上传中…");
+  try{
+    /* 先压缩图片到 200x200 */
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; });
+    const canvas = document.createElement("canvas");
+    canvas.width = 200; canvas.height = 200;
+    const ctx = canvas.getContext("2d");
+    /* 居中裁剪 */
+    const scale = Math.max(200/img.width, 200/img.height);
+    const w = img.width*scale, h = img.height*scale;
+    ctx.drawImage(img, (200-w)/2, (200-h)/2, w, h);
+    const blob = await new Promise(res=>canvas.toBlob(res, "image/jpeg", 0.85));
+    /* 上传到 Supabase Storage */
+    const ext = "jpg";
+    const path = "avatars/" + Store.authorKey + "." + ext;
+    const upRes = await fetch(SUPABASE_URL + "/storage/v1/object/avatars/" + path, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_ANON,
+        "Authorization": "Bearer " + SUPABASE_ANON,
+        "Content-Type": "image/jpeg",
+        "x-upsert": "true"
+      },
+      body: blob
+    });
+    if(!upRes.ok) throw new Error("上传失败: " + upRes.status);
+    const url = SUPABASE_URL + "/storage/v1/object/public/avatars/" + path;
+    /* 存到数据库 */
+    await API.updateAvatar(Store.auth.account, url);
+    Store.avatar = url;
+    toast("头像已更新！");
+    renderMe();
+  }catch(e){
+    toast(e.message || "上传失败", "err");
+  }
 }
 
 route();
