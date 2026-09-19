@@ -509,7 +509,8 @@ body.night .search-box{background:var(--card)}
       <a href="#/rank" data-nav="rank">原创榜</a>
       <a href="#/chat" data-nav="chat">聊天室</a>
       <a href="#/author" data-nav="author">作家专区</a>
-      <a href="#/copyright" data-nav="copyright">版权专区</a>
+      <a href="#/download" data-nav="download">下载App</a>
+      <a href="#/me" data-nav="me">个人主页</a>
     </nav>
     <div class="header-actions">
       <div class="search-box">
@@ -520,6 +521,7 @@ body.night .search-box{background:var(--card)}
         </button>
       </div>
       <div id="auth-area"><!-- 登录按钮 / 用户菜单由 JS 渲染 --></div>
+      <button class="btn btn-ghost btn-sm" onclick="toggleFullScreen()" title="全屏 (F11)">⛶</button>
       <button class="btn btn-accent btn-sm" onclick="gotoCreate()">写小说</button>
     </div>
   </div>
@@ -2268,6 +2270,7 @@ async function route(){
     case "rank": renderRank(); break;
     case "author": renderAuthorZone(); break;
     case "copyright": renderCopyrightZone(); break;
+    case "download": renderDownload(); break;
     default: renderHome();
   }
   /* 离开聊天室时停止轮询 */
@@ -2306,6 +2309,43 @@ async function renderRank(){
 /* ============ 作家专区 ============ */
 function renderAuthorZone(){
   app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">AUTHOR ZONE</div><h1>作家专区</h1><p>这里是创作者的舞台，写下你的第一部作品</p><div class="hero-actions"><button class="btn btn-light" onclick="location.hash=\'#/create\'">开始创作</button><button class="btn btn-ghost-dark" onclick="location.hash=\'#/shelf\'">我的书架</button></div></div><div class="section"><div class="section-head"><h2 class="section-title">作家福利</h2></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px"><div style="background:var(--card);padding:20px;border-radius:12px"><h3>无门槛创作</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">注册即可发布作品，没有签约要求，没有字数限制</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>全版权保留</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">你的作品版权完全属于你，平台不主张任何权利</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>读者直连</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">通过评论、关注、聊天室直接和读者交流</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>打赏支持</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">读者喜欢可以直接打赏支持你创作</p></div></div></div></section>';
+}
+
+/* ============ 全屏 ============ */
+function toggleFullScreen(){
+  if(!document.fullscreenElement){ document.documentElement.requestFullscreen().catch(()=>{}); }
+  else { document.exitFullscreen(); }
+}
+
+/* ============ 下载App ============ */
+function renderDownload(){
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+  app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">DOWNLOAD APP</div><h1>下载阅川书城</h1><p>把阅川书城装到你的设备上，随时随地阅读创作</p></div>' +
+  '<div class="section" style="max-width:680px;margin:0 auto">' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">' +
+      '<div style="background:var(--card);padding:28px;border-radius:16px;text-align:center">' +
+        '<div style="font-size:48px;margin-bottom:12px">🤖</div>' +
+        '<h3>Android 手机版</h3>' +
+        '<p style="color:var(--ink-faint);font-size:14px;margin:10px 0 16px">版本 1.0 · 3.9MB · 安卓8.0以上</p>' +
+        '<a class="btn btn-primary" href="yuechuan.apk" download style="display:inline-block">下载 APK</a>' +
+        (isMobile ? '<p style="margin-top:12px;font-size:12px;color:var(--ink-faint)">点上面按钮直接下载安装</p>' : '<p style="margin-top:12px;font-size:12px;color:var(--ink-faint)">下载后传到手机安装</p>') +
+      '</div>' +
+      '<div style="background:var(--card);padding:28px;border-radius:16px;text-align:center">' +
+        '<div style="font-size:48px;margin-bottom:12px">💻</div>' +
+        '<h3>Windows 电脑版</h3>' +
+        '<p style="color:var(--ink-faint);font-size:14px;margin:10px 0 16px">版本 1.0 · 258MB · Win10/11</p>' +
+        '<a class="btn btn-primary" href="yuechuan-win.zip" download style="display:inline-block">下载 EXE</a>' +
+        '<p style="margin-top:12px;font-size:12px;color:var(--ink-faint)">解压后双击"阅川书城.exe"即可</p>' +
+      '</div>' +
+    '</div>' +
+    '<div style="background:var(--card);padding:20px;border-radius:12px;margin-top:20px;line-height:1.8;font-size:14px;color:var(--ink-faint)">' +
+      '<strong style="color:var(--ink)">安装提示：</strong><br>' +
+      '· 安卓手机安装时如提示"未知来源"，去「设置→允许本次安装」即可，这是安卓正常安全提示<br>' +
+      '· 电脑版如被SmartScreen拦截，点"更多信息→仍要运行"即可<br>' +
+      '· 数据与网页版实时同步，登录同一账号即可继续阅读<br>' +
+      '· 如下载速度慢，请耐心等待或使用浏览器右键另存为' +
+    '</div>' +
+  '</div></section>';
 }
 
 /* ============ 版权专区 ============ */
@@ -2494,6 +2534,15 @@ async function uploadAvatar(input){
     renderMe();
   }catch(e){
     toast(e.message || "上传失败", "err");
+  }
+}
+
+/* 全屏切换 */
+function toggleFullScreen(){
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen();
+  }else{
+    document.exitFullscreen();
   }
 }
 
