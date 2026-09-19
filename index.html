@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="阅川书城——人人可写，人人可读的原创小说平台。在这里创作你的故事，让全世界看见。">
+<meta name="description" content="阅川书城——人人可写，人人可读的原创小说平台。在这里创作你的故事，让全世界看见。四大名著、古典小说、原创作品，应有尽有。">
+<meta name="keywords" content="阅川书城,小说,在线阅读,原创小说,四大名著,红楼梦,西游记,三国演义,水浒传,古典文学">
+<meta property="og:title" content="阅川书城 · 人人可写，人人可读">
+<meta property="og:description" content="开放的小说创作与阅读空间，四大名著全收录，原创小说自由发布。">
+<meta property="og:type" content="website">
 <title>阅川书城 · 人人可写，人人可读</title>
 <link rel="preconnect" href="https://miaoda.feishu.cn">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
@@ -132,22 +136,23 @@ img{max-width:100%;display:block}
 .cat-chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
 
 /* ============ 书籍卡片 ============ */
-.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
-.book-card{cursor:pointer;transition:transform .2s}
-.book-card:hover{transform:translateY(-4px)}
-.book-card:hover .book-cover{box-shadow:0 12px 28px rgba(35,51,47,.22)}
+.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px}
+.book-card{cursor:pointer;transition:transform .25s ease}
+.book-card:hover{transform:translateY(-6px)}
+.book-card:hover .book-cover{box-shadow:0 16px 36px rgba(35,51,47,.25)}
+.book-card:hover .b-title{color:var(--brand)}
 .book-cover{
-  aspect-ratio:3/4;border-radius:10px;overflow:hidden;position:relative;
-  box-shadow:0 6px 18px rgba(35,51,47,.16);
-  display:flex;flex-direction:column;justify-content:flex-end;padding:14px;
-  transition:box-shadow .2s;
+  aspect-ratio:3/4;border-radius:12px;overflow:hidden;position:relative;
+  box-shadow:0 8px 20px rgba(35,51,47,.18);
+  display:flex;flex-direction:column;justify-content:flex-end;padding:16px;
+  transition:box-shadow .25s ease;
 }
-.book-cover .cover-title{font-family:var(--serif);font-weight:900;font-size:17px;line-height:1.4;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.25);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.book-cover .cover-author{margin-top:6px;font-size:11px;color:rgba(255,255,255,.85)}
-.book-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.28));pointer-events:none}
-.book-info{margin-top:10px}
-.book-info .b-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.book-info .b-meta{font-size:12px;color:var(--ink-faint);margin-top:3px}
+.book-cover .cover-title{font-family:var(--serif);font-weight:900;font-size:18px;line-height:1.4;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.3);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.book-cover .cover-author{margin-top:8px;font-size:12px;color:rgba(255,255,255,.85)}
+.book-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.35));pointer-events:none}
+.book-info{margin-top:12px}
+.book-info .b-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.book-info .b-meta{font-size:12px;color:var(--ink-faint);margin-top:4px}
 
 /* 封面配色主题 */
 .ct-0{background:linear-gradient(150deg,#0D4F43,#1E7A66)}
@@ -183,6 +188,29 @@ img{max-width:100%;display:block}
 .h-item .h-intro{font-size:12px;color:var(--ink-soft);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .h-item .h-meta{font-size:12px;color:var(--ink-faint);margin-top:6px;display:flex;gap:10px;align-items:center}
 .h-item .rank{font-family:var(--serif);font-weight:900;font-size:22px;color:var(--accent);width:30px;text-align:center;flex-shrink:0;line-height:1}
+
+/* ============ 本周推荐卡片 ============ */
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.rec-card{
+  display:flex;gap:14px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:16px;cursor:pointer;
+  transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden;
+}
+.rec-card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--accent),var(--brand));
+}
+.rec-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.rec-cover{width:80px;height:110px;border-radius:8px;flex-shrink:0}
+.rec-body{flex:1;min-width:0}
+.rec-badge{
+  display:inline-block;font-size:11px;font-weight:700;color:var(--accent);
+  background:var(--accent-soft);padding:2px 8px;border-radius:999px;margin-bottom:6px;
+}
+.rec-title{font-family:var(--serif);font-size:17px;font-weight:700;line-height:1.4}
+.rec-author{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.rec-intro{font-size:13px;color:var(--ink-soft);margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6}
+.rec-stats{font-size:12px;color:var(--ink-faint);margin-top:8px}
 
 /* ============ 书库页 ============ */
 .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
@@ -238,10 +266,10 @@ img{max-width:100%;display:block}
 .ctrl-btn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--card);border:1px solid var(--line);font-size:14px}
 .ctrl-btn:hover{background:var(--brand-soft)}
 .chapter-content{
-  font-family:var(--serif);font-size:18px;line-height:2;color:var(--ink);
-  letter-spacing:.02em;padding-bottom:20px;
+  font-family:var(--serif);font-size:20px;line-height:2.2;color:var(--ink);
+  letter-spacing:.03em;padding-bottom:20px;max-width:720px;margin:0 auto;
 }
-.chapter-content p{margin:0 0 1em 0}
+.chapter-content p{margin:0 0 1.2em 0;text-indent:2em}
 .reader-nav{display:flex;justify-content:space-between;gap:12px;margin-top:10px;padding-top:22px;border-top:1px solid var(--line)}
 .reader-footer{text-align:center;color:var(--ink-faint);font-size:12px;margin-top:28px;padding-bottom:30px}
 
@@ -1149,6 +1177,11 @@ function renderHome(){
       '</div>' +
     '</div>' +
 
+    '<div class="section" id="sec-recommend">' +
+      '<div class="section-head"><h2 class="section-title">📚 本周推荐</h2></div>' +
+      loadingHtml() +
+    '</div>' +
+
     '<div class="section">' +
       '<div class="section-head"><h2 class="section-title">分类书架</h2><a class="section-more" href="#/library">全部作品 →</a></div>' +
       '<div class="cat-chips">' + CATEGORIES.map(c => '<a class="cat-chip" href="#/library?cat=' + encodeURIComponent(c) + '">' + c + '</a>').join("") + '</div>' +
@@ -1167,6 +1200,25 @@ function renderHome(){
 
   /* 公告栏 */
   loadAnnouncements();
+
+  /* 本周推荐（大字轮播卡片） */
+  API.listWorks({sort:"views", limit:5}).then(works=>{
+    if(!works || !works.length) return;
+    const items = works.map((w,i)=>
+      '<div class="rec-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+        coverHtml(w,"rec-cover") +
+        '<div class="rec-body">' +
+          '<div class="rec-badge">推荐' + (i+1) + '</div>' +
+          '<div class="rec-title">' + esc(w.title) + '</div>' +
+          '<div class="rec-author">' + esc(w.author) + '</div>' +
+          '<div class="rec-intro">' + esc(w.intro || "经典好书，值得一读") + '</div>' +
+          '<div class="rec-stats"><span>👁 ' + (w.views||0) + ' 阅读</span></div>' +
+        '</div></div>'
+    ).join("");
+    $("#sec-recommend").querySelector(".loading").outerHTML = '<div class="rec-grid">' + items + '</div>';
+  }).catch(err=>{
+    $("#sec-recommend").style.display = "none";
+  });
 
   /* 热门榜（横排） */
   API.listWorks({sort:"views", limit:6}).then(works=>{
