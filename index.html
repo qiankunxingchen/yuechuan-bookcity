@@ -535,28 +535,22 @@ body.night .search-box{background:var(--card)}
       <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">注册新账号</button>
     </div>
     <div class="modal-body">
-      <div class="field"><label id="account-label">邮箱</label><input id="auth-account" maxlength="50" placeholder="name@example.com" autocomplete="username"></div>
+      <div class="field"><label id="account-label">邮箱</label>
+        <div class="captcha-row">
+          <input id="auth-account" maxlength="50" placeholder="name@example.com" autocomplete="username" style="flex:1">
+          <button type="button" id="send-otp-btn" onclick="sendEmailOtp()" style="flex-shrink:0;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:13px;cursor:pointer;white-space:nowrap">发送验证码</button>
+        </div>
+      </div>
       <div class="field" id="nick-field" style="display:none"><label>昵称 / 笔名</label><input id="auth-nickname" maxlength="20" placeholder="选填，默认取邮箱前缀"></div>
-      <div class="field" id="pwd-field"><label id="pwd-label">密码</label><input id="auth-password" type="password" maxlength="30" placeholder="至少 6 位" autocomplete="current-password"></div>
-      <div class="field" id="captcha-field"><label>验证码</label>
+      <div class="field" id="pwd-field"><label>邮箱验证码</label><input id="auth-password" maxlength="6" placeholder="6 位数字验证码" autocomplete="one-time-code"></div>
+      <div class="field" id="captcha-field"><label>人机验证码</label>
         <div class="captcha-row">
           <input id="auth-captcha" maxlength="6" placeholder="输入右侧字符" autocomplete="off" style="flex:1">
           <canvas id="captcha-canvas" width="110" height="42" title="看不清？点击换一张" style="cursor:pointer;border-radius:8px;flex-shrink:0"></canvas>
         </div>
       </div>
-      <div class="field" id="sec-q-field" style="display:none"><label>密保问题（用于找回密码）</label>
-        <select id="auth-secq">
-          <option>你的小学名字是什么？</option>
-          <option>你最喜欢的城市是？</option>
-          <option>你的宠物叫什么名字？</option>
-          <option>你的生日是哪一天？</option>
-          <option>你的第一本书是什么？</option>
-        </select>
-      </div>
-      <div class="field" id="sec-a-field" style="display:none"><label>密保答案</label><input id="auth-seca" maxlength="30" placeholder="用于找回密码，请牢记"></div>
       <button class="btn btn-primary" id="auth-submit" onclick="submitAuth()">登 录</button>
       <p class="auth-hint" id="auth-hint">登录后即可创作、发布作品并管理自己的作品</p>
-      <p class="auth-hint" id="forgot-row"><a style="color:var(--brand);cursor:pointer;font-weight:500" onclick="openForgotModal()">忘记密码？</a></p>
     </div>
   </div>
 </div>
@@ -672,12 +666,24 @@ const API = {
   createChapter(data){ return this.request("POST","chapters",data); },
   updateChapter(id, data){ return this.request("PATCH","chapters",data,"id=eq." + id); },
   deleteChapter(id){ return this.request("DELETE","chapters",null,"id=eq." + id); },
-  /* 账号（邮箱+密码，密码加密存储于数据库，无邮件依赖） */
-  register(account, pwd, nickname, secq, seca){ return this.request("POST","rpc/register_user",{p_account:account,p_pwd:pwd,p_nickname:nickname,p_question:secq,p_answer:seca}); },
-  login(account, pwd){ return this.request("POST","rpc/login_user",{p_account:account,p_pwd:pwd}); },
-  getSecurityQuestion(account){ return this.request("POST","rpc/get_security_question",{p_account:account}); },
-  resetPassword(account, answer, new_pwd){ return this.request("POST","rpc/reset_password",{p_account:account,p_answer:answer,p_new_pwd:new_pwd}); },
-  updatePenName(account, pwd, new_name){ return this.request("POST","rpc/update_pen_name",{p_account:account,p_pwd:pwd,p_new_name:new_name}); },
+  /* 账号（邮箱验证码登录，Supabase Auth OTP） */
+  registerWithOtp(userId, email, penName){ return this.request("POST","rpc/register_user_otp",{p_user_id:userId,p_email:email,p_pen_name:penName}); },
+  authOtp(email){
+    const cfg = getConfig();
+    return fetch(cfg.url.replace(/\/+$/,"") + "/auth/v1/otp", {
+      method: "POST",
+      headers: { "apikey": cfg.key, "Content-Type": "application/json" },
+      body: JSON.stringify({ email, create_user: true })
+    }).then(async res => { if(!res.ok){ let m="发送失败"; try{const j=await res.json();m=j.msg||j.message||m;}catch(e){} throw new Error(m); } });
+  },
+  authVerify(email, token){
+    const cfg = getConfig();
+    return fetch(cfg.url.replace(/\/+$/,"") + "/auth/v1/verify", {
+      method: "POST",
+      headers: { "apikey": cfg.key, "Content-Type": "application/json" },
+      body: JSON.stringify({ email, token, type: "email" })
+    }).then(async res => { if(!res.ok){ let m="验证码错误或已过期"; try{const j=await res.json();m=j.msg||j.message||m;}catch(e){} throw new Error(m); } return res.json(); });
+  },
   /* 公告 */
   listAnnouncements(limit=5){ return this.request("GET","announcements",null,"select=*&order=created_at.desc&limit=" + limit); },
   createAnnouncement(title, content){ return this.request("POST","announcements",{title, content}); },
@@ -897,14 +903,16 @@ function switchAuthTab(mode){
   $("#auth-title").textContent = mode === "login" ? "登录" : "注册新账号";
   $("#auth-submit").textContent = mode === "login" ? "登 录" : "注 册";
   $("#nick-field").style.display = mode === "register" ? "block" : "none";
-  $("#sec-q-field").style.display = mode === "register" ? "block" : "none";
-  $("#sec-a-field").style.display = mode === "register" ? "block" : "none";
-  $("#forgot-row").style.display = mode === "login" ? "block" : "none";
+  $("#pwd-label").textContent = "邮箱验证码";
+  $("#auth-password").placeholder = "6 位数字验证码";
+  $("#auth-password").type = "text";
+  $("#forgot-row").style.display = "none";
   $("#auth-captcha").value = "";
+  $("#auth-password").value = "";
   drawCaptcha("captcha-canvas");
   $("#auth-hint").textContent = mode === "login"
-    ? "登录后即可创作、发布作品并管理自己的作品"
-    : "注册即表示你同意作品内容由作者本人负责，本站不承担侵权责任";
+    ? "输入邮箱，点击发送验证码，输入收到的 6 位数字即可登录"
+    : "输入邮箱，点击发送验证码，验证后设置笔名即可注册";
 }
 
 /* 校验邮箱格式 */
@@ -913,36 +921,65 @@ function validAccount(v){
   return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(v);
 }
 
+/* 发送邮箱验证码（Supabase Auth OTP） */
+let otpCooldown = 0;
+async function sendEmailOtp(){
+  const email = $("#auth-account").value.trim();
+  if(!email){ toast("请先输入邮箱", "err"); return; }
+  if(!validAccount(email)){ toast("请输入正确的邮箱", "err"); return; }
+  /* 人机验证前置 */
+  if(!checkCaptcha("auth-captcha")) return;
+  const btn = $("#send-otp-btn");
+  btn.disabled = true;
+  btn.textContent = "发送中…";
+  try{
+    await API.authOtp(email);
+    toast("验证码已发送到 " + email + "，请查收");
+    /* 60 秒冷却 */
+    otpCooldown = 60;
+    const timer = setInterval(()=>{
+      otpCooldown--;
+      if(otpCooldown <= 0){ clearInterval(timer); btn.disabled = false; btn.textContent = "发送验证码"; }
+      else btn.textContent = otpCooldown + "s 后重发";
+    }, 1000);
+  }catch(err){
+    toast(err.message || "发送失败，请稍后重试", "err");
+    btn.disabled = false;
+    btn.textContent = "发送验证码";
+    drawCaptcha("captcha-canvas");
+    $("#auth-captcha").value = "";
+  }
+}
+
 async function submitAuth(){
-  const account = $("#auth-account").value.trim();
-  const pwd = $("#auth-password").value;
+  const email = $("#auth-account").value.trim();
+  const otpCode = $("#auth-password").value.trim();
   const nickname = $("#auth-nickname").value.trim();
-  const secq = $("#auth-secq").value;
-  const seca = $("#auth-seca").value.trim();
   const btn = $("#auth-submit");
-  if(!account){ toast("请输入邮箱", "err"); return; }
-  if(!validAccount(account)){ toast("请输入正确的邮箱", "err"); return; }
-  if(!pwd){ toast("请输入密码", "err"); return; }
-  if(pwd.length < 6){ toast("密码至少 6 位", "err"); return; }
+  if(!email){ toast("请输入邮箱", "err"); return; }
+  if(!validAccount(email)){ toast("请输入正确的邮箱", "err"); return; }
+  if(!otpCode || !/^\d{6}$/.test(otpCode)){ toast("请输入 6 位数字验证码", "err"); return; }
   /* 二次验证：图形验证码 */
   if(!checkCaptcha("auth-captcha")) return;
-  if(authMode === "register" && !seca){ toast("请设置密保答案，用于找回密码", "err"); return; }
   btn.disabled = true;
-  btn.textContent = "请稍候…";
+  btn.textContent = "验证中…";
   try{
-    let res;
+    /* 1. 验证邮箱验证码 */
+    const authRes = await API.authVerify(email, otpCode);
+    const userId = authRes.user.id;
     if(authMode === "register"){
-      res = await API.register(account, pwd, nickname, secq, seca);
+      /* 2. 注册：在自建 users 表创建记录 */
+      await API.registerWithOtp(userId, email, nickname);
       toast("注册成功，欢迎加入阅川书城！");
     } else {
-      res = await API.login(account, pwd);
+      /* 登录：已存在用户，直接成功 */
       toast("登录成功，欢迎回来！");
     }
-    Store.auth = { account, username: res.pen_name || account, authorKey: res.author_key };
-    Store.penName = res.pen_name || account;
+    /* 3. 存登录状态 */
+    Store.auth = { account: email, username: nickname || email, authorKey: userId, accessToken: authRes.access_token };
+    Store.penName = nickname || email;
     closeAuthModal();
     renderAuthArea();
-    /* 若当前在创作中心，刷新视图 */
     if(parseHash().path === "create") renderCreate();
   }catch(err){
     toast(err.message || "操作失败", "err");
