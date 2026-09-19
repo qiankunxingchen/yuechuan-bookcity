@@ -16,6 +16,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="阅川书城">
 <link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="dns-prefetch" href="https://xsmdmttfftepbtnjxvfu.supabase.co">
+<link rel="preload" as="style" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
 <style>
 /* ============ 设计令牌：墨川主题 ============ */
@@ -745,6 +747,9 @@ function isConfigured(){ return !!getConfig(); }
 
 /* ============ 2. 数据层（Supabase REST） ============ */
 const API = {
+  /* 简单内存缓存：GET请求5分钟内不重复请求 */
+  _cache: new Map(),
+  _cacheTime: 5 * 60 * 1000,
   async request(method, path, body, query){
     const cfg = getConfig();
     const base = cfg.url.replace(/\/+$/,"");
@@ -756,6 +761,17 @@ const API = {
     if(method === "GET") headers["Prefer"] = "count=exact";
     if(method === "POST") headers["Prefer"] = "return=representation";
     if(method === "PATCH") headers["Prefer"] = "return=representation";
+
+    /* GET请求用缓存 */
+    const cacheKey = method + path + (query || "");
+    if(method === "GET" && this._cache.has(cacheKey)){
+      const cached = this._cache.get(cacheKey);
+      if(Date.now() - cached.time < this._cacheTime){
+        return cached.data;
+      }
+      this._cache.delete(cacheKey);
+    }
+
     let url = base + "/rest/v1/" + path;
     if(query) url += "?" + query;
     const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
@@ -765,7 +781,16 @@ const API = {
       throw new Error(msg);
     }
     if(res.status === 204) return null;
-    return res.json();
+    const data = await res.json();
+    /* 缓存GET结果 */
+    if(method === "GET"){
+      this._cache.set(cacheKey, { data, time: Date.now() });
+    }
+    return data;
+  },
+  /* 清除缓存（写操作后调用） */
+  clearCache(){
+    this._cache.clear();
   },
   /* 作品 */
   listWorks({category, sort, q, limit=50} = {}){
