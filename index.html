@@ -505,9 +505,10 @@ body.night .search-box{background:var(--card)}
     <nav class="main-nav">
       <a href="#/home" data-nav="home">首页</a>
       <a href="#/library" data-nav="library">书库</a>
-      <a href="#/chat" data-nav="chat">聊天室</a>
-      <a href="#/create" data-nav="create">创作中心</a>
-      <a href="#/shelf" data-nav="shelf">我的书架</a>
+      <a href="#/shelf" data-nav="shelf">书架</a>
+      <a href="#/rank" data-nav="rank">原创榜</a>
+      <a href="#/author" data-nav="author">作家专区</a>
+      <a href="#/copyright" data-nav="copyright">版权专区</a>
     </nav>
     <div class="header-actions">
       <div class="search-box">
@@ -2242,6 +2243,9 @@ async function route(){
     case "me": renderMe(); break;
     case "chat": renderChat(); break;
     case "user": renderUserPage(); break;
+    case "rank": renderRank(); break;
+    case "author": renderAuthorZone(); break;
+    case "copyright": renderCopyrightZone(); break;
     default: renderHome();
   }
   /* 离开聊天室时停止轮询 */
@@ -2260,6 +2264,32 @@ document.addEventListener("keydown", e=>{
     doGlobalSearch();
   }
 });
+
+/* ============ 原创榜 ============ */
+async function renderRank(){
+  app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">RANKING</div><h1>原创榜</h1><p>阅川书城人气最高的原创作品</p></div><div class="section" id="rank-list">'+loadingHtml()+'</div></section>';
+  try{
+    const works = await API.listWorks(1, 50, "views", "");
+    let html = '<div class="book-grid">';
+    works.forEach((w,i)=>{
+      const rank = i+1;
+      const badge = rank<=3 ? '<div style="position:absolute;top:0;left:0;background:#C98A2D;color:#fff;padding:2px 8px;font-size:12px;font-weight:bold;border-radius:0 0 8px 0">'+rank+'</div>' : '<div style="position:absolute;top:0;left:0;background:#999;color:#fff;padding:2px 8px;font-size:12px;border-radius:0 0 8px 0">'+rank+'</div>';
+      html += '<div class="book-card" onclick="location.hash=\'#/book/'+w.id+'\'" style="position:relative">'+badge+coverHtml(w)+'<div class="book-info"><div class="book-title">'+esc(w.title)+'</div><div class="book-author">'+esc(w.author)+' · '+w.views+' 阅读</div></div></div>';
+    });
+    html += '</div>';
+    $("#rank-list").innerHTML = html;
+  }catch(e){ $("#rank-list").innerHTML = '<p style="text-align:center;color:#999">加载失败：'+esc(e.message||'')+'</p>'; }
+}
+
+/* ============ 作家专区 ============ */
+function renderAuthorZone(){
+  app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">AUTHOR ZONE</div><h1>作家专区</h1><p>这里是创作者的舞台，写下你的第一部作品</p><div class="hero-actions"><button class="btn btn-light" onclick="location.hash=\'#/create\'">开始创作</button><button class="btn btn-ghost-dark" onclick="location.hash=\'#/shelf\'">我的书架</button></div></div><div class="section"><div class="section-head"><h2 class="section-title">作家福利</h2></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px"><div style="background:var(--card);padding:20px;border-radius:12px"><h3>无门槛创作</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">注册即可发布作品，没有签约要求，没有字数限制</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>全版权保留</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">你的作品版权完全属于你，平台不主张任何权利</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>读者直连</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">通过评论、关注、聊天室直接和读者交流</p></div></div></div></section>';
+}
+
+/* ============ 版权专区 ============ */
+function renderCopyrightZone(){
+  app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">COPYRIGHT</div><h1>版权专区</h1><p>尊重原创，保护版权</p></div><div class="section"><div style="background:var(--card);padding:24px;border-radius:12px;line-height:1.8"><h3>版权声明</h3><p style="color:var(--ink-faint);margin-top:12px">1. 阅川书城所有用户发布的原创作品，版权归原作者所有。</p><p style="color:var(--ink-faint)">2. 本站收录的公版名著（如《朝花夕拾》《呐喊》等）已过著作权保护期，可自由传播。</p><p style="color:var(--ink-faint)">3. 未经作者授权，不得擅自转载、复制、商用本站原创作品。</p><p style="color:var(--ink-faint)">4. 如发现侵权内容，请联系管理员下架处理。</p></div></div></section>';
+}
 
 route();
 </script>
