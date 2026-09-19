@@ -54,7 +54,44 @@ img{max-width:100%;display:block}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 ::selection{background:var(--accent-soft)}
 
-/* ============ 顶栏 ============ */
+/* ============ 启动页闪屏 ============ */
+#splash {
+  position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0D4F43 0%,#146B5B 100%);
+  transition:opacity .5s,visibility .5s;
+}
+#splash.hide{opacity:0;visibility:hidden}
+.splash-logo{
+  width:80px;height:80px;border-radius:20px;
+  background:rgba(255,255,255,.15);backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:36px;font-weight:900;color:#F5F0E4;
+  margin-bottom:20px;
+}
+.splash-name{font-family:var(--serif);font-size:24px;font-weight:900;color:#F5F0E4;letter-spacing:2px}
+.splash-slogan{font-size:13px;color:rgba(245,240,228,.7);margin-top:8px;letter-spacing:3px}
+.splash-bar{width:120px;height:3px;background:rgba(255,255,255,.2);border-radius:99px;margin-top:30px;overflow:hidden}
+.splash-bar::after{
+  content:"";display:block;width:40%;height:100%;background:#C98A2D;
+  border-radius:99px;animation:loading 1.2s ease-in-out infinite;
+}
+@keyframes loading{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+
+/* ============ 主题皮肤 ============ */
+body.theme-blue{
+  --brand:#2563EB;--brand-dark:#1E40AF;--brand-soft:#DBEAFE;
+  --accent:#F59E0B;--accent-soft:#FEF3C7;
+}
+body.theme-purple{
+  --brand:#7C3AED;--brand-dark:#5B21B6;--brand-soft:#EDE9FE;
+  --accent:#EC4899;--accent-soft:#FCE7F3;
+}
+body.theme-warm{
+  --brand:#DC2626;--brand-dark:#B91C1C;--brand-soft:#FEE2E2;
+  --accent:#F97316;--accent-soft:#FFEDD5;
+}
+
 .site-header{
   position:sticky;top:0;z-index:50;
   background:rgba(245,240,228,.92);
@@ -271,9 +308,15 @@ img{max-width:100%;display:block}
 .reader-controls{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .ctrl-btn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--card);border:1px solid var(--line);font-size:14px}
 .ctrl-btn:hover{background:var(--brand-soft)}
+/* ============ 翻页动画 ============ */
 .chapter-content{
   font-family:var(--serif);font-size:20px;line-height:2.2;color:var(--ink);
   letter-spacing:.03em;padding-bottom:20px;max-width:720px;margin:0 auto;
+  animation:pageFadeIn .4s ease;
+}
+@keyframes pageFadeIn{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
 }
 .chapter-content p{margin:0 0 1.2em 0;text-indent:2em}
 .reader-nav{display:flex;justify-content:space-between;gap:12px;margin-top:10px;padding-top:22px;border-top:1px solid var(--line)}
@@ -525,6 +568,14 @@ body.night .search-box{background:var(--card)}
 </head>
 <body>
 
+<!-- ============ 启动页闪屏 ============ -->
+<div id="splash">
+  <div class="splash-logo">阅</div>
+  <div class="splash-name">阅川书城</div>
+  <div class="splash-slogan">人人可写 · 人人可读</div>
+  <div class="splash-bar"></div>
+</div>
+
 <!-- ============ 顶栏 ============ -->
 <header class="site-header">
   <div class="header-inner">
@@ -555,7 +606,12 @@ body.night .search-box{background:var(--card)}
         </button>
       </div>
       <div id="auth-area"><!-- 登录按钮 / 用户菜单由 JS 渲染 --></div>
+      <button class="btn btn-ghost btn-sm" onclick="showThemePicker()" title="切换主题">🎨</button>
       <button class="btn btn-ghost btn-sm" onclick="toggleFullScreen()" title="全屏 (F11)">⛶</button>
+      <div style="position:relative">
+        <button class="btn btn-ghost btn-sm" onclick="toast('暂无新消息')" title="通知">🔔</button>
+        <span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#E53E3E;color:#fff;font-size:10px;min-width:18px;height:18px;border-radius:99px;align-items:center;justify-content:center;padding:0 4px">0</span>
+      </div>
       <button class="btn btn-accent btn-sm" onclick="gotoCreate()">写小说</button>
     </div>
   </div>
@@ -1414,6 +1470,10 @@ function renderBook(){
         chapterHtml +
       '</div>' +
       '<div class="comment-box">' +
+        '<div class="section-head"><h2 class="section-title">☕ 打赏感谢墙</h2></div>' +
+        '<div id="tip-wall"><div class="loading"><div class="spinner"></div></div></div>' +
+      '</div>' +
+      '<div class="comment-box">' +
         '<div class="section-head"><h2 class="section-title">评论区 · ' + ((comments && comments.length) || 0) + '</h2></div>' +
         '<div class="cmt-input-row">' +
           '<textarea id="cmt-input" maxlength="500" rows="2" placeholder="' + (Store.isLoggedIn ? "写下你的评论…" : "登录后才能评论") + '"></textarea>' +
@@ -1421,10 +1481,84 @@ function renderBook(){
         '</div>' +
         '<div class="cmt-list" id="cmt-list">' + commentHtml + '</div>' +
       '</div>' +
+      '<div class="section" style="margin-top:30px">' +
+        '<div class="section-head"><h2 class="section-title">📖 相关推荐</h2></div>' +
+        '<div id="related-books">' + loadingHtml() + '</div>' +
+      '</div>' +
     '</section>';
+
+    /* 加载打赏感谢墙 */
+    loadTipWall(id);
+    /* 加载相关推荐 */
+    loadRelatedBooks(id, work.category);
   }).catch(err=>{
     app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message), '<button class="btn btn-ghost" onclick="location.hash=\'#/library\'">返回书库</button>') + '</section>';
   });
+}
+
+/* 消息通知小红点 */
+function updateNotificationBadge(){
+  const badge = $("#notif-badge");
+  if(!badge) return;
+  /* 简单实现：本地记录未读消息数 */
+  const unread = Store.unreadCount || 0;
+  if(unread > 0){
+    badge.style.display = "flex";
+    badge.textContent = unread > 99 ? "99+" : unread;
+  } else {
+    badge.style.display = "none";
+  }
+}
+function markNotificationsRead(){
+  Store.unreadCount = 0;
+  updateNotificationBadge();
+}
+
+/* 打赏感谢墙 */
+async function loadTipWall(workId){
+  const wall = $("#tip-wall");
+  if(!wall) return;
+  try{
+    const tips = await API.listTips(workId);
+    if(!tips || !tips.length){
+      wall.innerHTML = '<div style="text-align:center;padding:20px;color:var(--ink-faint);font-size:13px">还没有人打赏，来做第一个支持者吧 ☕</div>';
+      return;
+    }
+    wall.innerHTML = '<div class="tip-wall">' + tips.map(t =>
+      '<div class="tip-item">' +
+        '<div class="tip-avatar">' + esc((t.from_name || "读者")[0]) + '</div>' +
+        '<div class="tip-info">' +
+          '<div class="tip-name">' + esc(t.from_name || "匿名读者") + '</div>' +
+          (t.message ? '<div class="tip-msg">"' + esc(t.message) + '"</div>' : '') +
+        '</div>' +
+        '<div class="tip-amount">☕ ' + t.amount + ' 元</div>' +
+      '</div>'
+    ).join("") + '</div>';
+  }catch(e){
+    wall.innerHTML = '<div style="text-align:center;padding:20px;color:var(--ink-faint);font-size:13px">暂无打赏记录</div>';
+  }
+}
+
+/* 相关推荐 */
+async function loadRelatedBooks(workId, category){
+  const container = $("#related-books");
+  if(!container) return;
+  try{
+    const works = await API.listWorks(1, 6, "views", category);
+    const filtered = works.filter(w => w.id !== workId).slice(0, 4);
+    if(!filtered.length){
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--ink-faint);font-size:13px">暂无相关推荐</div>';
+      return;
+    }
+    container.innerHTML = '<div class="book-grid">' + filtered.map(w=>
+      '<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+        coverHtml(w) +
+        '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
+        '<div class="b-meta">' + esc(w.author) + '</div></div></div>'
+    ).join("") + '</div>';
+  }catch(e){
+    container.innerHTML = '';
+  }
 }
 
 /* 点赞切换（需登录） */
@@ -1495,6 +1629,13 @@ function renderReader(){
     const chapter = chapters[idx];
     Store.lastRead = Object.assign({}, Store.lastRead, { [id]: { ch: idx, workTitle: work.title } });
 
+    /* 记录阅读历史 */
+    const history = Store.readHistory || [];
+    const existingIdx = history.findIndex(h => h.workId === id);
+    if(existingIdx >= 0) history.splice(existingIdx, 1);
+    history.unshift({ workId: id, ch: idx, workTitle: work.title, time: new Date().toISOString() });
+    Store.readHistory = history.slice(0, 50); /* 最多50条 */
+
     renderReaderView(work, chapters, idx, chapter);
   }).catch(err=>{
     toast("加载失败：" + err.message, "err");
@@ -1518,6 +1659,7 @@ function renderReaderView(work, chapters, idx, chapter){
         '<div class="rt-chapter">' + esc(chapter.title) + '</div>' +
       '</div>' +
       '<div class="reader-controls">' +
+        '<button class="ctrl-btn" onclick="addBookmark(\'' + work.id + '\',' + idx + ',\'' + esc(work.title) + '\',\'' + esc(chapter.title) + '\')" title="添加书签" aria-label="添加书签">🔖</button>' +
         '<button class="ctrl-btn" onclick="adjustFont(-2)" title="减小字号" aria-label="减小字号">A−</button>' +
         '<button class="ctrl-btn" onclick="adjustFont(2)" title="增大字号" aria-label="增大字号">A+</button>' +
         '<button class="ctrl-btn" onclick="toggleNight()" title="' + (night ? "日间模式" : "夜间模式") + '" aria-label="切换模式">' +
@@ -1555,6 +1697,71 @@ function adjustFont(delta){
 function toggleNight(){
   Store.night = !Store.night;
   document.body.classList.toggle("night", Store.night);
+}
+
+/* 夜间模式自动：晚上6点到早上7点自动切换 */
+function autoNightMode(){
+  const hour = new Date().getHours();
+  const shouldNight = hour >= 18 || hour < 7;
+  if(shouldNight !== Store.night){
+    Store.night = shouldNight;
+    document.body.classList.toggle("night", shouldNight);
+  }
+}
+
+/* 主题切换 */
+function setTheme(theme){
+  document.body.classList.remove("theme-green","theme-blue","theme-purple","theme-warm");
+  if(theme && theme !== "green"){
+    document.body.classList.add("theme-" + theme);
+  }
+  Store.theme = theme || "green";
+  toast("主题已切换");
+}
+function showThemePicker(){
+  const themes = [
+    {name:"墨绿", cls:"green", color:"#146B5B"},
+    {name:"靛蓝", cls:"blue", color:"#2563EB"},
+    {name:"绛紫", cls:"purple", color:"#7C3AED"},
+    {name:"朱红", cls:"warm", color:"#DC2626"}
+  ];
+  const current = Store.theme || "green";
+  const html = '<div style="display:flex;gap:12px;justify-content:center;padding:20px">' +
+    themes.map(t =>
+      '<div onclick="setTheme(\'' + t.cls + '\');closeModal()" style="width:60px;height:60px;border-radius:16px;background:' + t.color + ';cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:bold;' + (current===t.cls ? 'border:3px solid #C98A2D;' : '') + '">' + t.name + '</div>'
+    ).join("") + '</div>';
+  openModal(html);
+}
+
+/* 书签功能 */
+function addBookmark(workId, chapterIdx, workTitle, chapterTitle){
+  const bookmarks = Store.bookmarks || [];
+  const existing = bookmarks.findIndex(b => b.workId === workId && b.chapterIdx === chapterIdx);
+  if(existing >= 0){
+    toast("书签已存在");
+    return;
+  }
+  bookmarks.unshift({
+    workId, chapterIdx, workTitle, chapterTitle,
+    time: new Date().toISOString()
+  });
+  Store.bookmarks = bookmarks.slice(0, 50); /* 最多50个 */
+  toast("书签已添加");
+}
+function showBookmarks(){
+  const bookmarks = Store.bookmarks || [];
+  if(!bookmarks.length){
+    toast("还没有书签", "err");
+    return;
+  }
+  const html = bookmarks.map((b,i)=>
+    '<div style="padding:12px;border-bottom:1px solid var(--line);cursor:pointer" onclick="location.hash=\'#/read?id=' + b.workId + '&ch=' + b.chapterIdx + '\'">' +
+      '<div style="font-weight:600">' + esc(b.workTitle) + '</div>' +
+      '<div style="font-size:13px;color:var(--ink-soft);margin-top:4px">' + esc(b.chapterTitle) + '</div>' +
+      '<div style="font-size:11px;color:var(--ink-faint);margin-top:4px">' + fmtDate(b.time) + '</div>' +
+    '</div>'
+  ).join("");
+  alert("我的书签\n\n" + bookmarks.map(b => b.workTitle + " - " + b.chapterTitle).join("\n"));
 }
 
 /* ============ 创作中心 ============ */
@@ -1920,17 +2127,64 @@ async function deleteChapter(workId, chId, title){
   }
 }
 
+/* ============ 打赏感谢墙 ============ */
+.tip-wall{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.tip-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;background:var(--card-soft);border-radius:var(--radius);
+}
+.tip-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--brand));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:16px;flex-shrink:0;
+}
+.tip-info{flex:1;min-width:0}
+.tip-name{font-weight:600;font-size:14px}
+.tip-msg{font-size:12px;color:var(--ink-soft);margin-top:4px;font-style:italic}
+.tip-amount{
+  font-weight:700;color:var(--accent);font-size:14px;
+  background:var(--accent-soft);padding:4px 12px;border-radius:999px;
+}
+
+/* ============ 书架标签页 ============ */
+.shelf-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.shelf-tab{
+  padding:8px 16px;border-radius:999px;font-size:14px;
+  background:var(--card);border:1px solid var(--line);
+  transition:all .2s;
+}
+.shelf-tab:hover{border-color:var(--brand);color:var(--brand)}
+.shelf-tab.active{background:var(--brand);border-color:var(--brand);color:#fff}
+
 /* ============ 我的书架 ============ */
 async function renderShelf(){
   app.innerHTML =
   '<section class="page">' +
     '<div class="page-title">我的书架</div>' +
-    '<p class="page-sub shelf-note">收藏的作品保存在本地浏览器中</p>' +
+    '<p class="page-sub">收藏的作品保存在本地浏览器中</p>' +
+    '<div class="shelf-tabs">' +
+      '<button class="shelf-tab active" onclick="switchShelfTab(\'fav\',this)">❤️ 收藏</button>' +
+      '<button class="shelf-tab" onclick="switchShelfTab(\'history\',this)">🕐 最近阅读</button>' +
+      '<button class="shelf-tab" onclick="switchShelfTab(\'bookmark\',this)">🔖 书签</button>' +
+    '</div>' +
     '<div id="shelf-grid">' + loadingHtml() + '</div>' +
   '</section>';
 
-  const favs = Store.favorites;
+  loadFavorites();
+}
+
+function switchShelfTab(tab, btn){
+  document.querySelectorAll('.shelf-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if(tab === 'fav') loadFavorites();
+  else if(tab === 'history') loadHistory();
+  else if(tab === 'bookmark') loadBookmarks();
+}
+
+async function loadFavorites(){
   const grid = $("#shelf-grid");
+  const favs = Store.favorites;
   if(!favs.length){
     grid.innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "书架还是空的", '<button class="btn btn-accent" onclick="location.hash=\'#/library\'">去书库逛逛</button>');
     return;
@@ -1947,6 +2201,57 @@ async function renderShelf(){
         '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
         '<div class="b-meta">' + esc(w.author) + ' · ' + esc(w.category) + '</div></div></div>'
     ).join("") + '</div>';
+  }catch(err){
+    grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
+  }
+}
+
+async function loadHistory(){
+  const grid = $("#shelf-grid");
+  const history = Store.readHistory || [];
+  if(!history.length){
+    grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M12 8v4l3 3"/>', "还没有阅读记录", '<button class="btn btn-accent" onclick="location.hash=\'#/library\'">去书库逛逛</button>');
+    return;
+  }
+  try{
+    const ids = history.map(h => h.workId);
+    const works = await API.getWorksByIds(ids);
+    if(!works || !works.length){
+      grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败");
+      return;
+    }
+    grid.innerHTML = '<div class="book-grid">' + works.map(w=>{
+      const h = history.find(x => x.workId === w.id);
+      return '<div class="book-card" onclick="location.hash=\'#/read?id=' + w.id + '&ch=' + (h ? h.ch : 0) + '\'">' +
+        coverHtml(w) +
+        '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
+        '<div class="b-meta">读到第' + (h ? h.ch+1 : 1) + '章 · ' + fmtDate(h ? h.time : '') + '</div></div></div>';
+    }).join("") + '</div>';
+  }catch(err){
+    grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
+  }
+}
+
+async function loadBookmarks(){
+  const grid = $("#shelf-grid");
+  const bookmarks = Store.bookmarks || [];
+  if(!bookmarks.length){
+    grid.innerHTML = emptyHtml('<path d="M6 3h12v18l-6-4-6 4V3z"/>', "还没有书签", '<p style="font-size:13px;color:var(--ink-soft);margin-top:8px">阅读时点击 🔖 按钮添加书签</p>');
+    return;
+  }
+  try{
+    const ids = [...new Set(bookmarks.map(b => b.workId))];
+    const works = await API.getWorksByIds(ids);
+    const workMap = {};
+    works.forEach(w => workMap[w.id] = w);
+    grid.innerHTML = '<div class="book-grid">' + bookmarks.map(b=>{
+      const w = workMap[b.workId];
+      if(!w) return '';
+      return '<div class="book-card" onclick="location.hash=\'#/read?id=' + b.workId + '&ch=' + b.chapterIdx + '\'">' +
+        coverHtml(w) +
+        '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
+        '<div class="b-meta">🔖 ' + esc(b.chapterTitle) + '</div></div></div>';
+    }).join("") + '</div>';
   }catch(err){
     grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
   }
@@ -2297,7 +2602,15 @@ function saveSetup(){
 /* ============ 6. 路由与初始化 ============ */
 function doGlobalSearch(){
   const q = $("#global-search").value.trim();
-  if(q) location.hash = "#/library?q=" + encodeURIComponent(q);
+  if(q){
+    /* 保存搜索历史 */
+    const history = Store.searchHistory || [];
+    const idx = history.indexOf(q);
+    if(idx >= 0) history.splice(idx, 1);
+    history.unshift(q);
+    Store.searchHistory = history.slice(0, 10);
+    location.hash = "#/library?q=" + encodeURIComponent(q);
+  }
 }
 
 function setActiveNav(path){
@@ -2346,6 +2659,17 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.log('SW failed'));
   });
 }
+
+/* 启动页闪屏：1.5秒后自动消失 */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    if(splash) splash.classList.add('hide');
+  }, 1500);
+});
+
+/* 夜间模式自动：晚上自动切换 */
+autoNightMode();
 
 /* 夜间模式恢复 */
 if(Store.night) document.body.classList.add("night");
