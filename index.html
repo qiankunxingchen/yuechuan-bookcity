@@ -542,7 +542,9 @@ body.night .search-box{background:var(--card)}
         </div>
       </div>
       <div class="field" id="nick-field" style="display:none"><label>昵称 / 笔名</label><input id="auth-nickname" maxlength="20" placeholder="选填，默认取邮箱前缀"></div>
-      <div class="field" id="pwd-field"><label>邮箱验证码</label><input id="auth-password" maxlength="6" placeholder="6 位数字验证码" autocomplete="one-time-code"></div>
+      <div class="field" id="pwd-field"><label id="pwd-label">邮箱验证码</label><input id="auth-password" maxlength="6" placeholder="6 位数字验证码" autocomplete="one-time-code"></div>
+      <div class="field" id="pwd-field2" style="display:none"><label>设置密码</label><input id="auth-pwd2" type="password" maxlength="30" placeholder="至少 6 位" autocomplete="new-password"></div>
+      <div class="field" id="pwd-field3" style="display:none"><label>确认密码</label><input id="auth-pwd3" type="password" maxlength="30" placeholder="再次输入密码" autocomplete="new-password"></div>
       <div class="field" id="captcha-field"><label>人机验证码</label>
         <div class="captcha-row">
           <input id="auth-captcha" maxlength="6" placeholder="输入右侧字符" autocomplete="off" style="flex:1">
@@ -666,8 +668,9 @@ const API = {
   createChapter(data){ return this.request("POST","chapters",data); },
   updateChapter(id, data){ return this.request("PATCH","chapters",data,"id=eq." + id); },
   deleteChapter(id){ return this.request("DELETE","chapters",null,"id=eq." + id); },
-  /* 账号（邮箱验证码登录，Supabase Auth OTP） */
-  registerWithOtp(userId, email, penName){ return this.request("POST","rpc/register_user_otp",{p_user_id:userId,p_email:email,p_pen_name:penName}); },
+  /* 账号（邮箱验证码注册 + 密码登录） */
+  registerWithPwd(userId, email, pwd, penName){ return this.request("POST","rpc/register_user_otp",{p_user_id:userId,p_email:email,p_pwd:pwd,p_pen_name:penName}); },
+  loginWithPwd(email, pwd){ return this.request("POST","rpc/login_user_otp",{p_email:email,p_pwd:pwd}); },
   authOtp(email){
     const cfg = getConfig();
     return fetch(cfg.url.replace(/\/+$/,"") + "/auth/v1/otp", {
@@ -905,16 +908,20 @@ function switchAuthTab(mode){
   $("#auth-title").textContent = mode === "login" ? "登录" : "注册新账号";
   $("#auth-submit").textContent = mode === "login" ? "登 录" : "注 册";
   $("#nick-field").style.display = mode === "register" ? "block" : "none";
-  $("#pwd-label").textContent = "邮箱验证码";
-  $("#auth-password").placeholder = "6 位数字验证码";
-  $("#auth-password").type = "text";
-  $("#forgot-row").style.display = "none";
+  $("#pwd-label").textContent = mode === "login" ? "密码" : "邮箱验证码";
+  $("#auth-password").placeholder = mode === "login" ? "输入密码" : "6 位数字验证码";
+  $("#auth-password").type = mode === "login" ? "password" : "text";
+  $("#pwd-field2").style.display = mode === "register" ? "block" : "none";
+  $("#pwd-field3").style.display = mode === "register" ? "block" : "none";
+  $("#forgot-row").style.display = mode === "login" ? "block" : "none";
   $("#auth-captcha").value = "";
   $("#auth-password").value = "";
+  $("#auth-pwd2").value = "";
+  $("#auth-pwd3").value = "";
   drawCaptcha("captcha-canvas");
   $("#auth-hint").textContent = mode === "login"
-    ? "输入邮箱，点击发送验证码，输入收到的 6 位数字即可登录"
-    : "输入邮箱，点击发送验证码，验证后设置笔名即可注册";
+    ? "输入邮箱和密码即可登录"
+    : "输入邮箱，点发送验证码，验证后设置密码即可注册";
 }
 
 /* 校验邮箱格式 */
@@ -929,6 +936,8 @@ async function sendEmailOtp(){
   const email = $("#auth-account").value.trim();
   if(!email){ toast("请先输入邮箱", "err"); return; }
   if(!validAccount(email)){ toast("请输入正确的邮箱", "err"); return; }
+  /* 人机验证前置 */
+  if(!checkCaptcha("auth-captcha")) return;
   const btn = $("#send-otp-btn");
   btn.disabled = true;
   btn.textContent = "发送中…";
@@ -953,41 +962,66 @@ async function sendEmailOtp(){
 
 async function submitAuth(){
   const email = $("#auth-account").value.trim();
-  const otpCode = $("#auth-password").value.trim();
+  const pwd = $("#auth-password").value;
+  const pwd2 = $("#auth-pwd2").value;
+  const pwd3 = $("#auth-pwd3").value;
   const nickname = $("#auth-nickname").value.trim();
   const btn = $("#auth-submit");
   if(!email){ toast("请输入邮箱", "err"); return; }
   if(!validAccount(email)){ toast("请输入正确的邮箱", "err"); return; }
-  if(!otpCode || !/^\d{6}$/.test(otpCode)){ toast("请输入 6 位数字验证码", "err"); return; }
   /* 二次验证：图形验证码 */
   if(!checkCaptcha("auth-captcha")) return;
+
+  if(authMode === "login"){
+    /* 登录：邮箱+密码 */
+    if(!pwd){ toast("请输入密码", "err"); return; }
+    btn.disabled = true;
+    btn.textContent = "登录中…";
+    try{
+      const res = await API.loginWithPwd(email, pwd);
+      Store.auth = { account: email, username: res.pen_name || email, authorKey: res.author_key };
+      Store.penName = res.pen_name || email;
+      toast("登录成功，欢迎回来！");
+      closeAuthModal();
+      renderAuthArea();
+      if(parseHash().path === "create") renderCreate();
+    }catch(err){
+      toast(err.message || "登录失败", "err");
+      drawCaptcha("captcha-canvas");
+      $("#auth-captcha").value = "";
+    }finally{
+      btn.disabled = false;
+      btn.textContent = "登 录";
+    }
+    return;
+  }
+
+  /* 注册：邮箱验证码 + 设置密码 */
+  const otpCode = pwd; /* 注册时 auth-password 里是 6 位数字验证码 */
+  if(!/^\d{6}$/.test(otpCode)){ toast("请输入 6 位数字邮箱验证码", "err"); return; }
+  if(!pwd2 || pwd2.length < 6){ toast("密码至少 6 位", "err"); return; }
+  if(pwd2 !== pwd3){ toast("两次密码不一致", "err"); return; }
   btn.disabled = true;
-  btn.textContent = "验证中…";
+  btn.textContent = "注册中…";
   try{
     /* 1. 验证邮箱验证码 */
     const authRes = await API.authVerify(email, otpCode);
     const userId = authRes.user.id;
-    if(authMode === "register"){
-      /* 2. 注册：在自建 users 表创建记录 */
-      await API.registerWithOtp(userId, email, nickname);
-      toast("注册成功，欢迎加入阅川书城！");
-    } else {
-      /* 登录：已存在用户，直接成功 */
-      toast("登录成功，欢迎回来！");
-    }
-    /* 3. 存登录状态 */
-    Store.auth = { account: email, username: nickname || email, authorKey: userId, accessToken: authRes.access_token };
+    /* 2. 注册：创建用户记录（带密码） */
+    await API.registerWithPwd(userId, email, pwd2, nickname);
+    Store.auth = { account: email, username: nickname || email, authorKey: userId };
     Store.penName = nickname || email;
+    toast("注册成功，欢迎加入阅川书城！");
     closeAuthModal();
     renderAuthArea();
     if(parseHash().path === "create") renderCreate();
   }catch(err){
-    toast(err.message || "操作失败", "err");
+    toast(err.message || "注册失败", "err");
     drawCaptcha("captcha-canvas");
     $("#auth-captcha").value = "";
   }finally{
     btn.disabled = false;
-    btn.textContent = authMode === "login" ? "登 录" : "注 册";
+    btn.textContent = "注 册";
   }
 }
 
