@@ -878,7 +878,9 @@ function checkCaptcha(inputId){
   if(!c){ toast("请输入验证码", "err"); return false; }
   if(c !== captchaCode){
     toast("验证码错误，已换一张", "err");
-    drawCaptcha(inputId || "captcha-canvas");
+    /* 根据输入框找对应的 canvas */
+    const canvasId = (inputId === "f-captcha") ? "f-captcha-canvas" : "captcha-canvas";
+    drawCaptcha(canvasId);
     if(input) input.value = "";
     return false;
   }
@@ -927,8 +929,6 @@ async function sendEmailOtp(){
   const email = $("#auth-account").value.trim();
   if(!email){ toast("请先输入邮箱", "err"); return; }
   if(!validAccount(email)){ toast("请输入正确的邮箱", "err"); return; }
-  /* 人机验证前置 */
-  if(!checkCaptcha("auth-captcha")) return;
   const btn = $("#send-otp-btn");
   btn.disabled = true;
   btn.textContent = "发送中…";
