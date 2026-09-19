@@ -547,7 +547,7 @@ body.night .search-box{background:var(--card)}
       <div class="field" id="pwd-field3" style="display:none"><label>确认密码</label><input id="auth-pwd3" type="password" maxlength="30" placeholder="再次输入密码" autocomplete="new-password"></div>
       <div class="field" id="captcha-field"><label>人机验证码</label>
         <div class="captcha-row">
-          <input id="auth-captcha" maxlength="6" placeholder="输入右侧字符" autocomplete="off" style="flex:1">
+          <input id="auth-captcha" maxlength="2" placeholder="输入答案" autocomplete="off" style="flex:1">
           <canvas id="captcha-canvas" width="110" height="42" title="看不清？点击换一张" style="cursor:pointer;border-radius:8px;flex-shrink:0"></canvas>
         </div>
       </div>
@@ -890,7 +890,6 @@ function switchAuthTab(mode){
   $("#auth-password").type = mode === "login" ? "password" : "text";
   $("#pwd-field2").style.display = mode === "register" ? "block" : "none";
   $("#pwd-field3").style.display = mode === "register" ? "block" : "none";
-  $("#forgot-row").style.display = mode === "login" ? "block" : "none";
   $("#auth-captcha").value = "";
   $("#auth-password").value = "";
   $("#auth-pwd2").value = "";
