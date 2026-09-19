@@ -714,7 +714,12 @@ const API = {
   listFollowUsers(penName, type){ return this.request("POST","rpc/list_follow_users",{p_pen_name:penName,p_type:type}); },
   /* 聊天室 */
   listMessages(limit=100){ return this.request("GET","messages",null,"select=*&order=created_at.desc&limit=" + limit); },
-  sendMessage(authorKey, content){ return this.request("POST","rpc/send_message",{p_author_key:authorKey,p_content:content}); }
+  sendMessage(authorKey, content){ return this.request("POST","rpc/send_message",{p_author_key:authorKey,p_content:content}); },
+  /* 打赏 + 签约 */
+  submitTip(authorKey, workId, fromKey, amount, msg){ return this.request("POST","rpc/submit_tip",{p_author_key:authorKey,p_work_id:workId,p_from_key:fromKey,p_amount:amount,p_message:msg}); },
+  tipSummary(authorKey){ return this.request("POST","rpc/tip_summary",{p_author_key:authorKey}); },
+  listTipsReceived(authorKey, limit){ return this.request("POST","rpc/list_tips_received",{p_author_key:authorKey,p_limit:limit||50}); },
+  applyContract(authorKey, workId, penName, workTitle, reason){ return this.request("POST","rpc/apply_contract",{p_author_key:authorKey,p_work_id:workId,p_pen_name:penName,p_work_title:workTitle,p_reason:reason}); }
 };
 
 /* ============ 3. 本地状态 ============ */
@@ -1337,6 +1342,7 @@ function renderBook(){
             '<button class="btn btn-ghost" id="fav-btn" onclick="toggleFav(\'' + id + '\')">' + (isFav ? "已加入书架" : "加入书架") + '</button>' +
             '<button class="btn btn-ghost" id="like-btn" onclick="toggleLike(\'' + id + '\')">' + (myLike ? "♥ 已赞" : "♡ 点赞") + ' <span id="like-count">' + (likeCount||0) + '</span></button>' +
             (isMine ? '<button class="btn btn-accent" onclick="location.hash=\'#/create?edit=' + id + '\'">管理作品</button>' : "") +
+            (!isMine && work.author_key ? '<button class="btn btn-accent" onclick="openTipModal(\'' + id + '\',\'' + (work.author_key||'') + '\')">☕ 打赏作者</button>' : "") +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -2292,7 +2298,7 @@ async function renderRank(){
 
 /* ============ 作家专区 ============ */
 function renderAuthorZone(){
-  app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">AUTHOR ZONE</div><h1>作家专区</h1><p>这里是创作者的舞台，写下你的第一部作品</p><div class="hero-actions"><button class="btn btn-light" onclick="location.hash=\'#/create\'">开始创作</button><button class="btn btn-ghost-dark" onclick="location.hash=\'#/shelf\'">我的书架</button></div></div><div class="section"><div class="section-head"><h2 class="section-title">作家福利</h2></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px"><div style="background:var(--card);padding:20px;border-radius:12px"><h3>无门槛创作</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">注册即可发布作品，没有签约要求，没有字数限制</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>全版权保留</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">你的作品版权完全属于你，平台不主张任何权利</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>读者直连</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">通过评论、关注、聊天室直接和读者交流</p></div></div></div></section>';
+  app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">AUTHOR ZONE</div><h1>作家专区</h1><p>这里是创作者的舞台，写下你的第一部作品</p><div class="hero-actions"><button class="btn btn-light" onclick="location.hash=\'#/create\'">开始创作</button><button class="btn btn-ghost-dark" onclick="location.hash=\'#/shelf\'">我的书架</button>' + (Store.isLoggedIn ? '<button class="btn btn-accent" onclick="openContractModal()">📝 申请签约</button>' : '') + '</div></div><div class="section"><div class="section-head"><h2 class="section-title">作家福利</h2></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px"><div style="background:var(--card);padding:20px;border-radius:12px"><h3>无门槛创作</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">注册即可发布作品，没有签约要求，没有字数限制</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>全版权保留</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">你的作品版权完全属于你，平台不主张任何权利</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>读者直连</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">通过评论、关注、聊天室直接和读者交流</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>签约福利</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">签约作品获得首页推荐位、打赏分成、版权机会</p></div></div></div></section>';
 }
 
 /* ============ 版权专区 ============ */
@@ -2312,7 +2318,7 @@ const TYPO_RULES = [
   { re: /在见|在也|在来|在说/g, fix: (m)=>m.replace(/在/g,"再"), desc: "在→再（表重复应用\"再\"）" },
   { re: /在一次|在三/g, fix: (m)=>m.replace(/在/g,"再"), desc: "在→再" },
   /* 常见别字 */
-  { re: /按装/ g, fix: "安装", desc: "按→安" },
+  { re: /按装/g, fix: "安装", desc: "按→安" },
   { re: /甘败下风/g, fix: "甘拜下风", desc: "败→拜" },
   { re: /自抱自弃/g, fix: "自暴自弃", desc: "抱→暴" },
   { re: /穿流不息/g, fix: "川流不息", desc: "穿→川" },
@@ -2392,6 +2398,84 @@ function fixTypos(){
   ta.value = text;
   toast(fixed > 0 ? "已修正 " + fixed + " 处常见错别字" : "没有需要自动修正的词");
   checkTypos();
+}
+
+/* ============ 打赏弹窗 ============ */
+function openTipModal(workId, authorKey){
+  if(!Store.isLoggedIn){ toast("请先登录再打赏", "err"); openAuthModal("login"); return; }
+  if(authorKey === Store.authorKey){ toast("不能打赏自己哦", "err"); return; }
+  const amounts = [1, 5, 10, 20, 50];
+  let btns = amounts.map(a => '<button class="btn btn-ghost tip-amt" data-amt="' + a + '" style="min-width:64px">' + a + ' 元</button>').join("");
+  /* 用 modal-mask */
+  const mask = document.createElement("div");
+  mask.className = "modal-mask show";
+  mask.id = "tip-modal";
+  mask.innerHTML = '<div class="modal" style="max-width:420px">' +
+    '<div class="modal-head"><h3>☕ 打赏作者</h3><button class="modal-close" onclick="document.getElementById(\'tip-modal\').remove()">✕</button></div>' +
+    '<div style="padding:20px">' +
+      '<p style="margin-bottom:12px;color:var(--ink-faint)">感谢你的支持！打赏金额将以书币形式记录（演示版，暂不实际扣款）</p>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">' + btns + '</div>' +
+      '<div class="field"><label>留言（选填）</label><input id="tip-msg" maxlength="50" placeholder="说点什么…"></div>' +
+      '<button class="btn btn-primary" id="tip-confirm" style="width:100%;margin-top:10px" disabled>选择金额</button>' +
+    '</div></div>';
+  document.body.appendChild(mask);
+  let chosen = 0;
+  mask.querySelectorAll(".tip-amt").forEach(b=>{
+    b.onclick = ()=>{
+      chosen = parseInt(b.dataset.amt, 10);
+      mask.querySelectorAll(".tip-amt").forEach(x=>x.style.background="");
+      b.style.background = "var(--primary)";
+      b.style.color = "#fff";
+      const c = $("#tip-confirm");
+      c.disabled = false;
+      c.textContent = "打赏 " + chosen + " 元";
+    };
+  });
+  $("#tip-confirm").onclick = async ()=>{
+    if(!chosen) return;
+    const btn = $("#tip-confirm");
+    btn.disabled = true; btn.textContent = "打赏中…";
+    try{
+      await API.submitTip(authorKey, workId, Store.authorKey, chosen, $("#tip-msg").value.trim());
+      toast("打赏成功！感谢支持作者 ❤");
+      mask.remove();
+    }catch(e){
+      toast(e.message || "打赏失败", "err");
+      btn.disabled = false; btn.textContent = "打赏 " + chosen + " 元";
+    }
+  };
+}
+
+/* ============ 签约申请弹窗 ============ */
+function openContractModal(){
+  if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+  const mask = document.createElement("div");
+  mask.className = "modal-mask show";
+  mask.id = "contract-modal";
+  mask.innerHTML = '<div class="modal" style="max-width:480px">' +
+    '<div class="modal-head"><h3>📝 申请签约</h3><button class="modal-close" onclick="document.getElementById(\'contract-modal\').remove()">✕</button></div>' +
+    '<div style="padding:20px">' +
+      '<p style="margin-bottom:14px;color:var(--ink-faint);font-size:14px">签约福利：首页推荐位、打赏分成、版权机会。提交后 3 个工作日内审核。</p>' +
+      '<div class="field"><label>作品名称 *</label><input id="ct-work" maxlength="40" placeholder="你最想签约的作品名"></div>' +
+      '<div class="field"><label>申请理由 *</label><textarea id="ct-reason" rows="4" maxlength="200" placeholder="为什么想签约？你的作品优势？"></textarea></div>' +
+      '<button class="btn btn-primary" id="ct-submit" style="width:100%;margin-top:10px">提交申请</button>' +
+    '</div></div>';
+  document.body.appendChild(mask);
+  $("#ct-submit").onclick = async ()=>{
+    const w = $("#ct-work").value.trim();
+    const r = $("#ct-reason").value.trim();
+    if(!w || !r){ toast("请填写完整", "err"); return; }
+    const btn = $("#ct-submit");
+    btn.disabled = true; btn.textContent = "提交中…";
+    try{
+      await API.applyContract(Store.authorKey, null, Store.penName || "", w, r);
+      toast("申请已提交，等待审核！");
+      mask.remove();
+    }catch(e){
+      toast(e.message || "提交失败", "err");
+      btn.disabled = false; btn.textContent = "提交申请";
+    }
+  };
 }
 
 route();
