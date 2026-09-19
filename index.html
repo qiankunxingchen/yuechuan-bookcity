@@ -719,7 +719,8 @@ const API = {
   submitTip(authorKey, workId, fromKey, amount, msg){ return this.request("POST","rpc/submit_tip",{p_author_key:authorKey,p_work_id:workId,p_from_key:fromKey,p_amount:amount,p_message:msg}); },
   tipSummary(authorKey){ return this.request("POST","rpc/tip_summary",{p_author_key:authorKey}); },
   listTipsReceived(authorKey, limit){ return this.request("POST","rpc/list_tips_received",{p_author_key:authorKey,p_limit:limit||50}); },
-  applyContract(authorKey, workId, penName, workTitle, reason){ return this.request("POST","rpc/apply_contract",{p_author_key:authorKey,p_work_id:workId,p_pen_name:penName,p_work_title:workTitle,p_reason:reason}); }
+  applyContract(authorKey, workId, penName, workTitle, reason){ return this.request("POST","rpc/apply_contract",{p_author_key:authorKey,p_work_id:workId,p_pen_name:penName,p_work_title:workTitle,p_reason:reason}); },
+  updatePenName(account, pwd, newName){ return this.request("POST","rpc/update_pen_name",{p_account:account,p_pwd:pwd,p_new_name:newName}); }
 };
 
 /* ============ 3. 本地状态 ============ */
