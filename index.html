@@ -17,8 +17,7 @@
 <meta name="apple-mobile-web-app-title" content="阅川书城">
 <link rel="preconnect" href="https://miaoda.feishu.cn">
 <link rel="dns-prefetch" href="https://xsmdmttfftepbtnjxvfu.supabase.co">
-<link rel="preload" as="style" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap">
 <style>
 /* ============ 设计令牌：墨川主题 ============ */
 :root{
@@ -1322,61 +1321,65 @@ function renderHome(){
   /* 公告栏 */
   loadAnnouncements();
 
-  /* 本周推荐（大字轮播卡片） */
-  API.listWorks({sort:"views", limit:5}).then(works=>{
-    if(!works || !works.length) return;
-    const items = works.map((w,i)=>
-      '<div class="rec-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
-        coverHtml(w,"rec-cover") +
-        '<div class="rec-body">' +
-          '<div class="rec-badge">推荐' + (i+1) + '</div>' +
-          '<div class="rec-title">' + esc(w.title) + '</div>' +
-          '<div class="rec-author">' + esc(w.author) + '</div>' +
-          '<div class="rec-intro">' + esc(w.intro || "经典好书，值得一读") + '</div>' +
-          '<div class="rec-stats"><span>👁 ' + (w.views||0) + ' 阅读</span></div>' +
-        '</div></div>'
-    ).join("");
-    $("#sec-recommend").querySelector(".loading").outerHTML = '<div class="rec-grid">' + items + '</div>';
+  /* 首页数据：一次性请求，减少API调用 */
+  Promise.all([
+    API.listWorks({sort:"views", limit:3}),    // 推荐 - 从5本减到3本
+    API.listWorks({sort:"views", limit:5}),    // 热门 - 从6本减到5本
+    API.listWorks({sort:"created", limit:6})   // 最新 - 从9本减到6本
+  ]).then(([recommendWorks, hotWorks, newWorks])=>{
+
+    /* 本周推荐 */
+    if(recommendWorks && recommendWorks.length){
+      const items = recommendWorks.map((w,i)=>
+        '<div class="rec-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+          coverHtml(w,"rec-cover") +
+          '<div class="rec-body">' +
+            '<div class="rec-badge">推荐' + (i+1) + '</div>' +
+            '<div class="rec-title">' + esc(w.title) + '</div>' +
+            '<div class="rec-author">' + esc(w.author) + '</div>' +
+            '<div class="rec-intro">' + esc(w.intro || "经典好书，值得一读") + '</div>' +
+            '<div class="rec-stats"><span>👁 ' + (w.views||0) + ' 阅读</span></div>' +
+          '</div></div>'
+      ).join("");
+      $("#sec-recommend").querySelector(".loading").outerHTML = '<div class="rec-grid">' + items + '</div>';
+    } else {
+      $("#sec-recommend").style.display = "none";
+    }
+
+    /* 热门榜 */
+    if(hotWorks && hotWorks.length){
+      const items = hotWorks.map((w,i)=>
+        '<div class="h-item" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+          '<div class="rank">' + (i+1) + '</div>' +
+          coverHtml(w,"h-cover") +
+          '<div class="h-body">' +
+            '<div class="h-title">' + esc(w.title) + '</div>' +
+            '<div class="h-intro">' + esc(w.intro || "暂无简介") + '</div>' +
+            '<div class="h-meta"><span>' + esc(w.author) + '</span><span>' + esc(w.category) + '</span><span>' + (w.views||0) + " 阅读</span></div>" +
+          '</div></div>'
+      ).join("");
+      $("#sec-hot").querySelector(".loading").outerHTML = '<div class="h-list">' + items + '</div>';
+    } else {
+      $("#sec-hot").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/><circle cx="14" cy="34" r="4"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
+    }
+
+    /* 最新 */
+    if(newWorks && newWorks.length){
+      const grid = '<div class="book-grid">' + newWorks.map(w=>
+        '<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+          coverHtml(w) +
+          '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
+          '<div class="b-meta">' + esc(w.author) + ' · ' + (w.views||0) + ' 阅读</div></div></div>'
+      ).join("") + '</div>';
+      $("#sec-new").querySelector(".loading").outerHTML = grid;
+    } else {
+      $("#sec-new").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
+    }
+
   }).catch(err=>{
     $("#sec-recommend").style.display = "none";
-  });
-
-  /* 热门榜（横排） */
-  API.listWorks({sort:"views", limit:6}).then(works=>{
-    if(!works || !works.length){
-      $("#sec-hot").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/><circle cx="14" cy="34" r="4"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
-      return;
-    }
-    const items = works.map((w,i)=>
-      '<div class="h-item" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
-        '<div class="rank">' + (i+1) + '</div>' +
-        coverHtml(w,"h-cover") +
-        '<div class="h-body">' +
-          '<div class="h-title">' + esc(w.title) + '</div>' +
-          '<div class="h-intro">' + esc(w.intro || "暂无简介") + '</div>' +
-          '<div class="h-meta"><span>' + esc(w.author) + '</span><span>' + esc(w.category) + '</span><span>' + (w.views||0) + " 阅读</span></div>" +
-        '</div></div>'
-    ).join("");
-    $("#sec-hot").querySelector(".loading").outerHTML = '<div class="h-list">' + items + '</div>';
-  }).catch(err=>{
     $("#sec-hot").querySelector(".loading").outerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
   });
-
-  /* 最新（卡片网格） */
-  API.listWorks({sort:"created", limit:9}).then(works=>{
-    if(!works || !works.length){
-      $("#sec-new").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
-      return;
-    }
-    const grid = '<div class="book-grid">' + works.map(w=>
-      '<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
-        coverHtml(w) +
-        '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
-        '<div class="b-meta">' + esc(w.author) + ' · ' + (w.views||0) + ' 阅读</div></div></div>'
-    ).join("") + '</div>';
-    $("#sec-new").querySelector(".loading").outerHTML = grid;
-  }).catch(err=>{
-    $("#sec-new").querySelector(".loading").outerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
   });
 }
 
@@ -2797,12 +2800,12 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-/* 启动页闪屏：1.5秒后自动消失 */
+/* 启动页闪屏：0.5秒后自动消失 */
 window.addEventListener('load', () => {
   setTimeout(() => {
     const splash = document.getElementById('splash');
     if(splash) splash.classList.add('hide');
-  }, 1500);
+  }, 500);
 });
 
 /* 夜间模式自动：晚上自动切换 */
