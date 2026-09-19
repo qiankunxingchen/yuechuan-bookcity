@@ -9,6 +9,12 @@
 <meta property="og:description" content="开放的小说创作与阅读空间，四大名著全收录，原创小说自由发布。">
 <meta property="og:type" content="website">
 <title>阅川书城 · 人人可写，人人可读</title>
+<meta name="theme-color" content="#146B5B">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="https://miaoda.feishu.cn/fonts/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="阅川书城">
 <link rel="preconnect" href="https://miaoda.feishu.cn">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
 <style>
@@ -2331,6 +2337,15 @@ async function route(){
 }
 
 window.addEventListener("hashchange", route);
+
+/* PWA: 注册Service Worker */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW registered'))
+      .catch(err => console.log('SW failed'));
+  });
+}
 
 /* 夜间模式恢复 */
 if(Store.night) document.body.classList.add("night");
