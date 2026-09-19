@@ -507,6 +507,7 @@ body.night .search-box{background:var(--card)}
       <a href="#/library" data-nav="library">书库</a>
       <a href="#/shelf" data-nav="shelf">书架</a>
       <a href="#/rank" data-nav="rank">原创榜</a>
+      <a href="#/chat" data-nav="chat">聊天室</a>
       <a href="#/author" data-nav="author">作家专区</a>
       <a href="#/copyright" data-nav="copyright">版权专区</a>
     </nav>
@@ -747,7 +748,10 @@ const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 /* 把章节正文按换行自动分自然段，每段包成 <p>，段落间空行，每段开头空两格 */
 function renderContent(text){
-  return String(text ?? "").split(/\n+/).map(p => p.trim()).filter(Boolean).map(p => "<p>　　" + esc(p) + "</p>").join("");
+  return String(text ?? "")
+    .replace(/&nbsp;/g, "　")  /* HTML 空格实体转全角空格 */
+    .split(/\n+/).map(p => p.trim()).filter(Boolean)
+    .map(p => "<p>　　" + esc(p) + "</p>").join("");
 }
 const fmtDate = s => { if(!s) return ""; const d = new Date(s); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); };
 const fmtTime = s => { if(!s) return ""; const d = new Date(s); return String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0") + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); };
@@ -887,7 +891,7 @@ function switchAuthTab(mode){
   $("#auth-submit").textContent = mode === "login" ? "登 录" : "注 册";
   $("#nick-field").style.display = mode === "register" ? "block" : "none";
   $("#pwd-label").textContent = mode === "login" ? "密码" : "邮箱验证码";
-  $("#auth-password").placeholder = mode === "login" ? "输入密码" : "6 位数字验证码";
+  $("#auth-password").placeholder = mode === "login" ? "输入密码" : "邮箱收到的数字验证码";
   $("#auth-password").type = mode === "login" ? "password" : "text";
   $("#pwd-field2").style.display = mode === "register" ? "block" : "none";
   $("#pwd-field3").style.display = mode === "register" ? "block" : "none";
@@ -1737,6 +1741,11 @@ async function renderChapterEditor(workId){
         '<h3>写新章节</h3>' +
         '<div class="field"><label>章节标题 *</label><input id="ch-title" maxlength="40" placeholder="例如：第一章 初入江湖"></div>' +
         '<div class="field"><label>正文 *</label><textarea id="ch-content" rows="14" placeholder="开始写正文吧…"></textarea><div class="hint">支持多段落，直接回车分段即可</div></div>' +
+        '<div style="display:flex;gap:10px;margin-bottom:16px">' +
+          '<button class="btn btn-ghost" onclick="checkTypos()">🔍 检查错别字</button>' +
+          '<button class="btn btn-ghost" onclick="fixTypos()">✨ 一键修正</button>' +
+        '</div>' +
+        '<div id="typo-report" style="display:none;background:#FFF7E6;border:1px solid #FFD591;border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px"></div>' +
         '<button class="btn btn-primary" onclick="saveChapter(\'' + workId + '\')">发布章节</button>' +
       '</div>' +
 
@@ -2274,7 +2283,7 @@ async function renderRank(){
     works.forEach((w,i)=>{
       const rank = i+1;
       const badge = rank<=3 ? '<div style="position:absolute;top:0;left:0;background:#C98A2D;color:#fff;padding:2px 8px;font-size:12px;font-weight:bold;border-radius:0 0 8px 0">'+rank+'</div>' : '<div style="position:absolute;top:0;left:0;background:#999;color:#fff;padding:2px 8px;font-size:12px;border-radius:0 0 8px 0">'+rank+'</div>';
-      html += '<div class="book-card" onclick="location.hash=\'#/book/'+w.id+'\'" style="position:relative">'+badge+coverHtml(w)+'<div class="book-info"><div class="book-title">'+esc(w.title)+'</div><div class="book-author">'+esc(w.author)+' · '+w.views+' 阅读</div></div></div>';
+      html += '<div class="book-card" onclick="location.hash=\'#/book?id='+w.id+'\'" style="position:relative">'+badge+coverHtml(w)+'<div class="book-info"><div class="book-title">'+esc(w.title)+'</div><div class="book-author">'+esc(w.author)+' · '+w.views+' 阅读</div></div></div>';
     });
     html += '</div>';
     $("#rank-list").innerHTML = html;
@@ -2289,6 +2298,100 @@ function renderAuthorZone(){
 /* ============ 版权专区 ============ */
 function renderCopyrightZone(){
   app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">COPYRIGHT</div><h1>版权专区</h1><p>尊重原创，保护版权</p></div><div class="section"><div style="background:var(--card);padding:24px;border-radius:12px;line-height:1.8"><h3>版权声明</h3><p style="color:var(--ink-faint);margin-top:12px">1. 阅川书城所有用户发布的原创作品，版权归原作者所有。</p><p style="color:var(--ink-faint)">2. 本站收录的公版名著（如《朝花夕拾》《呐喊》等）已过著作权保护期，可自由传播。</p><p style="color:var(--ink-faint)">3. 未经作者授权，不得擅自转载、复制、商用本站原创作品。</p><p style="color:var(--ink-faint)">4. 如发现侵权内容，请联系管理员下架处理。</p></div></div></section>';
+}
+
+/* ============ 错别字检查 ============ */
+/* 常见错别字/用词错误词典（纯前端规则检查） */
+const TYPO_RULES = [
+  /* 重复字 */
+  { re: /([\u4e00-\u9fff])\1{1,}/g, fix: (m)=>m[0], desc: "重复字" },
+  /* 的地得误用（常见） */
+  { re: /(慢慢|缓缓|渐渐|悄悄|轻轻|静静|认真|仔细|高兴|快乐|伤心|难过|飞快|迅速|突然|忽然|猛然)的(跑|走|说|笑|哭|看|听|想|做|干|跑|跳|飞|转|摇|点|抬|低|弯|伸|缩)/g, fix: "$1地$2", desc: "的→地（副词后应用\"地\"）" },
+  { re: /(跑|走|说|笑|哭|看|听|想|做|干|跳|飞|转|摇|点|抬|低|弯|伸|缩)的(很快|很慢|很好|很糟|不错|可以|厉害|起劲|开心|伤心)/g, fix: "$1得$2", desc: "的→得（补语前应用\"得\"）" },
+  /* 在/再 */
+  { re: /在见|在也|在来|在说/g, fix: (m)=>m.replace(/在/g,"再"), desc: "在→再（表重复应用\"再\"）" },
+  { re: /在一次|在三/g, fix: (m)=>m.replace(/在/g,"再"), desc: "在→再" },
+  /* 常见别字 */
+  { re: /按装/ g, fix: "安装", desc: "按→安" },
+  { re: /甘败下风/g, fix: "甘拜下风", desc: "败→拜" },
+  { re: /自抱自弃/g, fix: "自暴自弃", desc: "抱→暴" },
+  { re: /穿流不息/g, fix: "川流不息", desc: "穿→川" },
+  { re: /谈笑风声/g, fix: "谈笑风生", desc: "声→生" },
+  { re: /再接再励/g, fix: "再接再厉", desc: "励→厉" },
+  { re: /迫不急待/g, fix: "迫不及待", desc: "急→及" },
+  { re: /一如继往/g, fix: "一如既往", desc: "继→既" },
+  { re: /走头无路/g, fix: "走投无路", desc: "头→投" },
+  { re: /名列前矛/g, fix: "名列前茅", desc: "矛→茅" },
+  { re: /烩炙人口/g, fix: "脍炙人口", desc: "烩→脍" },
+  { re: /鬼鬼崇崇/g, fix: "鬼鬼祟祟", desc: "崇→祟" },
+  { re: /金榜提名/g, fix: "金榜题名", desc: "提→题" },
+  { re: /走头无路/g, fix: "走投无路", desc: "头→投" },
+  { re: /不能自己/g, fix: "不能自已", desc: "己→已" },
+  { re: /水笼头/g, fix: "水龙头", desc: "笼→龙" },
+  { re: /名信片/g, fix: "明信片", desc: "名→明" },
+  { re: /饮鸠止渴/g, fix: "饮鸩止渴", desc: "鸠→鸩" },
+  { re: /旁证博引/g, fix: "旁征博引", desc: "证→征" },
+  { re: /打腊/g, fix: "打蜡", desc: "腊→蜡" },
+  { re: /诺大/g, fix: "偌大", desc: "诺→偌" },
+  { re: /床第/g, fix: "床笫", desc: "第→笫" },
+  { re: /痉孪/g, fix: "痉挛", desc: "孪→挛" },
+  { re: /了了无几/g, fix: "寥寥无几", desc: "了→寥" },
+  { re: /老奸巨滑/g, fix: "老奸巨猾", desc: "滑→猾" },
+  { re: /九宵云外/g, fix: "九霄云外", desc: "宵→霄" },
+  { re: /黄梁美梦/g, fix: "黄粱美梦", desc: "梁→粱" },
+  { re: /汗流夹背/g, fix: "汗流浃背", desc: "夹→浃" },
+  { re: /不径而走/g, fix: "不胫而走", desc: "径→胫" },
+  { re: /烩炙人口/g, fix: "脍炙人口", desc: "烩→脍" },
+];
+
+function checkTypos(){
+  const ta = $("#ch-content");
+  if(!ta){ toast("找不到正文输入框", "err"); return; }
+  const text = ta.value;
+  if(!text.trim()){ toast("正文是空的，先写点内容", "err"); return; }
+
+  const found = [];
+  TYPO_RULES.forEach(rule=>{
+    let m;
+    const re = new RegExp(rule.re.source, rule.re.flags);
+    while((m = re.exec(text)) !== null){
+      found.push({ match: m[0], index: m.index, desc: rule.desc });
+    }
+  });
+
+  const report = $("#typo-report");
+  report.style.display = "block";
+  if(found.length === 0){
+    report.innerHTML = '<strong style="color:#146B5B">✓ 未发现常见错别字</strong><br><span style="color:#999;font-size:13px">（仅检查常见词误与重复字，不保证100%准确）</span>';
+  } else {
+    let html = '<strong style="color:#C0392B">⚠ 发现 ' + found.length + ' 处疑似问题：</strong><br>';
+    found.slice(0, 20).forEach((f,i)=>{
+      const ctx = text.slice(Math.max(0,f.index-10), f.index + f.match.length + 10);
+      html += '<div style="margin-top:6px;color:#333"><b>' + (i+1) + '.</b> 「' + esc(f.match) + '」<span style="color:#999">（' + esc(f.desc) + '）</span><br><span style="color:#888;font-size:12px">…' + esc(ctx) + '…</span></div>';
+    });
+    if(found.length > 20) html += '<div style="margin-top:6px;color:#999">…还有 ' + (found.length-20) + ' 处未列出</div>';
+    html += '<div style="margin-top:10px;color:#999;font-size:12px">点击「一键修正」自动替换明确错误的词</div>';
+    report.innerHTML = html;
+  }
+}
+
+function fixTypos(){
+  const ta = $("#ch-content");
+  if(!ta) return;
+  let text = ta.value;
+  let fixed = 0;
+  TYPO_RULES.forEach(rule=>{
+    /* 只替换明确词误（跳过"的地得"和重复字，避免误伤） */
+    if(rule.desc.includes("的→") || rule.desc.includes("重复字")) return;
+    const re = new RegExp(rule.re.source, "g");
+    text = text.replace(re, (m)=>{
+      fixed++;
+      return typeof rule.fix === "function" ? rule.fix(m) : rule.fix;
+    });
+  });
+  ta.value = text;
+  toast(fixed > 0 ? "已修正 " + fixed + " 处常见错别字" : "没有需要自动修正的词");
+  checkTypos();
 }
 
 route();
