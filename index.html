@@ -598,6 +598,92 @@ body.night .search-box{background:var(--card)}
 }
 .shelf-tab:hover{border-color:var(--brand);color:var(--brand)}
 .shelf-tab.active{background:var(--brand);border-color:var(--brand);color:#fff}
+
+/* ============ 头像框 ============ */
+.avatar-frame{position:relative;display:inline-block}
+.avatar-frame .af-inner{
+  width:100%;height:100%;border-radius:50%;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--card-soft);
+}
+.af-gold{box-shadow:0 0 0 3px #C98A2D,0 0 0 6px rgba(201,138,45,.35)}
+.af-gold::after{content:"👑";position:absolute;top:-8px;right:-6px;font-size:18px}
+.af-diamond{box-shadow:0 0 0 3px #7EC8E3,0 0 0 6px rgba(126,200,227,.3);background:linear-gradient(135deg,rgba(126,200,227,.2),rgba(255,255,255,.2))!important}
+.af-diamond::after{content:"💎";position:absolute;top:-8px;right:-6px;font-size:18px}
+.af-fire{box-shadow:0 0 0 3px #E5533C,0 0 0 6px rgba(229,83,60,.35)}
+.af-fire::after{content:"🔥";position:absolute;top:-8px;right:-6px;font-size:18px}
+.af-rainbow{box-shadow:0 0 0 3px #E5533C,0 0 0 6px rgba(201,138,45,.4),0 0 0 9px rgba(76,180,140,.3),0 0 0 12px rgba(94,120,220,.3)}
+.af-royal{box-shadow:0 0 0 3px #7C3AED,0 0 0 7px rgba(124,58,237,.3)}
+.af-royal::after{content:"🌟";position:absolute;top:-8px;right:-6px;font-size:18px}
+.af-crown{box-shadow:0 0 0 3px #F59E0B,0 0 0 7px rgba(245,158,11,.35)}
+.af-crown::after{content:"👑";position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:20px}
+.frame-swatches{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.frame-swatch{
+  width:44px;height:44px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;background:var(--card);border:2px solid var(--line);
+  transition:all .2s;
+}
+.frame-swatch:hover{border-color:var(--brand);transform:scale(1.08)}
+.frame-swatch.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+
+/* ============ 宠物 ============ */
+.pet-card{
+  display:flex;align-items:center;gap:18px;
+  background:linear-gradient(120deg,var(--card-soft),var(--card));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;margin-bottom:20px;
+}
+.pet-emoji{font-size:64px;line-height:1;animation:petBounce 2s ease-in-out infinite;cursor:pointer}
+@keyframes petBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pet-info{flex:1;min-width:0}
+.pet-name{font-family:var(--serif);font-size:18px;font-weight:700}
+.pet-level{font-size:13px;color:var(--ink-soft);margin-top:4px}
+.pet-bar{height:8px;background:var(--line);border-radius:99px;margin-top:10px;overflow:hidden}
+.pet-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--accent));border-radius:99px;transition:width .4s}
+.pet-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pet-btn{
+  padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;
+  border:1px solid var(--line);background:var(--card);cursor:pointer;transition:all .2s;
+}
+.pet-btn:hover{border-color:var(--brand);color:var(--brand)}
+.pet-sel{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+
+/* ============ AI聊天 ============ */
+.ai-shell{
+  max-width:760px;margin:0 auto;display:flex;flex-direction:column;
+  height:calc(100vh - 200px);min-height:420px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;
+}
+.ai-head{
+  padding:14px 18px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;
+  background:linear-gradient(120deg,var(--brand-soft),var(--card));
+}
+.ai-head .ai-bot{font-size:22px}
+.ai-list{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.ai-msg{max-width:78%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.ai-msg.bot{background:var(--card-soft);border-top-left-radius:4px;align-self:flex-start}
+.ai-msg.me{background:var(--brand);color:#fff;border-top-right-radius:4px;align-self:flex-end}
+.ai-input-row{display:flex;gap:10px;padding:12px 14px;border-top:1px solid var(--line)}
+.ai-input-row input{
+  flex:1;padding:11px 14px;border-radius:12px;border:1px solid var(--line);
+  background:var(--paper);outline:none;
+}
+.ai-input-row input:focus{border-color:var(--brand)}
+.ai-quick{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 10px}
+.ai-qchip{
+  font-size:12px;padding:5px 12px;border-radius:999px;
+  background:var(--card-soft);border:1px solid var(--line);
+  cursor:pointer;transition:all .2s;
+}
+.ai-qchip:hover{border-color:var(--brand);color:var(--brand)}
+.typing-dots{display:inline-flex;gap:4px;padding:4px 2px}
+.typing-dots i{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);animation:typing 1.2s infinite}
+.typing-dots i:nth-child(2){animation-delay:.2s}
+.typing-dots i:nth-child(3){animation-delay:.4s}
+@keyframes typing{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
 </style>
 </head>
 <body>
@@ -625,6 +711,7 @@ body.night .search-box{background:var(--card)}
       <a href="#/shelf" data-nav="shelf">书架</a>
       <a href="#/rank" data-nav="rank">原创榜</a>
       <a href="#/chat" data-nav="chat">聊天室</a>
+      <a href="#/ai" data-nav="ai">AI助手</a>
       <a href="#/author" data-nav="author">作家专区</a>
       <a href="#/download" data-nav="download">下载App</a>
       <a href="#/me" data-nav="me">个人主页</a>
@@ -1658,7 +1745,15 @@ function dailyCheckin(){
   }
   Store.lastCheckin = today;
   Store.checkinStreak = (Store.checkinStreak || 0) + 1;
-  toast('🎉 签到成功！已连续签到' + Store.checkinStreak + '天');
+  /* 签到给宠物加经验 */
+  const p = getPet();
+  if(p){
+    p.hunger = Math.min(100, (p.hunger || 100) + 20);
+    addPetExp(p, 10);
+    toast('🎉 签到成功！已连续签到' + Store.checkinStreak + '天，宠物经验 +10');
+  } else {
+    toast('🎉 签到成功！已连续签到' + Store.checkinStreak + '天');
+  }
 }
 
 /* 阅读时长统计 */
@@ -1772,6 +1867,12 @@ function renderReader(){
     if(existingIdx >= 0) history.splice(existingIdx, 1);
     history.unshift({ workId: id, ch: idx, workTitle: work.title, time: new Date().toISOString() });
     Store.readHistory = history.slice(0, 50); /* 最多50条 */
+
+    /* 阅读给宠物加经验 */
+    const pet = getPet();
+    if(pet){
+      addPetExp(pet, 2);
+    }
 
     renderReaderView(work, chapters, idx, chapter);
   }).catch(err=>{
@@ -2440,6 +2541,241 @@ async function sendChat(){
   }
 }
 
+/* ============ 头像框 ============ */
+function setAvatarFrame(frame, el){
+  Store.avatarFrame = frame;
+  document.querySelectorAll(".frame-swatch").forEach(s=>s.classList.remove("active"));
+  if(el) el.classList.add("active");
+  toast("头像框已更换！");
+  renderMe();
+}
+
+/* ============ 宠物系统 ============ */
+const PET_TYPES = {cat:"🐱", dog:"🐶", rabbit:"🐰", fox:"🦊"};
+function getPet(){
+  const p = Store.pet || null;
+  if(!p) return null;
+  return p;
+}
+function petCardHtml(){
+  const p = getPet();
+  if(!p){
+    return '<div class="pet-card"><div style="text-align:center;flex:1;padding:10px">' +
+      '<div style="font-size:48px">🏡</div>' +
+      '<p style="margin:10px 0 14px;color:var(--ink-soft)">你还没有宠物，领养一只吧！</p>' +
+      '<div class="pet-sel" style="justify-content:center">' +
+        '<button class="pet-btn" onclick="adoptPet(\'cat\')">🐱 小猫</button>' +
+        '<button class="pet-btn" onclick="adoptPet(\'dog\')">🐶 小狗</button>' +
+        '<button class="pet-btn" onclick="adoptPet(\'rabbit\')">🐰 小兔</button>' +
+        '<button class="pet-btn" onclick="adoptPet(\'fox\')">🦊 小狐</button>' +
+      '</div></div></div>';
+  }
+  const emoji = PET_TYPES[p.type] || "🐱";
+  const names = {cat:"小猫", dog:"小狗", rabbit:"小兔", fox:"小狐"};
+  const name = p.name || names[p.type] || "宠物";
+  const level = p.level || 1;
+  const exp = p.exp || 0;
+  const need = level * 30;
+  const hunger = p.hunger || 100;
+  const pct = Math.min(100, Math.round(exp / need * 100));
+  const mood = hunger > 60 ? "开心" : hunger > 30 ? "饿了" : "很饿";
+  return '<div class="pet-card">' +
+    '<div class="pet-emoji" title="' + name + '">' + emoji + '</div>' +
+    '<div class="pet-info">' +
+      '<div class="pet-name">' + name + ' <span style="font-size:12px;color:var(--ink-faint)">Lv.' + level + '</span></div>' +
+      '<div class="pet-level">心情：' + mood + ' · 饱食度：' + hunger + '/100</div>' +
+      '<div class="pet-bar"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="pet-level" style="margin-top:4px">经验：' + exp + '/' + need + '</div>' +
+    '</div>' +
+    '<div class="pet-actions">' +
+      '<button class="pet-btn" onclick="feedPet()">🍖 喂食</button>' +
+      '<button class="pet-btn" onclick="showPetHelp()">❓ 帮助</button>' +
+    '</div></div>';
+}
+function adoptPet(type){
+  Store.pet = { type: type, name: PET_TYPES[type] + " 小宝", level: 1, exp: 0, hunger: 100, born: new Date().toISOString() };
+  toast("恭喜领养成功！多来阅读和签到喂养它吧");
+  $("#pet-box").innerHTML = petCardHtml();
+}
+function feedPet(){
+  const p = getPet();
+  if(!p){ toast("先领养一只宠物吧", "err"); return; }
+  if(p.hunger >= 100){
+    toast("它已经吃饱啦，先去阅读或签到攒点经验吧", "err");
+    return;
+  }
+  p.hunger = Math.min(100, p.hunger + 30);
+  addPetExp(p, 5);
+  toast("🍖 喂食成功！经验 +5");
+  $("#pet-box").innerHTML = petCardHtml();
+}
+function addPetExp(p, n){
+  p.exp = (p.exp || 0) + n;
+  const need = p.level * 30;
+  while(p.exp >= need){
+    p.exp -= need;
+    p.level = (p.level || 1) + 1;
+    toast("🎉 宠物升级到 Lv." + p.level + " 啦！");
+  }
+  Store.pet = p;
+}
+function showPetHelp(){
+  toast("【宠物玩法】\n· 领养：选一只喜欢的\n· 喂食：在个人主页喂，+经验\n· 每日签到可喂饱食度\n· 阅读也能帮宠物攒经验\n· 等级越高越可爱！");
+}
+/* 签到时同步宠物饱食度+经验（在dailyCheckin里调用） */
+
+/* ============ AI聊天助手 ============ */
+let aiHistory = [];
+function renderAI(){
+  app.innerHTML =
+  '<section class="page">' +
+    '<div class="page-title">AI小川助手</div>' +
+    '<p class="page-sub">你的书城智能小助手，可以聊天、推荐好书、解答平台问题</p>' +
+    '<div class="ai-shell">' +
+      '<div class="ai-head">' +
+        '<span class="ai-bot">🤖</span>' +
+        '<div><b>小川</b><div style="font-size:12px;color:var(--ink-faint)">阅川书城AI助手 · 在线</div></div>' +
+      '</div>' +
+      '<div class="ai-list" id="ai-list">' +
+        '<div class="ai-msg bot">你好呀！我是小川 🤖<br>我可以帮你：<br>📖 推荐小说 · 讲解名著<br>❓ 解答平台问题 · 陪你聊天<br>试试点下面的快捷问题，或直接输入～</div>' +
+      '</div>' +
+      '<div class="ai-quick">' +
+        '<span class="ai-qchip" onclick="aiAsk(this.textContent)">推荐几本好书</span>' +
+        '<span class="ai-qchip" onclick="aiAsk(this.textContent)">红楼梦讲的是什么</span>' +
+        '<span class="ai-qchip" onclick="aiAsk(this.textContent)">怎么创作小说</span>' +
+        '<span class="ai-qchip" onclick="aiAsk(this.textContent)">怎么注册账号</span>' +
+        '<span class="ai-qchip" onclick="aiAsk(this.textContent)">你好</span>' +
+      '</div>' +
+      '<div class="ai-input-row">' +
+        '<input id="ai-input" maxlength="200" placeholder="输入你想问的…（回车发送）" onkeydown="if(event.key===\'Enter\')aiAsk()">' +
+        '<button class="btn btn-primary" onclick="aiAsk()">发送</button>' +
+      '</div>' +
+    '</div>' +
+  '</section>';
+}
+
+/* AI回复引擎：关键词匹配 + 书城知识库 */
+function aiReply(text){
+  const t = (text || "").toLowerCase();
+  aiHistory.push(text);
+  if(aiHistory.length > 20) aiHistory.shift();
+
+  /* 问候 */
+  if(/你好|嗨|hello|hi|在吗/.test(t)){
+    const name = Store.isLoggedIn ? Store.penName || "朋友" : "朋友";
+    return "你好呀 " + name + "！我是小川 🤖 有什么想聊的？比如让我推荐本书、讲讲名著，或者问问平台怎么用～";
+  }
+  /* 你是谁 */
+  if(/你是谁|你叫什么|介绍一下你/.test(t)){
+    return "我是小川，阅川书城的AI小助手！我的主人是阅川书城的站长。我可以陪你聊天、推荐小说、讲解四大名著、解答平台问题～";
+  }
+  /* 推荐 */
+  if(/推荐|有什么书|好书/.test(t)){
+    return "给你推荐几本经典好读的：\n\n📕 《红楼梦》——曹雪芹，中国古典小说巅峰，人情世故写绝了\n📗 《西游记》——吴承恩，神魔奇幻开山之作，谁都能读\n📙 《三国演义》——罗贯中，群雄逐鹿，智谋故事\n📘 《水浒传》——施耐庵，一百零八将的热血江湖\n\n想看原创小说也可以去【书库】和【原创榜】逛逛！";
+  }
+  /* 红楼梦 */
+  if(/红楼梦/.test(t)){
+    return "《红楼梦》是清代曹雪芹写的，讲的是贾、史、王、薛四大家族的兴衰，核心是贾宝玉和林黛玉、薛宝钗的爱情悲剧。它最厉害的地方是「草蛇灰线、伏脉千里」，人物个个立体，被称为「中国古典小说的巅峰」。想看的话，书库里就有全120回！";
+  }
+  /* 西游记 */
+  if(/西游记/.test(t)){
+    return "《西游记》是明代吴承恩写的，讲唐僧师徒四人西天取经、历经九九八十一难的故事。孙悟空是绝对主角，大闹天宫、三打白骨精这些情节家喻户晓。它表面是神魔故事，其实写的是「心猿」的修炼之路。书库里有全100回！";
+  }
+  /* 三国 */
+  if(/三国/.test(t)){
+    return "《三国演义》是明代罗贯中写的，讲东汉末年到西晋统一这段历史，桃园结义、赤壁之战、空城计……智谋故事特别精彩。诸葛亮是全书最亮眼的人物。书库里有全120回！";
+  }
+  /* 水浒 */
+  if(/水浒/.test(t)){
+    return "《水浒传》是施耐庵写的，讲宋江等一百零八位好汉被逼上梁山的故事，林冲、武松、鲁智深都是经典人物。那句「路见不平一声吼」就是从这儿来的。书库里有全120回！";
+  }
+  /* 创作 */
+  if(/创作|写小说|发布作品|作家/.test(t)){
+    if(!Store.isLoggedIn) return "想创作要先登录哦！点右上角【登录】，然后进【作家专区】→【开始创作】，填好书名、简介，就能开始写第一章了。写完点发布，全世界都能看到你的作品！";
+    return "你现在就可以创作！步骤：\n1. 点【作家专区】→【开始创作】\n2. 填书名、分类、简介\n3. 写第一章内容\n4. 点【发布】\n\n你的作品会出现在【书库】里，别人能看、能评论、能点赞、还能打赏你哦！";
+  }
+  /* 注册 */
+  if(/注册|账号|登录|怎么进/.test(t)){
+    return "注册很简单：\n1. 点右上角【登录/注册】\n2. 填邮箱，会收到6位验证码\n3. 输验证码，设密码和笔名\n4. 完成！\n\n游客也能看书，但要登录才能创作、评论、点赞、收藏哦～";
+  }
+  /* 打赏 */
+  if(/打赏|赚钱|付费/.test(t)){
+    return "读者在书籍详情页可以点【☕ 打赏作者】支持你喜欢的作者！如果你写了作品，也会收到读者的打赏～";
+  }
+  /* 书架 */
+  if(/书架|收藏/.test(t)){
+    return "在书籍详情页点【加入书架】，就能在【书架】里找到它！书架里还有【最近阅读】和【书签】两个标签，方便你追书～";
+  }
+  /* 聊天室 */
+  if(/聊天室|聊天/.test(t)){
+    return "【聊天室】在顶栏就能进，登录后可以和大家实时聊天，分享你正在看的书，或者聊聊你的创作～";
+  }
+  /* 下载 */
+  if(/下载|app|软件|手机/.test(t)){
+    return "在【下载App】页面可以下载：\n📱 Android手机版（APK）\n💻 Windows电脑版（免安装）\n苹果用户可以用Safari打开网站→【添加到主屏幕】，效果和App一样！";
+  }
+  /* 签到 */
+  if(/签到|宠物/.test(t)){
+    return "顶栏的 🎁 按钮是【每日签到】，连续签到有成就！签到还能给你的宠物喂食，让它升级成长哦～";
+  }
+  /* 宠物 */
+  if(/宠物|养/.test(t)){
+    return "去【个人主页】就能领养你的宠物啦！🐱🐶🐰🦊 选一只喜欢的，签到和阅读都能给它喂食、加经验，等级越高越可爱！";
+  }
+  /* 头像 */
+  if(/头像/.test(t)){
+    return "在【个人主页】点你的头像就能上传照片。旁边还有【头像框】可以选：金框、钻石框、火焰框、彩虹框……等级装饰你的头像，独一无二！";
+  }
+  /* 感谢 */
+  if(/谢谢|感谢|辛苦/.test(t)){
+    return "不客气呀！😊 有需要随时找我，陪你读书、陪你创作～";
+  }
+  /* 再见 */
+  if(/再见|拜拜|88/.test(t)){
+    return "再见！记得常回阅川书城看看，有好书我随时给你推荐 📚";
+  }
+  /* 心情 */
+  if(/难过|不开心|伤心|烦/.test(t)){
+    return "抱抱你 🤗 心情不好的时候，读一本好书是最好的治愈。去书库找本温暖的书吧，或者去聊天室和大家说说话。小川一直在这里陪着你！";
+  }
+  /* 笑话 */
+  if(/笑话|搞笑|讲个/.test(t)){
+    return "给你讲一个：\n孙悟空问唐僧：「师父，前面是火焰山，要不要绕路？」\n唐僧：「不绕，念紧箍咒。」\n孙悟空：「绕！必须绕！」 😂\n\n还想听吗？";
+  }
+  /* 天气等闲聊兜底 */
+  if(/天气|今天.*干/.test(t)){
+    return "我住在书城里，看不到外面的天气 😅 不过我知道：无论晴雨，都是读书的好天气！想听我推荐本适合今天的书吗？";
+  }
+  /* 默认回复 */
+  return "这个问题有点难住我了 😅 我是书城小助手，最擅长的是：推荐好书、讲解四大名著、解答平台使用问题。\n\n你可以试试问我：\n· 推荐几本好书\n· 红楼梦讲的是什么\n· 怎么创作小说\n· 怎么注册账号";
+}
+
+function aiAsk(pre){
+  const input = $("#ai-input");
+  const q = (pre || (input ? input.value : "")).trim();
+  if(!q) return;
+  if(input) input.value = "";
+  const list = $("#ai-list");
+  if(!list) return;
+
+  /* 用户消息 */
+  list.insertAdjacentHTML("beforeend", '<div class="ai-msg me">' + esc(q) + '</div>');
+
+  /* 打字指示 */
+  const typing = document.createElement("div");
+  typing.className = "ai-msg bot";
+  typing.innerHTML = '<span class="typing-dots"><i></i><i></i><i></i></span>';
+  list.appendChild(typing);
+  list.scrollTop = list.scrollHeight;
+
+  /* 模拟思考，然后回复 */
+  setTimeout(() => {
+    typing.remove();
+    list.insertAdjacentHTML("beforeend", '<div class="ai-msg bot">' + esc(aiReply(q)) + '</div>');
+    list.scrollTop = list.scrollHeight;
+  }, 500 + Math.random() * 600);
+}
+
 /* ============ 用户主页 ============ */
 function renderUserPage(){
   const name = parseHash().params.get("name") || "";
@@ -2567,12 +2903,17 @@ function renderMe(){
   const favCount = Store.favorites.length;
   const avatarUrl = Store.avatar || "";
   const initial = (u || "阅").slice(0,1).toUpperCase();
+  const af = Store.avatarFrame || "none";
 
   app.innerHTML =
   '<section class="page">' +
     '<div class="me-card">' +
       '<div class="me-avatar" onclick="document.getElementById(\'avatar-input\').click()" style="cursor:pointer;position:relative" title="点击上传头像">' +
-        (avatarUrl ? '<img src="' + esc(avatarUrl) + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="头像">' : esc(initial)) +
+        '<div class="avatar-frame af-' + af + '" style="width:100%;height:100%">' +
+          '<div class="af-inner">' +
+            (avatarUrl ? '<img src="' + esc(avatarUrl) + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="头像">' : esc(initial)) +
+          '</div>' +
+        '</div>' +
         '<div style="position:absolute;bottom:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:8px">上传</div>' +
       '</div>' +
       '<input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">' +
@@ -2590,6 +2931,25 @@ function renderMe(){
         '<button class="btn btn-ghost" onclick="location.hash=\'#/user?name=' + encodeURIComponent(Store.penName) + '\'">我的主页</button>' +
         '<button class="btn btn-danger" onclick="logout()">退出登录</button>' +
       '</div>' +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-head"><h2 class="section-title">🖼️ 我的头像框</h2></div>' +
+      '<div class="form-card">' +
+        '<div class="frame-swatches">' +
+          '<div class="frame-swatch' + (af==="none"?" active":"") + '" title="无边框" onclick="setAvatarFrame(\'none\',this)">○</div>' +
+          '<div class="frame-swatch af-gold' + (af==="gold"?" active":"") + '" title="金色贵族" onclick="setAvatarFrame(\'gold\',this)">👑</div>' +
+          '<div class="frame-swatch af-diamond' + (af==="diamond"?" active":"") + '" title="蓝钻" onclick="setAvatarFrame(\'diamond\',this)">💎</div>' +
+          '<div class="frame-swatch af-fire' + (af==="fire"?" active":"") + '" title="烈焰" onclick="setAvatarFrame(\'fire\',this)">🔥</div>' +
+          '<div class="frame-swatch af-rainbow' + (af==="rainbow"?" active":"") + '" title="彩虹" onclick="setAvatarFrame(\'rainbow\',this)">🌈</div>' +
+          '<div class="frame-swatch af-royal' + (af==="royal"?" active":"") + '" title="星辉" onclick="setAvatarFrame(\'royal\',this)">🌟</div>' +
+          '<div class="frame-swatch af-crown' + (af==="crown"?" active":"") + '" title="皇冠" onclick="setAvatarFrame(\'crown\',this)">👑</div>' +
+        '</div>' +
+        '<div class="hint" style="margin-top:10px">点击选择头像框，会显示在你的头像周围和评论区</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-head"><h2 class="section-title">🐾 我的宠物</h2></div>' +
+      '<div id="pet-box">' + petCardHtml() + '</div>' +
     '</div>' +
     '<div class="section" id="owner-panel" style="display:none">' +
       '<div class="section-head"><h2 class="section-title">站长公告</h2></div>' +
@@ -2744,6 +3104,7 @@ async function route(){
     case "shelf": renderShelf(); break;
     case "me": renderMe(); break;
     case "chat": renderChat(); break;
+    case "ai": renderAI(); break;
     case "user": renderUserPage(); break;
     case "rank": renderRank(); break;
     case "author": renderAuthorZone(); break;
