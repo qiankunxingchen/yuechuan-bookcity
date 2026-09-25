@@ -687,6 +687,14 @@ cursor:pointer;transition:all .2s;
 .typing-dots i:nth-child(2){animation-delay:.2s}
 .typing-dots i:nth-child(3){animation-delay:.4s}
 @keyframes typing{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.fg-btn{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-size:11px;padding:2px 8px;border-radius:6px;cursor:pointer}
+.fg-btn:hover{border-color:var(--brand);color:var(--brand)}
+.fg-btn.fg-on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.notif-panel{position:fixed;top:64px;right:16px;width:320px;max-width:calc(100vw - 32px);max-height:60vh;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.18);z-index:999;padding:10px}
+.notif-item{display:flex;gap:10px;padding:10px;border-radius:10px;cursor:pointer;align-items:flex-start;font-size:13px;line-height:1.5}
+.notif-item:hover{background:rgba(0,0,0,.04)}
+.notif-item.unread{background:rgba(46,139,87,.07)}
+.notif-item.unread::before{content:"";width:6px;height:6px;border-radius:50%;background:#E53E3E;flex:none;margin-top:6px}
 </style>
 </head>
 <body>
@@ -732,7 +740,7 @@ cursor:pointer;transition:all .2s;
 <button class="btn btn-ghost btn-sm" onclick="showThemePicker()" title="切换主题">🎨</button>
 <button class="btn btn-ghost btn-sm" onclick="toggleFullScreen()" title="全屏 (F11)">⛶</button>
 <div style="position:relative">
-<button class="btn btn-ghost btn-sm" onclick="toast('暂无新消息')" title="通知">🔔</button>
+<button class="btn btn-ghost btn-sm" onclick="toggleNotifPanel()" title="通知">🔔</button>
 <span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#E53E3E;color:#fff;font-size:10px;min-width:18px;height:18px;border-radius:99px;align-items:center;justify-content:center;padding:0 4px">0</span>
 </div>
 <button class="btn btn-accent btn-sm" onclick="gotoCreate()">写小说</button>
@@ -879,6 +887,15 @@ return data;
 clearCache(){
 this._cache.clear();
 },
+listNotifications(account){
+return this.request("GET","notifications",null,"select=*&account=eq." + encodeURIComponent(account) + "&order=created_at.desc&limit=30");
+},
+addNotification(account,type,text){
+return this.request("POST","notifications",{account:account,type:type,text:text});
+},
+markNotifRead(account){
+return this.request("PATCH","notifications",{read:true},"account=eq." + encodeURIComponent(account) + "&read=eq.false");
+},
 /* 作品 */
 listWorks({category, sort, q, limit=50} = {}){
 const qs = [];
@@ -890,6 +907,7 @@ qs.push("limit=" + limit);
 return this.request("GET","works",null,qs.join("&"));
 },
 getWork(id){ return this.request("GET","works",null,"select=*&id=eq." + id); },
+getMyWorks(authorKey){ return this.request("GET","works",null,"select=*&author_key=eq." + encodeURIComponent(authorKey)); },
 getWorksByIds(ids){ return this.request("GET","works",null,"select=*&id=in.(" + ids.join(",") + ")"); },
 createWork(data){ return this.request("POST","works",data); },
 updateWork(id, data, authorKey){
@@ -991,7 +1009,15 @@ set lastRead(v){ localStorage.setItem("yc_lastread", JSON.stringify(v)); },
 get fontSize(){ return parseInt(localStorage.getItem("yc_fsize") || "18", 10); },
 set fontSize(v){ localStorage.setItem("yc_fsize", v); },
 get night(){ return localStorage.getItem("yc_night") === "1"; },
-set night(v){ localStorage.setItem("yc_night", v ? "1" : "0"); }
+set night(v){ localStorage.setItem("yc_night", v ? "1" : "0"); },
+get favGroups(){ try{ return JSON.parse(localStorage.getItem("yc_favgroups") || "{}"); }catch(e){ return {}; } },
+set favGroups(v){ localStorage.setItem("yc_favgroups", JSON.stringify(v)); },
+get shelfGroup(){ return localStorage.getItem("yc_shelfgroup") || "all"; },
+set shelfGroup(v){ localStorage.setItem("yc_shelfgroup", v); },
+get hotSearch(){ try{ return JSON.parse(localStorage.getItem("yc_hotsearch") || "{}"); }catch(e){ return {}; } },
+set hotSearch(v){ localStorage.setItem("yc_hotsearch", JSON.stringify(v)); },
+get writeDays(){ try{ return JSON.parse(localStorage.getItem("yc_writedays") || "[]"); }catch(e){ return []; } },
+set writeDays(v){ localStorage.setItem("yc_writedays", JSON.stringify(v)); }
 };
 
 /* ============ 4. 工具函数 ============ */
@@ -1527,8 +1553,23 @@ CATEGORIES.map(c => '<button class="cat-chip' + (cat===c?" active":"") + '" oncl
 '<option value="views">最多阅读</option>' +
 '</select>' +
 '</div>' +
+'<div id="hot-search" style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--ink-faint)"></div>' +
 '<div id="lib-grid">' + loadingHtml() + '</div>' +
 '</section>';
+
+/* 热门搜索词 */
+(function(){
+const hotBox = $("#hot-search");
+if(hotBox){
+const hot = Store.hotSearch || {};
+const words = Object.keys(hot).sort((a,b)=>hot[b]-hot[a]).slice(0,8);
+if(words.length){
+hotBox.innerHTML = '<span style="color:var(--ink-faint)">🔥 大家都在搜：</span>' + words.map(w => '<a href="javascript:void(0)" onclick="location.hash=\'#/library?q=' + encodeURIComponent(w) + '\'" style="color:var(--brand);margin-right:10px">' + esc(w) + '</a>').join("");
+}else{
+hotBox.style.display = "none";
+}
+}
+})();
 
 const sort = $("#sort-sel").value;
 $("#sort-sel").addEventListener("change", e=>{
@@ -1677,6 +1718,46 @@ app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r=
 }
 
 /* 消息通知小红点 */
+let notifTimer = null;
+function toggleNotifPanel(){
+const panel = $("#notif-panel");
+if(panel){ panel.remove(); return; }
+if(!Store.isLoggedIn){ toast("请先登录查看通知", "err"); openAuthModal("login"); return; }
+const d = document.createElement("div");
+d.className = "notif-panel";
+d.id = "notif-panel";
+d.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px 8px;border-bottom:1px solid var(--line)"><b>🔔 我的通知</b><button class="btn btn-ghost btn-sm" onclick="markNotificationsRead()">全部已读</button></div><div id="notif-list" style="padding-top:6px">' + loadingHtml() + '</div>';
+document.body.appendChild(d);
+document.addEventListener("click", function(e2){
+if(!e2.target.closest("#notif-panel") && !e2.target.closest(".btn") === false){}
+});
+setTimeout(()=>{ document.addEventListener("click", function closePanel(ev){
+if(ev.target.closest("#notif-panel") || ev.target.closest("button[title=\"通知\"]")) return;
+const pp = $("#notif-panel");
+if(pp){ pp.remove(); document.removeEventListener("click", closePanel); }
+}); }, 0);
+loadNotifications();
+}
+async function loadNotifications(){
+const list = $("#notif-list");
+if(!list) return;
+try{
+const notes = await API.listNotifications(Store.auth.account);
+if(!notes || !notes.length){
+list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--ink-faint);font-size:13px">还没有通知<br><span style="font-size:11px">有人关注你、评论你的书、点赞打赏时会提醒你</span></div>';
+return;
+}
+const unread = notes.filter(n => !n.read).length;
+Store.unreadCount = unread;
+updateNotificationBadge();
+list.innerHTML = notes.map(n =>
+'<div class="notif-item' + (n.read ? "" : " unread") + '" onclick="location.hash=\'#/library\'">' +
+'<div>' + esc(n.text) + '<div style="font-size:11px;color:var(--ink-faint);margin-top:3px">' + fmtTime(n.created_at) + '</div></div>' +
+'</div>').join("");
+}catch(e){
+list.innerHTML = '<div style="text-align:center;padding:20px;color:#999;font-size:13px">通知加载失败</div>';
+}
+}
 function updateNotificationBadge(){
 const badge = $("#notif-badge");
 if(!badge) return;
@@ -1690,8 +1771,14 @@ badge.style.display = "none";
 }
 }
 function markNotificationsRead(){
+if(!Store.isLoggedIn) return;
 Store.unreadCount = 0;
 updateNotificationBadge();
+API.markNotifRead(Store.auth.account).then(()=>{
+const list = $("#notif-list");
+if(list) list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--ink-faint);font-size:13px">已全部标记为已读</div>';
+setTimeout(()=>{ loadNotifications(); }, 600);
+}).catch(()=>{ toast("操作失败", "err"); });
 }
 
 /* 打赏感谢墙 */
@@ -1761,6 +1848,144 @@ return;
 readList.push(workId);
 Store.readList = readList;
 toast('🎉 恭喜读完《' + workTitle + '》！');
+}
+
+/* ============ 徽章成就系统 ============ */
+const BADGES = {
+  first_work:   { icon: "✍️", name: "初露锋芒", desc: "发布第一部作品", check: w=>w>=1 },
+  works_3:      { icon: "📚", name: "笔耕不辍", desc: "发布3部作品", check: w=>w>=3 },
+  first_cmt:    { icon: "💬", name: "有话要说", desc: "发表第一条评论" },
+  first_like:   { icon: "👍", name: "眼光独到", desc: "第一次点赞" },
+  first_checkin:{ icon: "📅", name: "第一天", desc: "首次签到" },
+  checkin_7:    { icon: "🔥", name: "七日坚持", desc: "连续签到7天" },
+  read_1h:      { icon: "⏱️", name: "阅读入门", desc: "累计阅读1小时" },
+  read_10h:     { icon: "🏆", name: "阅读达人", desc: "累计阅读10小时" },
+  read_100:     { icon: "📖", name: "百读不厌", desc: "读过100本书" },
+  fan_1:        { icon: "⭐", name: "小有名气", desc: "获得第1个粉丝" },
+  tip_1:        { icon: "☕", name: "收到打赏", desc: "收到第一次打赏" },
+  inviter_1:    { icon: "🎁", name: "呼朋引伴", desc: "邀请1位朋友注册" },
+  views_100:    { icon: "👁️", name: "人气新星", desc: "作品总阅读破100" },
+  views_1000:   { icon: "🌟", name: "人气作家", desc: "作品总阅读破1000" }
+};
+function getBadges(){ try{ return JSON.parse(localStorage.getItem("yc_badges") || "[]"); }catch(e){ return []; } }
+function saveBadges(v){ localStorage.setItem("yc_badges", JSON.stringify(v)); }
+function unlockBadge(key){
+  if(!Store.isLoggedIn) return;
+  const list = getBadges();
+  if(list.includes(key)) return;
+  const b = BADGES[key];
+  if(!b) return;
+  list.push(key);
+  saveBadges(list);
+  toast("🏅 获得徽章：「" + b.name + "」" + b.desc);
+}
+function badgeWallHtml(){
+  const owned = getBadges();
+  const total = Object.keys(BADGES).length;
+  let h = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px">';
+  for(const key in BADGES){
+    const b = BADGES[key];
+    const has = owned.includes(key);
+    h += '<div style="text-align:center;padding:12px 6px;border-radius:12px;background:' + (has ? 'var(--card);border:1px solid var(--brand)' : 'rgba(0,0,0,.04);border:1px solid var(--line);opacity:.45') + '">' +
+      '<div style="font-size:26px">' + b.icon + '</div>' +
+      '<div style="font-size:12px;font-weight:700;margin-top:4px">' + b.name + '</div>' +
+      '<div style="font-size:10px;color:var(--ink-faint);margin-top:2px;line-height:1.4">' + b.desc + '</div>' +
+      (has ? '<div style="font-size:10px;color:#2E8B57;margin-top:4px">✓ 已获得</div>' : '<div style="font-size:10px;color:#999;margin-top:4px">🔒 未解锁</div>') +
+    '</div>';
+  }
+  return h + '</div><div style="font-size:12px;color:var(--ink-faint);margin-top:8px">已获得 ' + owned.length + '/' + total + ' 枚徽章</div>';
+}
+
+/* ============ 创作日历 ============ */
+function addWriteDay(){
+  const days = Store.writeDays || [];
+  const today = new Date().toDateString();
+  if(!days.includes(today)){
+    days.push(today);
+    Store.writeDays = days;
+  }
+}
+function writeDaysThisMonth(){
+  const days = Store.writeDays || [];
+  const now = new Date();
+  const ym = now.getFullYear() + "-" + (now.getMonth()+1);
+  return days.filter(d => {
+    const dt = new Date(d);
+    return (dt.getFullYear() + "-" + (dt.getMonth()+1)) === ym;
+  }).length;
+}
+
+/* ============ 本月读书报告 ============ */
+function monthlyReportHtml(){
+  if(!Store.isLoggedIn) return "";
+  const now = new Date();
+  const ym = now.getFullYear() + "-" + (now.getMonth()+1);
+  const readMin = parseInt(localStorage.getItem("yc_read_min_" + ym) || "0", 10);
+  const readBooks = (Store.readList || []).length;
+  const viewedBooks = Object.keys(Store.lastRead || {}).length;
+  const streak = Store.checkinStreak || 0;
+  const hours = Math.round(readMin / 60 * 10) / 10;
+  const pct = Math.min(99, Math.max(1, Math.round(readMin / 300 * 100)));
+  return '<div style="background:linear-gradient(135deg,#146B5B,#2E8B57);border-radius:14px;padding:18px;color:#fff">' +
+    '<div style="font-weight:700;margin-bottom:10px">📊 ' + now.getMonth()+1 + '月读书报告</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">' +
+      '<div><div style="font-size:22px;font-weight:800">' + hours + 'h</div><div style="font-size:11px;opacity:.8">本月阅读</div></div>' +
+      '<div><div style="font-size:22px;font-weight:800">' + readBooks + '</div><div style="font-size:11px;opacity:.8">读完的书</div></div>' +
+      '<div><div style="font-size:22px;font-weight:800">' + viewedBooks + '</div><div style="font-size:11px;opacity:.8">看过的书</div></div>' +
+      '<div><div style="font-size:22px;font-weight:800">' + (streak||0) + '天</div><div style="font-size:11px;opacity:.8">最长连签</div></div>' +
+    '</div>' +
+    '<div style="font-size:11px;opacity:.85;margin-top:10px">🎉 你超过了本站 ' + pct + '% 的读者，继续加油！</div>' +
+  '</div>';
+}
+
+/* ============ AI写作助手 ============ */
+function writeAssist(kind){
+  const catSel = $("#nw-cat");
+  const cat = catSel ? catSel.value : "玄幻";
+  const t = $("#nw-title"), i = $("#nw-intro"), box = $("#ai-idea-box");
+  const TITLES = {
+    "玄幻": ["逆天圣尊","万古第一剑","神帝归来","九天玄帝","混沌神主","镇世武神"],
+    "都市": ["重返十八岁","我的合租女神","都市之最强医仙","隐世高手在都市","全能店长","深夜修表铺"],
+    "言情": ["暗恋成婚","时光与你皆甜","偏偏喜欢你","春风不及你","星河入梦来","南风知我意"],
+    "科幻": ["星际拾荒者","末日之后","虫族入侵","时间旅行者","机械之心","火星农场主"],
+    "悬疑": ["迷雾追凶","第七个房间","无声证词","午夜电台","消失的旅人","雨夜来客"],
+    "历史": ["大明小卒","长安往事","靖难风云","盛唐夜话","乱世书生","江南驿丞"],
+    "校园": ["同桌的你","篮球场的夏天","考试之后","毕业那天","文艺委员","黑板上的名字"],
+    "其他": ["山间来信","深夜食堂","百草园记","风起之时","名字里的故事","巷口书店"]
+  };
+  const OUTLINES = {
+    "玄幻": "少年身负神脉，遭宗门弃养，却在绝境中觉醒上古传承，从此逆天改命、踏碎虚空，一步步走向那无人企及的至尊之位……",
+    "都市": "他表面是普通上班族，背地里却身怀绝技。一次意外，让他卷入城市的暗流，从此平凡生活天翻地覆……",
+    "言情": "她回到阔别多年的小城，开了一家花店。某天，一个熟悉的身影推门而入，故事从一束满天星开始……",
+    "科幻": "公元2150年，人类在火星建立了第一座城市。一个年轻的工程师，在废墟中发现了不属于这个时代的信号……",
+    "悬疑": "深夜的小镇，连续有人失踪，唯一的线索是一张老照片。主人公顺着照片追查，却发现真相近在眼前……",
+    "历史": "一个不起眼的小人物，误打误撞卷入时代洪流。他不懂权谋，只想活下去，却不知不觉改变了许多人的命运……",
+    "校园": "高二那年，班里转来一个神秘的新同学。一场误会，一次赌约，让整个夏天的故事就此展开……",
+    "其他": "平凡的一天，主人公收到一封没有署名的信。信里只有一句话：\"有些事，该重新开始了。\""
+  };
+  const IDEAS = [
+    "主角在一场大雨里捡到一本旧书，书里写的故事竟然全是身边人的秘密……",
+    "如果可以和十年前的自己说一句话，你会说什么？",
+    "主角醒来发现全世界只剩自己会说中文，而广播里播放着陌生的语言……",
+    "巷口的老书店深夜不关门，因为老板在等一位特殊的客人。",
+    "毕业十年后的同学聚会，当年的班花带来了一个谁也没想到的人。",
+    "主角买了一杯咖啡，店员递给他时小声说：\"这杯请你的，别回头看。\"",
+    "一个写不出结局的小说家，某天发现自己笔下的人物都活了过来……",
+    "主角每天都会收到一封明天的报纸，直到有一天，报纸头条写着自己的名字。"
+  ];
+  if(kind === "title" && t){
+    const pool = TITLES[cat] || TITLES["其他"];
+    t.value = pool[Math.floor(Math.random()*pool.length)];
+    if(box) box.style.display = "none";
+    toast("书名已生成，不喜欢再点一次！");
+  } else if(kind === "outline" && i){
+    i.value = OUTLINES[cat] || OUTLINES["其他"];
+    if(box) box.style.display = "none";
+    toast("简介已生成，可随意修改！");
+  } else if(kind === "idea" && box){
+    box.textContent = "💡 " + IDEAS[Math.floor(Math.random()*IDEAS.length)];
+    box.style.display = "block";
+  }
 }
 
 /* ============ 积分与每日任务 ============ */
@@ -1931,6 +2156,8 @@ return;
 }
 Store.lastCheckin = today;
 Store.checkinStreak = (Store.checkinStreak || 0) + 1;
+unlockBadge("first_checkin");
+if(Store.checkinStreak >= 7) unlockBadge("checkin_7");
 /* 签到加积分 */
 addCheckinTask();
 /* 签到给宠物加经验 */
@@ -1956,6 +2183,11 @@ if(minutes > 0){
 Store.todayReadTime = (Store.todayReadTime || 0) + minutes;
 Store.totalReadTime = (Store.totalReadTime || 0) + minutes;
 addReadMinutes(minutes);
+if(Store.totalReadTime >= 60) unlockBadge("read_1h");
+if(Store.totalReadTime >= 600) unlockBadge("read_10h");
+const ym = new Date().getFullYear() + "-" + (new Date().getMonth()+1);
+const rm = parseInt(localStorage.getItem("yc_read_min_" + ym) || "0", 10);
+localStorage.setItem("yc_read_min_" + ym, String(rm + minutes));
 }
 readStartTime = null;
 }
@@ -2013,6 +2245,13 @@ btn.innerHTML = (liked ? "♥ 已赞" : "♡ 点赞") + ' <span id="like-count">
 btn.classList.toggle("liked", liked);
 }
 toast(liked ? "点赞成功" : "已取消点赞");
+if(liked){
+unlockBadge("first_like");
+API.getWork(workId).then(arr=>{
+const w = arr && arr[0];
+if(w && w.author_key && w.author_key !== Store.authorKey) API.addNotification(w.author_key, "like", Store.penName + " 点赞了你的作品《" + w.title + "》");
+}).catch(()=>{});
+}
 }catch(err){
 if(btn) btn.disabled = false;
 toast(err.message || "操作失败", "err");
@@ -2030,7 +2269,12 @@ if(btn) btn.disabled = true;
 try{
 await API.createComment(Store.authorKey, workId, content);
 toast("评论已发布");
+unlockBadge("first_cmt");
 addCommentTask();
+API.getWork(workId).then(arr=>{
+const w = arr && arr[0];
+if(w && w.author_key && w.author_key !== Store.authorKey) API.addNotification(w.author_key, "comment", Store.penName + " 评论了你的作品《" + w.title + "》：" + content.slice(0, 20));
+}).catch(()=>{});
 if(input) input.value = "";
 const comments = await API.listComments(workId);
 const list = $("#cmt-list");
@@ -2120,10 +2364,13 @@ app.innerHTML =
 (idx > 0
 ? '<button class="btn btn-ghost" onclick="location.hash=\'#/read?id=' + work.id + '&ch=' + (idx-1) + '\'">← 上一章</button>'
 : '<span></span>') +
+'<button class="btn btn-ghost" onclick="toggleAutoRead(\'' + work.id + '\',' + chapters.length + ')" id="auto-read-btn">▶️ 自动阅读</button>' +
+'<button class="btn btn-ghost" onclick="toggleChapterList(\'' + work.id + '\',' + JSON.stringify(chapters.map(c=>c.title)).replace(/'/g,"\\'") + ',' + idx + ')">📑 目录</button>' +
 (idx < chapters.length - 1
 ? '<button class="btn btn-primary" onclick="location.hash=\'#/read?id=' + work.id + '&ch=' + (idx+1) + '\'">下一章 →</button>'
 : '<button class="btn btn-primary" disabled>已是最后一章</button>') +
 '</div>' +
+'<div id="chapter-drawer" style="display:none;max-height:50vh;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px;padding:8px"></div>' +
 '<div class="reader-footer">' + esc(work.title) + ' · 第 ' + (idx+1) + ' 章 / 共 ' + chapters.length + ' 章<br>阅川书城 · 尊重每一位创作者</div>' +
 '</section>';
 
@@ -2132,6 +2379,44 @@ const progress = (idx+1) / chapters.length;
 window.scrollTo({top:0});
 }
 
+let autoReadTimer = null;
+function toggleAutoRead(workId, total){
+const btn = $("#auto-read-btn");
+if(autoReadTimer){
+clearInterval(autoReadTimer);
+autoReadTimer = null;
+if(btn){ btn.textContent = "▶️ 自动阅读"; }
+toast("已停止自动阅读");
+return;
+}
+autoReadTimer = setInterval(()=>{
+const p = parseHash().params;
+const id = p.get("id");
+const ch = parseInt(p.get("ch") || "0", 10);
+if(ch >= total - 1){
+clearInterval(autoReadTimer);
+autoReadTimer = null;
+const b = $("#auto-read-btn");
+if(b) b.textContent = "▶️ 自动阅读";
+toast("🎉 已读到最后一章");
+return;
+}
+location.hash = "#/read?id=" + id + "&ch=" + (ch+1);
+}, 15000);
+if(btn) btn.textContent = "⏸ 自动阅读中…（每15秒一章）";
+toast("自动阅读已开启，每15秒翻一章");
+}
+function toggleChapterList(workId, titles, curIdx){
+const drawer = $("#chapter-drawer");
+if(!drawer) return;
+if(drawer.style.display !== "none"){ drawer.style.display = "none"; return; }
+let h = '<div style="font-weight:700;padding:6px 10px;font-size:13px">📑 目录</div>';
+titles.forEach((t, i)=>{
+h += '<div style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;background:' + (i===curIdx?"var(--brand-soft,rgba(46,139,87,.1))":"transparent") + ';font-weight:' + (i===curIdx?"700":"400") + '" onclick="location.hash=\'#/read?id=' + workId + '&ch=' + i + '\'">' + (i===curIdx?"▶ ":"") + esc(t) + '</div>';
+});
+drawer.innerHTML = h;
+drawer.style.display = "block";
+}
 function adjustFont(delta){
 const next = Math.min(Math.max(Store.fontSize + delta, 14), 26);
 Store.fontSize = next;
@@ -2257,6 +2542,15 @@ app.innerHTML =
 
 '<div class="form-card">' +
 '<h3>发布新作品</h3>' +
+'<div class="ai-box" style="background:linear-gradient(135deg,rgba(46,139,87,.08),rgba(20,107,91,.05));border:1px dashed var(--brand);border-radius:12px;padding:12px 14px;margin-bottom:14px">' +
+  '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">🤖</span><b>AI写作助手</b><span style="font-size:11px;color:var(--ink-faint)">免费灵感库，点一下自动生成</span></div>' +
+  '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
+    '<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'title\')">🎲 起书名</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'outline\')">📝 写简介</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'idea\')">💡 章节灵感</button>' +
+  '</div>' +
+  '<div id="ai-idea-box" style="margin-top:8px;font-size:13px;color:var(--ink-soft);line-height:1.7;display:none"></div>' +
+'</div>' +
 '<div class="field"><label>书名 *</label><input id="nw-title" maxlength="30" placeholder="给你的故事起个名字"></div>' +
 '<div class="field-row">' +
 '<div class="field"><label>分类 *</label><select id="nw-cat">' + CATEGORIES.map(c => '<option>' + c + '</option>').join("") + '</select></div>' +
@@ -2389,6 +2683,9 @@ cover: chosenCover || null
 chosenCover = "";
 Store.penName = author;
 toast("《" + title + "》发布成功！现在可以写章节了");
+unlockBadge("first_work");
+API.getMyWorks(Store.authorKey).then(ws=>{ if(ws && ws.length >= 3) unlockBadge("works_3"); }).catch(()=>{});
+addWriteDay();
 if(res && res[0]){
 location.hash = "#/create?edit=" + res[0].id;
 } else {
@@ -2576,11 +2873,17 @@ async function renderShelf(){
 app.innerHTML =
 '<section class="page">' +
 '<div class="page-title">我的书架</div>' +
-'<p class="page-sub">收藏的作品保存在本地浏览器中</p>' +
+'<p class="page-sub">收藏的作品保存在本地浏览器中，可分组管理</p>' +
 '<div class="shelf-tabs">' +
 '<button class="shelf-tab active" onclick="switchShelfTab(\'fav\',this)">❤️ 收藏</button>' +
 '<button class="shelf-tab" onclick="switchShelfTab(\'history\',this)">🕐 最近阅读</button>' +
 '<button class="shelf-tab" onclick="switchShelfTab(\'bookmark\',this)">🔖 书签</button>' +
+'</div>' +
+'<div id="shelf-groups" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' +
+'<button class="cat-chip active" onclick="setShelfGroup(\'all\',this)">全部</button>' +
+'<button class="cat-chip" onclick="setShelfGroup(\'reading\',this)">📖 在读</button>' +
+'<button class="cat-chip" onclick="setShelfGroup(\'finished\',this)">✅ 读完</button>' +
+'<button class="cat-chip" onclick="setShelfGroup(\'want\',this)">🎯 想读</button>' +
 '</div>' +
 '<div id="shelf-grid">' + loadingHtml() + '</div>' +
 '</section>';
@@ -2591,6 +2894,8 @@ loadFavorites();
 function switchShelfTab(tab, btn){
 document.querySelectorAll('.shelf-tab').forEach(t => t.classList.remove('active'));
 btn.classList.add('active');
+const g = $("#shelf-groups");
+if(g) g.style.display = tab === 'fav' ? 'flex' : 'none';
 if(tab === 'fav') loadFavorites();
 else if(tab === 'history') loadHistory();
 else if(tab === 'bookmark') loadBookmarks();
@@ -2598,9 +2903,12 @@ else if(tab === 'bookmark') loadBookmarks();
 
 async function loadFavorites(){
 const grid = $("#shelf-grid");
-const favs = Store.favorites;
+let favs = Store.favorites;
+const sg = Store.shelfGroup || "all";
+const fg = Store.favGroups || {};
+if(sg !== "all") favs = favs.filter(id => (fg[id] || "reading") === sg);
 if(!favs.length){
-grid.innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "书架还是空的", '<button class="btn btn-accent" onclick="location.hash=\'#/library\'">去书库逛逛</button>');
+grid.innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', sg === "all" ? "书架还是空的" : "这一组还没有书", '<button class="btn btn-accent" onclick="location.hash=\'#/library\'">去书库逛逛</button>');
 return;
 }
 try{
@@ -2613,7 +2921,12 @@ grid.innerHTML = '<div class="book-grid">' + works.map(w=>
 '<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
 coverHtml(w) +
 '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
-'<div class="b-meta">' + esc(w.author) + ' · ' + esc(w.category) + '</div></div></div>'
+'<div class="b-meta">' + esc(w.author) + ' · ' + esc(w.category) + '</div>' +
+'<div style="display:flex;gap:6px;margin-top:6px" onclick="event.stopPropagation()">' +
+'<button class="fg-btn' + ((fg[w.id]||"reading")==="reading"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'reading\')">在读</button>' +
+'<button class="fg-btn' + ((fg[w.id]||"")==="finished"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'finished\')">读完</button>' +
+'<button class="fg-btn' + ((fg[w.id]||"")==="want"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'want\')">想读</button>' +
+'</div></div></div>'
 ).join("") + '</div>';
 }catch(err){
 grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
@@ -2678,11 +2991,28 @@ favs = favs.filter(f=>f!==id);
 toast("已移出书架");
 } else {
 favs.push(id);
-toast("已加入书架");
+const groups = Store.favGroups || {};
+if(!groups[id]) groups[id] = "reading";
+Store.favGroups = groups;
+toast("已加入书架（默认「在读」，可在书架里分组）");
 }
 Store.favorites = favs;
 const btn = $("#fav-btn");
 if(btn) btn.textContent = favs.includes(id) ? "已加入书架" : "加入书架";
+}
+function setFavGroup(id, g){
+const groups = Store.favGroups || {};
+groups[id] = g;
+Store.favGroups = groups;
+loadFavorites();
+toast("已移到「" + (g==="reading"?"在读":g==="finished"?"读完":"想读") + "」");
+}
+function setShelfGroup(g, btn){
+Store.shelfGroup = g;
+const chips = document.querySelectorAll("#shelf-groups .cat-chip");
+chips.forEach(c => c.classList.remove("active"));
+if(btn) btn.classList.add("active");
+loadFavorites();
 }
 
 /* ============ 聊天室 ============ */
@@ -3079,6 +3409,10 @@ btn.classList.toggle("btn-ghost", followed);
 btn.classList.toggle("btn-primary", !followed);
 }
 toast(followed ? "关注成功" : "已取消关注");
+if(followed && target !== Store.authorKey){
+API.addNotification(target, "follow", Store.penName + " 关注了你");
+unlockBadge("fan_1");
+}
 }catch(err){
 if(btn) btn.disabled = false;
 toast(err.message || "操作失败", "err");
@@ -3137,6 +3471,11 @@ app.innerHTML =
 '<button class="btn btn-ghost" onclick="location.hash=\'#/user?name=' + encodeURIComponent(Store.penName) + '\'">我的主页</button>' +
 '<button class="btn btn-danger" onclick="logout()">退出登录</button>' +
 '</div>' +
+'</div>' +
+'<div class="section">' + monthlyReportHtml() + '</div>' +
+'<div class="section">' +
+'<div class="section-head"><h2 class="section-title">🏅 我的徽章</h2><span style="font-size:12px;color:var(--ink-faint)">完成成就自动解锁</span></div>' +
+'<div class="form-card">' + badgeWallHtml() + '</div>' +
 '</div>' +
 '<div class="section">' +
 '<div class="section-head"><h2 class="section-title">🪙 我的积分</h2><span id="me-points" style="font-size:20px;font-weight:800;color:#E8A33D">…</span></div>' +
@@ -3296,6 +3635,10 @@ const idx = history.indexOf(q);
 if(idx >= 0) history.splice(idx, 1);
 history.unshift(q);
 Store.searchHistory = history.slice(0, 10);
+/* 热门搜索词计数 */
+const hot = Store.hotSearch || {};
+hot[q] = (hot[q] || 0) + 1;
+Store.hotSearch = hot;
 location.hash = "#/library?q=" + encodeURIComponent(q);
 }
 }
@@ -3382,18 +3725,47 @@ doGlobalSearch();
 
 /* ============ 原创榜 ============ */
 async function renderRank(){
-app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">RANKING</div><h1>原创榜</h1><p>阅川书城人气最高的原创作品</p></div><div class="section" id="rank-list">'+loadingHtml()+'</div></section>';
+app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">RANKING</div><h1>作品榜</h1><p>看看大家最喜欢什么书</p></div>' +
+'<div class="shelf-tabs" style="margin-bottom:14px">' +
+'<button class="shelf-tab active" onclick="loadRankTab(\'hot\',this)">🔥 人气榜</button>' +
+'<button class="shelf-tab" onclick="loadRankTab(\'new\',this)">🆕 新书榜</button>' +
+'<button class="shelf-tab" onclick="loadRankTab(\'done\',this)">🏁 完结榜</button>' +
+'</div>' +
+'<div class="section" id="rank-list">' + loadingHtml() + '</div></section>';
+loadRankTab("hot");
+}
+async function loadRankTab(tab, btn){
+if(btn){
+const tabs = btn.parentElement.querySelectorAll(".shelf-tab");
+tabs.forEach(t => t.classList.remove("active"));
+btn.classList.add("active");
+}
+const list = $("#rank-list");
+if(!list) return;
+list.innerHTML = loadingHtml();
 try{
-const works = await API.listWorks(1, 50, "views", "");
-let html = '<div class="book-grid">';
+let works;
+if(tab === "hot"){ works = await API.listWorks({sort:"views", limit:50}); }
+else if(tab === "new"){ works = await API.listWorks({sort:"created", limit:50}); }
+else {
+const all = await API.listWorks({sort:"views", limit:100});
+works = all.filter(w => w.status === "已完结").slice(0, 50);
+if(!works.length) works = all.slice(0, 50);
+}
+if(!works || !works.length){
+list.innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "还没有作品上榜", '<button class="btn btn-accent" onclick="location.hash=\'#/create\'">去创作</button>');
+return;
+}
+let h = '<div class="book-grid">';
 works.forEach((w,i)=>{
 const rank = i+1;
 const badge = rank<=3 ? '<div style="position:absolute;top:0;left:0;background:#C98A2D;color:#fff;padding:2px 8px;font-size:12px;font-weight:bold;border-radius:0 0 8px 0">'+rank+'</div>' : '<div style="position:absolute;top:0;left:0;background:#999;color:#fff;padding:2px 8px;font-size:12px;border-radius:0 0 8px 0">'+rank+'</div>';
-html += '<div class="book-card" onclick="location.hash=\'#/book?id='+w.id+'\'" style="position:relative">'+badge+coverHtml(w)+'<div class="book-info"><div class="book-title">'+esc(w.title)+'</div><div class="book-author">'+esc(w.author)+' · '+w.views+' 阅读</div></div></div>';
+const meta = (tab === "new" ? ' · ' + (w.created_at ? w.created_at.substring(0,10) : "") : ' · ' + (w.views||0) + ' 阅读');
+h += '<div class="book-card" onclick="location.hash=\'#/book?id='+w.id+'\'" style="position:relative">'+badge+coverHtml(w)+'<div class="book-info"><div class="book-title">'+esc(w.title)+'</div><div class="book-author">'+esc(w.author)+meta+'</div></div></div>';
 });
-html += '</div>';
-$("#rank-list").innerHTML = html;
-}catch(e){ $("#rank-list").innerHTML = '<p style="text-align:center;color:#999">加载失败：'+esc(e.message||'')+'</p>'; }
+h += '</div>';
+list.innerHTML = h;
+}catch(e){ list.innerHTML = '<p style="text-align:center;color:#999">加载失败：'+esc(e.message||'')+'</p>'; }
 }
 
 /* ============ 作家专区 ============ */
