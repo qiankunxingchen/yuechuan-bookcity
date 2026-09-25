@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://xsmdmttfftepbtnjxvfu.supabase.co">
+<link rel="dns-prefetch" href="https://xsmdmttfftepbtnjxvfu.supabase.co">
 <meta name="description" content="阅川书城——人人可写，人人可读的原创小说平台。在这里创作你的故事，让全世界看见。四大名著、古典小说、原创作品，应有尽有。">
 <meta name="msvalidate.01" content="59FAF4D303D441C7B765350FEAD0F3E6" />
 <meta name="keywords" content="阅川书城,小说,在线阅读,原创小说,四大名著,红楼梦,西游记,三国演义,水浒传,古典文学">
@@ -57,7 +59,6 @@ input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
 img{max-width:100%;display:block}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 ::selection{background:var(--accent-soft)}
-
 /* ============ 返回顶部按钮 ============ */
 #back-to-top{
 position:fixed;bottom:30px;right:30px;z-index:100;
@@ -71,20 +72,17 @@ border:none;font-size:20px;
 }
 #back-to-top.show{opacity:1;visibility:visible;transform:translateY(0)}
 #back-to-top:hover{background:var(--brand-dark)}
-
 /* ============ 阅读进度条 ============ */
 #reading-progress{
 position:fixed;top:0;left:0;height:3px;z-index:100;
 background:linear-gradient(90deg,var(--brand),var(--accent));
 width:0%;transition:width .1s;
 }
-
 /* 沉浸式阅读：阅读时隐藏顶栏 */
 .reader-immersive .site-header{
 transform:translateY(-100%);transition:transform .3s;
 }
 .reader-immersive .site-header:hover{transform:translateY(0)}
-
 /* ============ 主题皮肤 ============ */
 body.theme-blue{
 --brand:#2563EB;--brand-dark:#1E40AF;--brand-soft:#DBEAFE;
@@ -98,7 +96,6 @@ body.theme-warm{
 --brand:#DC2626;--brand-dark:#B91C1C;--brand-soft:#FEE2E2;
 --accent:#F97316;--accent-soft:#FFEDD5;
 }
-
 .site-header{
 position:sticky;top:0;z-index:50;
 background:rgba(245,240,228,.92);
@@ -139,12 +136,10 @@ transition:transform .15s,box-shadow .2s,background .2s;
 .btn-danger{background:#FBE9E0;color:var(--danger)}
 .btn-sm{padding:5px 12px;font-size:13px}
 .btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
-
 /* ============ 主容器 ============ */
 .page{max-width:1120px;margin:0 auto;padding:28px 20px 64px;min-height:70vh}
 .page-title{font-family:var(--serif);font-size:26px;font-weight:900;margin-bottom:6px}
 .page-sub{color:var(--ink-soft);font-size:14px;margin-bottom:22px}
-
 /* ============ 首页 Hero ============ */
 .hero{
 border-radius:20px;overflow:hidden;position:relative;
@@ -167,7 +162,6 @@ background:radial-gradient(circle,rgba(245,240,228,.14),transparent 60%);
 .hero .btn-light:hover{background:#fff}
 .hero .btn-ghost-dark{background:transparent;border:1px solid rgba(245,240,228,.5);color:#F5F0E4}
 .hero .btn-ghost-dark:hover{background:rgba(245,240,228,.12)}
-
 /* ============ 区块 ============ */
 .section{margin-bottom:38px}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
@@ -175,7 +169,6 @@ background:radial-gradient(circle,rgba(245,240,228,.14),transparent 60%);
 .section-title::before{content:"";width:5px;height:20px;border-radius:3px;background:var(--accent)}
 .section-more{font-size:13px;color:var(--ink-faint)}
 .section-more:hover{color:var(--brand)}
-
 /* ============ 分类胶囊 ============ */
 .cat-chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .cat-chip{
@@ -184,7 +177,6 @@ font-size:14px;color:var(--ink-soft);transition:all .2s;
 }
 .cat-chip:hover{border-color:var(--brand);color:var(--brand)}
 .cat-chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
-
 /* ============ 书籍卡片 ============ */
 .book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px}
 .book-card{cursor:pointer;transition:transform .25s ease}
@@ -203,7 +195,6 @@ transition:box-shadow .25s ease;
 .book-info{margin-top:12px}
 .book-info .b-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
 .book-info .b-meta{font-size:12px;color:var(--ink-faint);margin-top:4px}
-
 /* 封面配色主题 */
 .ct-0{background:linear-gradient(150deg,#0D4F43,#1E7A66)}
 .ct-1{background:linear-gradient(150deg,#3B2E58,#7A5FA0)}
@@ -213,7 +204,6 @@ transition:box-shadow .25s ease;
 .ct-5{background:linear-gradient(150deg,#33452A,#6B8F4E)}
 .ct-6{background:linear-gradient(150deg,#2C3A56,#5A6E96)}
 .ct-7{background:linear-gradient(150deg,#4A2F23,#8C6A4F)}
-
 /* 封面配色选择器色块 */
 .theme-swatch{width:34px;height:34px;border-radius:10px;padding:0;border:2px solid transparent;transition:border-color .15s}
 .theme-swatch.active{border-color:var(--ink)}
@@ -225,7 +215,6 @@ transition:box-shadow .25s ease;
 .ts-5{background:linear-gradient(150deg,#33452A,#6B8F4E)}
 .ts-6{background:linear-gradient(150deg,#2C3A56,#5A6E96)}
 .ts-7{background:linear-gradient(150deg,#4A2F23,#8C6A4F)}
-
 /* ============ 横排作品条 ============ */
 .h-list{display:flex;flex-direction:column;gap:12px}
 .h-item{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;cursor:pointer;transition:box-shadow .2s,transform .2s}
@@ -238,7 +227,6 @@ transition:box-shadow .25s ease;
 .h-item .h-intro{font-size:12px;color:var(--ink-soft);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .h-item .h-meta{font-size:12px;color:var(--ink-faint);margin-top:6px;display:flex;gap:10px;align-items:center}
 .h-item .rank{font-family:var(--serif);font-weight:900;font-size:22px;color:var(--accent);width:30px;text-align:center;flex-shrink:0;line-height:1}
-
 /* ============ 本周推荐卡片 ============ */
 .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 .rec-card{
@@ -261,7 +249,6 @@ background:var(--accent-soft);padding:2px 8px;border-radius:999px;margin-bottom:
 .rec-author{font-size:12px;color:var(--ink-faint);margin-top:2px}
 .rec-intro{font-size:13px;color:var(--ink-soft);margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6}
 .rec-stats{font-size:12px;color:var(--ink-faint);margin-top:8px}
-
 /* ============ 书库页 ============ */
 .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
 .toolbar select{
@@ -271,7 +258,6 @@ padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(
 .empty-state .empty-icon{width:64px;height:64px;margin:0 auto 16px;opacity:.5}
 .empty-state p{font-size:15px}
 .empty-state .btn{margin-top:18px}
-
 /* ============ 作品详情 ============ */
 .detail-top{display:flex;gap:28px;margin-bottom:30px;flex-wrap:wrap}
 .detail-cover{width:200px;flex-shrink:0}
@@ -299,7 +285,6 @@ font-size:14px;cursor:pointer;transition:background .15s;
 .chapter-item .ch-num{width:26px;height:26px;border-radius:50%;background:var(--card-soft);color:var(--ink-soft);display:grid;place-items:center;font-size:12px;flex-shrink:0}
 .chapter-item .ch-title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chapter-item .ch-date{font-size:12px;color:var(--ink-faint);flex-shrink:0}
-
 /* ============ 阅读器 ============ */
 .reader-shell{max-width:760px;margin:0 auto;min-height:70vh}
 .reader-top{
@@ -328,7 +313,6 @@ to{opacity:1;transform:translateY(0)}
 .chapter-content p{margin:0 0 1.2em 0;text-indent:2em}
 .reader-nav{display:flex;justify-content:space-between;gap:12px;margin-top:10px;padding-top:22px;border-top:1px solid var(--line)}
 .reader-footer{text-align:center;color:var(--ink-faint);font-size:12px;margin-top:28px;padding-bottom:30px}
-
 /* 阅读器夜间模式 */
 body.night{
 --paper:#1B211F;--card:#242C29;--card-soft:#2C3632;--ink:#D8D3C4;--ink-soft:#A5B0AA;
@@ -338,7 +322,6 @@ body.night{
 body.night .site-header{background:rgba(27,33,31,.92)}
 body.night .reader-top{background:rgba(27,33,31,.92)}
 body.night .search-box{background:var(--card)}
-
 /* ============ 创作中心 ============ */
 .create-hero{
 border-radius:20px;padding:34px 36px;margin-bottom:30px;
@@ -354,7 +337,6 @@ padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(
 width:180px;outline:none;transition:border-color .2s;
 }
 .pen-input:focus{border-color:var(--brand)}
-
 .form-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;margin-bottom:26px}
 .form-card h3{font-family:var(--serif);font-size:17px;font-weight:900;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 .form-card h3::before{content:"";width:4px;height:16px;border-radius:2px;background:var(--accent)}
@@ -368,7 +350,6 @@ background:var(--paper);outline:none;transition:border-color .2s;
 .field textarea{min-height:110px;resize:vertical;line-height:1.7}
 .field .hint{font-size:12px;color:var(--ink-faint);margin-top:4px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-
 .my-works{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
 .my-work{
 display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
@@ -381,22 +362,18 @@ padding:14px;align-items:center;transition:box-shadow .2s;
 .my-work .mw-meta{font-size:12px;color:var(--ink-faint);margin-top:4px}
 .my-work .mw-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .my-work .mw-actions .btn{font-size:12px;padding:4px 10px}
-
 .chapter-editor{margin-top:26px}
 .chapter-editor .ce-list{margin-top:16px}
 .ce-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
 .ce-item .ce-title{flex:1;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ce-item .ce-date{font-size:12px;color:var(--ink-faint);flex-shrink:0}
 .ce-item .ce-actions{display:flex;gap:6px;flex-shrink:0}
-
 /* ============ 书架 ============ */
 .shelf-note{font-size:13px;color:var(--ink-faint);margin-bottom:18px}
-
 /* ============ 页脚 ============ */
 .site-footer{border-top:1px solid var(--line);padding:30px 20px;text-align:center;color:var(--ink-faint);font-size:13px}
 .site-footer .f-logo{font-family:var(--serif);font-weight:900;color:var(--brand);font-size:16px;margin-bottom:6px}
 .site-footer p{line-height:1.9}
-
 /* ============ 登录/注册弹窗 ============ */
 .modal-mask{
 position:fixed;inset:0;background:rgba(23,33,29,.55);backdrop-filter:blur(4px);
@@ -442,7 +419,6 @@ border-radius:8px;font-size:14px;color:var(--ink);
 .user-menu a:hover,.user-menu button:hover{background:var(--card-soft)}
 .user-menu .um-logout{color:var(--danger)}
 .user-wrap{position:relative}
-
 /* ============ 我的（个人中心） ============ */
 .me-card{
 background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
@@ -461,7 +437,6 @@ box-shadow:0 8px 20px rgba(20,107,91,.3);
 .me-stat b{font-size:22px;color:var(--brand-deep)}
 .me-stat span{font-size:12px;color:var(--ink-faint)}
 .me-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-
 /* ============ Toast ============ */
 #toast-wrap{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:8px;align-items:center}
 .toast{
@@ -471,12 +446,10 @@ box-shadow:0 8px 24px rgba(0,0,0,.25);animation:toastIn .3s ease;max-width:90vw;
 .toast.ok{background:var(--brand)}
 .toast.err{background:var(--danger)}
 @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
 /* ============ 加载动画 ============ */
 .loading{text-align:center;padding:60px 0;color:var(--ink-faint)}
 .spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;margin:0 auto 14px;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
 /* ============ 配置引导页 ============ */
 .setup-card{max-width:620px;margin:40px auto;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:40px;text-align:center}
 .setup-card h1{font-family:var(--serif);font-size:26px;font-weight:900;margin-bottom:10px}
@@ -484,7 +457,6 @@ box-shadow:0 8px 24px rgba(0,0,0,.25);animation:toastIn .3s ease;max-width:90vw;
 .setup-card ol{text-align:left;margin:12px 0 12px 20px;color:var(--ink-soft);font-size:14px;line-height:2}
 .setup-card code{background:var(--paper);border:1px solid var(--line);padding:2px 8px;border-radius:6px;font-size:13px;word-break:break-all}
 .setup-card .field{text-align:left}
-
 /* ============ 公告栏 ============ */
 .ann-list{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);border-radius:12px;padding:4px 16px;margin:0 0 22px}
 .ann-item{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
@@ -493,12 +465,10 @@ box-shadow:0 8px 24px rgba(0,0,0,.25);animation:toastIn .3s ease;max-width:90vw;
 .ann-title{font-weight:600;font-size:14px;color:var(--ink)}
 .ann-content{font-size:13px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ann-date{margin-left:auto;font-size:12px;color:var(--ink-faint);flex-shrink:0}
-
 /* ============ 封面图片 ============ */
 .book-cover.cover-img{overflow:hidden}
 .book-cover.cover-img img{width:100%;height:100%;object-fit:cover;display:block}
 .book-cover.cover-img.ct-0{background:linear-gradient(135deg,#2C6E5F,#146B5B)}
-
 /* ============ 评论区 ============ */
 .comment-box{margin-top:34px;padding-top:6px}
 .cmt-input-row{display:flex;gap:10px;align-items:flex-end;margin:14px 0 18px}
@@ -515,7 +485,6 @@ box-shadow:0 8px 24px rgba(0,0,0,.25);animation:toastIn .3s ease;max-width:90vw;
 .detail-author{font-weight:600;color:var(--brand);cursor:pointer}
 .detail-author:hover{text-decoration:underline}
 #like-btn.liked{color:#C0392B;border-color:#C0392B}
-
 /* ============ 聊天室 ============ */
 .chat-page{max-width:860px}
 .chat-shell{display:flex;flex-direction:column;height:calc(100vh - 260px);min-height:380px;border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden}
@@ -530,7 +499,6 @@ box-shadow:0 8px 24px rgba(0,0,0,.25);animation:toastIn .3s ease;max-width:90vw;
 .chat-input-row input{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink)}
 .chat-input-row input:focus{outline:none;border-color:var(--brand)}
 .chat-empty{text-align:center;color:var(--ink-faint);font-size:13px;padding:26px 0}
-
 /* ============ 用户主页 / 关注列表 ============ */
 .follow-list{display:flex;flex-direction:column;gap:8px}
 .follow-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;transition:border-color .2s}
@@ -539,12 +507,10 @@ box-shadow:0 8px 24px rgba(0,0,0,.25);animation:toastIn .3s ease;max-width:90vw;
 .fu-body{flex:1}
 .fu-name{font-size:14px;font-weight:600;color:var(--ink)}
 .fu-meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
-
 /* ============ 封面上传 ============ */
 .cover-upload{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cover-preview{width:88px;height:120px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
 .cover-preview img{width:100%;height:100%;object-fit:cover;display:block}
-
 /* ============ 响应式 ============ */
 @media (max-width:768px){
 .header-inner{padding:10px 14px;gap:10px;flex-wrap:wrap}
@@ -571,7 +537,6 @@ box-shadow:0 8px 24px rgba(0,0,0,.25);animation:toastIn .3s ease;max-width:90vw;
 .book-grid{grid-template-columns:repeat(3,1fr);gap:12px}
 .hero-actions .btn{flex:1;text-align:center}
 }
-
 /* ============ 打赏感谢墙 ============ */
 .tip-wall{display:flex;flex-direction:column;gap:12px;margin-top:12px}
 .tip-item{
@@ -591,7 +556,6 @@ color:#fff;font-weight:700;font-size:16px;flex-shrink:0;
 font-weight:700;color:var(--accent);font-size:14px;
 background:var(--accent-soft);padding:4px 12px;border-radius:999px;
 }
-
 /* ============ 书架标签页 ============ */
 .shelf-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 .shelf-tab{
@@ -601,7 +565,6 @@ transition:all .2s;
 }
 .shelf-tab:hover{border-color:var(--brand);color:var(--brand)}
 .shelf-tab.active{background:var(--brand);border-color:var(--brand);color:#fff}
-
 /* ============ 头像框 ============ */
 .avatar-frame{position:relative;display:inline-block}
 .avatar-frame .af-inner{
@@ -629,7 +592,6 @@ transition:all .2s;
 }
 .frame-swatch:hover{border-color:var(--brand);transform:scale(1.08)}
 .frame-swatch.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
-
 /* ============ 宠物 ============ */
 .pet-card{
 display:flex;align-items:center;gap:18px;
@@ -651,7 +613,6 @@ border:1px solid var(--line);background:var(--card);cursor:pointer;transition:al
 }
 .pet-btn:hover{border-color:var(--brand);color:var(--brand)}
 .pet-sel{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
-
 /* ============ AI聊天 ============ */
 .ai-shell{
 max-width:760px;margin:0 auto;display:flex;flex-direction:column;
@@ -698,13 +659,10 @@ cursor:pointer;transition:all .2s;
 </style>
 </head>
 <body>
-
 <!-- ============ 返回顶部按钮 ============ -->
 <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="返回顶部">↑</button>
-
 <!-- ============ 阅读进度条 ============ -->
 <div id="reading-progress"></div>
-
 <!-- ============ 顶栏 ============ -->
 <header class="site-header">
 <div class="header-inner">
@@ -747,7 +705,6 @@ cursor:pointer;transition:all .2s;
 </div>
 </div>
 </header>
-
 <!-- ============ 登录/注册弹窗 ============ -->
 <div class="modal-mask" id="auth-modal">
 <div class="modal">
@@ -781,7 +738,6 @@ cursor:pointer;transition:all .2s;
 </div>
 </div>
 </div>
-
 <!-- ============ 忘记密码弹窗 ============ -->
 <div class="modal-mask" id="forgot-modal">
 <div class="modal">
@@ -806,30 +762,24 @@ cursor:pointer;transition:all .2s;
 </div>
 </div>
 </div>
-
 <main id="app"><div class="loading"><div class="spinner"></div><p>正在打开书城…</p></div></main>
-
 <footer class="site-footer">
 <div class="f-logo">阅川书城</div>
 <p>人人可写，人人可读 · 让每一部作品都被看见<br>本站为原创小说分享平台，作品版权归作者所有</p>
 </footer>
-
 <div id="toast-wrap"></div>
-
 <script>
 /* ============================================================
 阅川书城 · 单文件应用
 数据层：Supabase REST API（PostgREST），匿名可读可发布
 路由：hash 路由
 ============================================================ */
-
 /* ============ 1. 站点配置 ============ */
 /* 填入你的 Supabase 项目地址与 anon 公钥（在 Supabase 控制台
 Settings → API 里可以找到，anon/public 密钥是设计为公开的，
 配合数据库行级安全策略保护数据） */
 const SUPABASE_URL = "https://xsmdmttfftepbtnjxvfu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_xx7x4i2GPuZ6ET32usY_7Q__CIG7s3Y";
-
 /* 运行时配置：优先代码常量，其次本机保存的配置（配置引导页写入） */
 function getConfig(){
 if(SUPABASE_URL && SUPABASE_ANON_KEY) return { url: SUPABASE_URL, key: SUPABASE_ANON_KEY };
@@ -839,12 +789,11 @@ if(u && k) return { url: u, key: k };
 return null;
 }
 function isConfigured(){ return !!getConfig(); }
-
 /* ============ 2. 数据层（Supabase REST） ============ */
 const API = {
 /* 简单内存缓存：GET请求5分钟内不重复请求 */
 _cache: new Map(),
-_cacheTime: 5 * 60 * 1000,
+_cacheTime: 10 * 60 * 1000,
 async request(method, path, body, query){
 const cfg = getConfig();
 const base = cfg.url.replace(/\/+$/,"");
@@ -856,7 +805,6 @@ const headers = {
 if(method === "GET") headers["Prefer"] = "count=exact";
 if(method === "POST") headers["Prefer"] = "return=representation";
 if(method === "PATCH") headers["Prefer"] = "return=representation";
-
 /* GET请求用缓存 */
 const cacheKey = method + path + (query || "");
 if(method === "GET" && this._cache.has(cacheKey)){
@@ -866,7 +814,6 @@ return cached.data;
 }
 this._cache.delete(cacheKey);
 }
-
 let url = base + "/rest/v1/" + path;
 if(query) url += "?" + query;
 const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
@@ -897,6 +844,7 @@ markNotifRead(account){
 return this.request("PATCH","notifications",{read:true},"account=eq." + encodeURIComponent(account) + "&read=eq.false");
 },
 /* 作品 */
+listContestWorks(){ return this.request("GET","works",null,"select=*&contest=neq.&order=views.desc&limit=6"); },
 listWorks({category, sort, q, limit=50} = {}){
 const qs = [];
 qs.push("select=*");
@@ -908,6 +856,12 @@ return this.request("GET","works",null,qs.join("&"));
 },
 getWork(id){ return this.request("GET","works",null,"select=*&id=eq." + id); },
 getMyWorks(authorKey){ return this.request("GET","works",null,"select=*&author_key=eq." + encodeURIComponent(authorKey)); },
+followWork(account, workId){ return this.request("POST","follow_works",{account:account, work_id:workId}); },
+unfollowWork(account, workId){ return this.request("DELETE","follow_works",null,"account=eq." + encodeURIComponent(account) + "&work_id=eq." + encodeURIComponent(workId)); },
+getFollowWork(account, workId){ return this.request("GET","follow_works",null,"select=*&account=eq." + encodeURIComponent(account) + "&work_id=eq." + encodeURIComponent(workId)); },
+listFollowWorksFor(workId){ return this.request("GET","follow_works",null,"select=account&work_id=eq." + encodeURIComponent(workId) + "&limit=100"); },
+getUserBio(account){ return this.request("GET","user_bio",null,"select=*&account=eq." + encodeURIComponent(account)); },
+setUserBio(account, bio){ return this.request("POST","user_bio",{account:account,bio:bio}); },
 getWorksByIds(ids){ return this.request("GET","works",null,"select=*&id=in.(" + ids.join(",") + ")"); },
 createWork(data){ return this.request("POST","works",data); },
 updateWork(id, data, authorKey){
@@ -986,7 +940,6 @@ addPoints(account, delta, reason){
 return this.request("POST","points_log",{account, delta, reason: reason || ""});
 }
 };
-
 /* ============ 3. 本地状态 ============ */
 const Store = {
 /* 账号体系：登录后才有 authorKey；游客无 authorKey（只能浏览阅读） */
@@ -1019,7 +972,6 @@ set hotSearch(v){ localStorage.setItem("yc_hotsearch", JSON.stringify(v)); },
 get writeDays(){ try{ return JSON.parse(localStorage.getItem("yc_writedays") || "[]"); }catch(e){ return []; } },
 set writeDays(v){ localStorage.setItem("yc_writedays", JSON.stringify(v)); }
 };
-
 /* ============ 4. 工具函数 ============ */
 const $ = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
@@ -1033,11 +985,9 @@ return String(text ?? "")
 }
 const fmtDate = s => { if(!s) return ""; const d = new Date(s); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); };
 const fmtTime = s => { if(!s) return ""; const d = new Date(s); return String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0") + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); };
-
 const CATEGORIES = ["玄幻","都市","言情","科幻","悬疑","历史","校园","其他"];
 function catTag(c){ return CATEGORIES.includes(c) ? c : "其他"; }
 let chosenCover = ""; /* 创建页待发布的封面 base64 */
-
 function toast(msg, type){
 const w = $("#toast-wrap");
 const t = document.createElement("div");
@@ -1046,7 +996,6 @@ t.textContent = msg;
 w.appendChild(t);
 setTimeout(()=>{ t.style.opacity = "0"; t.style.transition = "opacity .3s"; setTimeout(()=>t.remove(), 320); }, 2200);
 }
-
 function coverHtml(work, cls){
 if(work && work.cover && work.cover.length > 20){
 return '<div class="book-cover cover-img ' + (cls||"") + '">' +
@@ -1058,18 +1007,14 @@ return '<div class="book-cover ct-' + theme + ' ' + (cls||"") + '">' +
 '<div class="cover-title">' + esc(work.title) + '</div>' +
 '<div class="cover-author">' + esc(work.author) + '</div></div>';
 }
-
 function loadingHtml(){ return '<div class="loading"><div class="spinner"></div><p>加载中…</p></div>'; }
-
 function emptyHtml(icon, text, btn){
 return '<div class="empty-state">' +
 '<svg class="empty-icon" viewBox="0 0 64 64" fill="none" stroke="#93A09B" stroke-width="2.4" stroke-linecap="round">' + icon + '</svg>' +
 '<p>' + text + '</p>' + (btn||"") + '</div>';
 }
-
 /* ============ 账号系统（游客 / 账号模式） ============ */
 let authMode = "login"; /* login | register */
-
 function renderAuthArea(){
 const area = $("#auth-area");
 if(!area) return;
@@ -1095,7 +1040,6 @@ area.innerHTML =
 '<button class="btn btn-ghost btn-sm" onclick="openAuthModal(\'login\')">登录 / 注册</button>';
 }
 }
-
 function toggleUserMenu(){
 const m = $("#user-menu");
 if(m) m.classList.toggle("show");
@@ -1104,7 +1048,6 @@ function closeUserMenu(){
 const m = $("#user-menu");
 if(m) m.classList.remove("show");
 }
-
 function openAuthModal(mode){
 authMode = mode || "login";
 $("#auth-modal").classList.add("show");
@@ -1114,7 +1057,6 @@ setTimeout(()=>{ const i = $("#auth-account"); if(i) i.focus(); }, 60);
 function closeAuthModal(){
 $("#auth-modal").classList.remove("show");
 }
-
 /* ============ 算术验证码（简单版） ============ */
 let captchaAnswer = 0;
 function drawCaptcha(canvasId){
@@ -1135,7 +1077,6 @@ ctx.textBaseline = "middle";
 ctx.fillText(a + " + " + b + " = ?", canvas.width/2, canvas.height/2);
 }
 }
-
 function checkCaptcha(inputId){
 const input = $("#" + (inputId || "auth-captcha"));
 const c = (input ? input.value : "").trim();
@@ -1149,7 +1090,6 @@ return false;
 }
 return true;
 }
-
 function openAuthModal(mode){
 authMode = mode || "login";
 $("#auth-modal").classList.add("show");
@@ -1160,7 +1100,6 @@ setTimeout(()=>{ const i = $("#auth-account"); if(i) i.focus(); }, 60);
 function closeAuthModal(){
 $("#auth-modal").classList.remove("show");
 }
-
 function switchAuthTab(mode){
 authMode = mode;
 $("#tab-login").classList.toggle("active", mode === "login");
@@ -1182,13 +1121,11 @@ $("#auth-hint").textContent = mode === "login"
 ? "输入邮箱和密码即可登录"
 : "输入邮箱，点发送验证码，验证后设置密码即可注册";
 }
-
 /* 校验邮箱格式 */
 function validAccount(v){
 v = v.trim();
 return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(v);
 }
-
 /* 发送邮箱验证码（Supabase Auth OTP） */
 let otpCooldown = 0;
 async function sendEmailOtp(){
@@ -1218,7 +1155,6 @@ drawCaptcha("captcha-canvas");
 $("#auth-captcha").value = "";
 }
 }
-
 async function submitAuth(){
 const email = $("#auth-account").value.trim();
 const pwd = $("#auth-password").value;
@@ -1230,7 +1166,6 @@ if(!email){ toast("请输入邮箱", "err"); return; }
 if(!validAccount(email)){ toast("请输入正确的邮箱", "err"); return; }
 /* 二次验证：图形验证码 */
 if(!checkCaptcha("auth-captcha")) return;
-
 if(authMode === "login"){
 /* 登录：邮箱+密码 */
 if(!pwd){ toast("请输入密码", "err"); return; }
@@ -1255,7 +1190,6 @@ btn.textContent = "登 录";
 }
 return;
 }
-
 /* 注册：邮箱验证码 + 设置密码 */
 const otpCode = pwd; /* 注册时 auth-password 里是 6 位数字验证码 */
 if(!/^\d{4,10}$/.test(otpCode)){ toast("请输入邮箱收到的数字验证码", "err"); return; }
@@ -1296,7 +1230,6 @@ btn.disabled = false;
 btn.textContent = "注 册";
 }
 }
-
 /* ============ 找回密码 ============ */
 async function openForgotModal(){
 const account = $("#auth-account").value.trim();
@@ -1321,7 +1254,6 @@ $("#f-secq").value = "";
 function closeForgotModal(){
 $("#forgot-modal").classList.remove("show");
 }
-
 async function loadQuestion(){
 const account = $("#f-account").value.trim();
 if(!validAccount(account)){ toast("请输入正确的邮箱", "err"); return; }
@@ -1339,7 +1271,6 @@ $("#f-secq").value = "";
 $("#f-hint").textContent = err.message || "查询失败";
 }
 }
-
 async function submitForgot(){
 const account = $("#f-account").value.trim();
 const answer = $("#f-seca").value.trim();
@@ -1365,7 +1296,6 @@ btn.disabled = false;
 btn.textContent = "重置密码";
 }
 }
-
 function logout(){
 Store.auth = null;
 closeUserMenu();
@@ -1373,7 +1303,6 @@ renderAuthArea();
 toast("已退出登录");
 if(parseHash().path === "create") renderCreate();
 }
-
 /* 创作入口：游客先登录 */
 function gotoCreate(){
 if(!Store.isLoggedIn){
@@ -1383,7 +1312,6 @@ return;
 }
 location.hash = "#/create";
 }
-
 document.addEventListener("click", e=>{
 const menu = $("#user-menu");
 if(menu && menu.classList.contains("show") && !e.target.closest(".user-wrap")){
@@ -1405,17 +1333,14 @@ if(e.key === "Enter" && $("#forgot-modal").classList.contains("show") && documen
 submitForgot();
 }
 });
-
 function parseHash(){
 const raw = location.hash.replace(/^#\/?/, "");
 const [path, queryStr] = raw.split("?");
 const params = new URLSearchParams(queryStr || "");
 return { path: path || "home", params };
 }
-
 /* ============ 5. 视图渲染 ============ */
 const app = $("#app");
-
 function renderHome(){
 app.innerHTML =
 '<section class="page">' +
@@ -1430,38 +1355,51 @@ app.innerHTML =
 '<button class="btn btn-ghost-dark" onclick="location.hash=\'#/chat\'">进聊天室</button>' +
 '</div>' +
 '</div>' +
-
+'<div class="section" id="sec-contest">' +
+'<div class="section-head"><h2 class="section-title">🏆 本周创作赛</h2><span style="font-size:12px;color:var(--ink-faint)">发布作品时勾选「参加本周创作赛」，按人气评选</span></div>' +
+loadingHtml() +
+'</div>' +
 '<div class="section" id="sec-recommend">' +
 '<div class="section-head"><h2 class="section-title">📚 本周推荐</h2></div>' +
 loadingHtml() +
 '</div>' +
-
 '<div class="section">' +
 '<div class="section-head"><h2 class="section-title">分类书架</h2><a class="section-more" href="#/library">全部作品 →</a></div>' +
 '<div class="cat-chips">' + CATEGORIES.map(c => '<a class="cat-chip" href="#/library?cat=' + encodeURIComponent(c) + '">' + c + '</a>').join("") + '</div>' +
 '</div>' +
-
 '<div class="section" id="sec-hot">' +
 '<div class="section-head"><h2 class="section-title">热门作品</h2></div>' +
 loadingHtml() +
 '</div>' +
-
 '<div class="section" id="sec-new">' +
 '<div class="section-head"><h2 class="section-title">最新上架</h2><a class="section-more" href="#/library">更多 →</a></div>' +
 loadingHtml() +
 '</div>' +
 '</section>';
-
 /* 公告栏 */
 loadAnnouncements();
-
-/* 首页数据：一次性请求，减少API调用 */
+/* 首页数据：2个请求（views一次拿14本，推荐/热门共用，减少往返） */
 Promise.all([
-API.listWorks({sort:"views", limit:3}),    // 推荐 - 从5本减到3本
-API.listWorks({sort:"views", limit:5}),    // 热门 - 从6本减到5本
-API.listWorks({sort:"created", limit:6})   // 最新 - 从9本减到6本
-]).then(([recommendWorks, hotWorks, newWorks])=>{
-
+API.listWorks({sort:"views", limit:14}),
+API.listWorks({sort:"created", limit:6}),
+API.listContestWorks()
+]).then(([hotPool, newWorks, contestWorks])=>{
+const recommendWorks = hotPool.slice(0, 3);
+const hotWorks = hotPool.slice(0, 5);
+/* 本周创作赛 */
+const secContest = $("#sec-contest");
+if(secContest){
+if(contestWorks && contestWorks.length){
+secContest.querySelector(".loading").outerHTML = '<div class="book-grid">' + contestWorks.map(w=>
+'<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+coverHtml(w) +
+'<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
+'<div class="b-meta">' + esc(w.author) + ' · ' + (w.views||0) + ' 阅读</div></div></div>'
+).join("") + '</div>';
+} else {
+secContest.querySelector(".loading").outerHTML = '<div style="text-align:center;padding:18px;color:var(--ink-faint);font-size:13px">本周还没有作品参赛，写一本带上「参赛」标签吧！</div>';
+}
+}
 /* 本周推荐 */
 if(recommendWorks && recommendWorks.length){
 const items = recommendWorks.map((w,i)=>
@@ -1479,7 +1417,6 @@ $("#sec-recommend").querySelector(".loading").outerHTML = '<div class="rec-grid"
 } else {
 $("#sec-recommend").style.display = "none";
 }
-
 /* 热门榜 */
 if(hotWorks && hotWorks.length){
 const items = hotWorks.map((w,i)=>
@@ -1496,7 +1433,6 @@ $("#sec-hot").querySelector(".loading").outerHTML = '<div class="h-list">' + ite
 } else {
 $("#sec-hot").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/><circle cx="14" cy="34" r="4"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
 }
-
 /* 最新 */
 if(newWorks && newWorks.length){
 const grid = '<div class="book-grid">' + newWorks.map(w=>
@@ -1509,13 +1445,11 @@ $("#sec-new").querySelector(".loading").outerHTML = grid;
 } else {
 $("#sec-new").querySelector(".loading").outerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/>','还没有作品，来写下第一部吧','<button class="btn btn-accent" onclick="gotoCreate()">登录并创作</button>');
 }
-
 }).catch(err=>{
 $("#sec-recommend").style.display = "none";
 $("#sec-hot").querySelector(".loading").outerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 });
 }
-
 function loadAnnouncements(){
 const box = $("#announce-box");
 if(!box) return;
@@ -1534,7 +1468,6 @@ const items = list.map(a =>
 box.innerHTML = '<div class="ann-list">' + items + '</div>';
 }).catch(()=>{ box.style.display = "none"; });
 }
-
 function renderLibrary(){
 const params = parseHash().params;
 const cat = params.get("cat") || "全部";
@@ -1556,7 +1489,6 @@ CATEGORIES.map(c => '<button class="cat-chip' + (cat===c?" active":"") + '" oncl
 '<div id="hot-search" style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--ink-faint)"></div>' +
 '<div id="lib-grid">' + loadingHtml() + '</div>' +
 '</section>';
-
 /* 热门搜索词 */
 (function(){
 const hotBox = $("#hot-search");
@@ -1570,7 +1502,6 @@ hotBox.style.display = "none";
 }
 }
 })();
-
 const sort = $("#sort-sel").value;
 $("#sort-sel").addEventListener("change", e=>{
 const s = e.target.value;
@@ -1578,10 +1509,8 @@ const base = "#/library" + (cat!=="全部" ? "?cat=" + encodeURIComponent(cat) :
 const qs = s === "views" ? (base.includes("?") ? "&sort=views" : "?sort=views") : "";
 location.hash = base + qs;
 });
-
 loadLibrary(cat, q, sort);
 }
-
 async function loadLibrary(cat, q, sort){
 const grid = $("#lib-grid");
 grid.innerHTML = loadingHtml();
@@ -1601,16 +1530,13 @@ coverHtml(w) +
 grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 }
 }
-
 function renderBook(){
 const id = parseHash().params.get("id");
 if(!id){ location.hash = "#/library"; return; }
 app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
-
 Promise.all([API.getWork(id), API.listChapters(id)]).then(async ([workArr, chapters])=>{
 const work = workArr && workArr[0];
 if(!work){ app.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "作品不存在或已被删除", '<button class="btn btn-ghost" onclick="location.hash=\'#/library\'">返回书库</button>'); return; }
-
 /* 阅读量 +1（每天每本书只计一次，防刷） */
 const vKey = "yc_view_" + id;
 const vToday = new Date().toDateString();
@@ -1618,20 +1544,17 @@ if(localStorage.getItem(vKey) !== vToday){
 localStorage.setItem(vKey, vToday);
 API.addViews(id, work.views || 0).catch(()=>{});
 }
-
 /* 点赞数 / 我是否点过赞 / 评论列表 并行拉取 */
 const [likeCount, myLike, comments] = await Promise.all([
 API.getLikeCount(id),
 Store.isLoggedIn ? API.getUserLikes(id, Store.auth.account).then(a=>!!(a && a.length)).catch(()=>false) : Promise.resolve(false),
 API.listComments(id).catch(()=>[])
 ]);
-
 const isMine = work.author_key === Store.authorKey;
 const favs = Store.favorites;
 const isFav = favs.includes(id);
 const chs = chapters || [];
 const last = Store.lastRead[id];
-
 let chapterHtml;
 if(!chs.length){
 chapterHtml = '<div class="chapter-item" style="cursor:default;color:var(--ink-faint)">作者还在酝酿中，敬请期待</div>';
@@ -1643,7 +1566,7 @@ chapterHtml = chs.map((c,i)=>
 '<span class="ch-date">' + fmtDate(c.created_at) + '</span></div>'
 ).join("");
 }
-
+setTimeout(()=>{ loadFollowWorkState(id); }, 0);
 const commentHtml = comments && comments.length
 ? comments.map(c =>
 '<div class="cmt-item">' +
@@ -1652,7 +1575,6 @@ const commentHtml = comments && comments.length
 '<div class="cmt-body">' + esc(c.content) + '</div>' +
 '</div>').join("")
 : '<div class="cmt-empty">还没有评论，来说两句吧～</div>';
-
 app.innerHTML =
 '<section class="page">' +
 '<div class="detail-top">' +
@@ -1673,8 +1595,10 @@ app.innerHTML =
 '<div class="detail-actions">' +
 '<button class="btn btn-primary" onclick="' + (chs.length ? "location.hash=\'#/read?id=" + id + "&ch=" + (last && last.ch !== undefined ? last.ch : 0) + "\'" : "toast(\'这本书还没有章节，等作者更新吧\')") + '">' + (chs.length ? "开始阅读" : "暂无章节") + '</button>' +
 '<button class="btn btn-ghost" id="fav-btn" onclick="toggleFav(\'' + id + '\')">' + (isFav ? "已加入书架" : "加入书架") + '</button>' +
+'<button class="btn btn-ghost" id="follow-work-btn" onclick="toggleFollowWork(\'' + id + '\')">🔔 追更</button>' +
 '<button class="btn btn-ghost" id="like-btn" onclick="toggleLike(\'' + id + '\')">' + (myLike ? "♥ 已赞" : "♡ 点赞") + ' <span id="like-count">' + (likeCount||0) + '</span></button>' +
 '<button class="btn btn-ghost" onclick="shareBook(\'' + id + '\',\'' + esc(work.title) + '\')">📤 分享</button>' +
+'<button class="btn btn-ghost" onclick="sharePoster(\'' + id + '\',\'' + esc(work.title) + '\',\'' + esc(work.author) + '\',\'' + esc(work.intro || "") + '\',' + (work.cover_theme||0) + ')">🖼 海报</button>' +
 '<button class="btn btn-ghost" onclick="markAsRead(\'' + id + '\',\'' + esc(work.title) + '\')">✅ 读完打卡</button>' +
 (isMine ? '<button class="btn btn-accent" onclick="location.hash=\'#/create?edit=' + id + '\'">管理作品</button>' : "") +
 (!isMine && work.author_key ? '<button class="btn btn-accent" onclick="openTipModal(\'' + id + '\',\'' + (work.author_key||'') + '\')">☕ 打赏作者</button>' : "") +
@@ -1707,7 +1631,6 @@ chapterHtml +
 '<div id="related-books">' + loadingHtml() + '</div>' +
 '</div>' +
 '</section>';
-
 /* 加载打赏感谢墙 */
 loadTipWall(id);
 /* 加载相关推荐 */
@@ -1716,7 +1639,6 @@ loadRelatedBooks(id, work.category);
 app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message), '<button class="btn btn-ghost" onclick="location.hash=\'#/library\'">返回书库</button>') + '</section>';
 });
 }
-
 /* 消息通知小红点 */
 let notifTimer = null;
 function toggleNotifPanel(){
@@ -1780,7 +1702,6 @@ if(list) list.innerHTML = '<div style="text-align:center;padding:24px;color:var(
 setTimeout(()=>{ loadNotifications(); }, 600);
 }).catch(()=>{ toast("操作失败", "err"); });
 }
-
 /* 打赏感谢墙 */
 async function loadTipWall(workId){
 const wall = $("#tip-wall");
@@ -1805,7 +1726,6 @@ wall.innerHTML = '<div class="tip-wall">' + tips.map(t =>
 wall.innerHTML = '<div style="text-align:center;padding:20px;color:var(--ink-faint);font-size:13px">暂无打赏记录</div>';
 }
 }
-
 /* 章节快速跳转 */
 function jumpToChapter(workId, totalChapters){
 const input = prompt('输入要跳转的章节号（1-' + totalChapters + '）：');
@@ -1817,7 +1737,6 @@ return;
 }
 location.hash = '#/read?id=' + workId + '&ch=' + (num - 1);
 }
-
 /* 书籍评分 */
 function rateBook(workId, score){
 if(!Store.isLoggedIn){ toast('请先登录再评分', 'err'); openAuthModal('login'); return; }
@@ -1837,7 +1756,6 @@ stars += '<span onclick="rateBook(\'' + workId + '\',' + i + ')" style="cursor:p
 }
 container.innerHTML = stars;
 }
-
 /* 读完打卡 */
 function markAsRead(workId, workTitle){
 const readList = Store.readList || [];
@@ -1849,145 +1767,226 @@ readList.push(workId);
 Store.readList = readList;
 toast('🎉 恭喜读完《' + workTitle + '》！');
 }
-
 /* ============ 徽章成就系统 ============ */
 const BADGES = {
-  first_work:   { icon: "✍️", name: "初露锋芒", desc: "发布第一部作品", check: w=>w>=1 },
-  works_3:      { icon: "📚", name: "笔耕不辍", desc: "发布3部作品", check: w=>w>=3 },
-  first_cmt:    { icon: "💬", name: "有话要说", desc: "发表第一条评论" },
-  first_like:   { icon: "👍", name: "眼光独到", desc: "第一次点赞" },
-  first_checkin:{ icon: "📅", name: "第一天", desc: "首次签到" },
-  checkin_7:    { icon: "🔥", name: "七日坚持", desc: "连续签到7天" },
-  read_1h:      { icon: "⏱️", name: "阅读入门", desc: "累计阅读1小时" },
-  read_10h:     { icon: "🏆", name: "阅读达人", desc: "累计阅读10小时" },
-  read_100:     { icon: "📖", name: "百读不厌", desc: "读过100本书" },
-  fan_1:        { icon: "⭐", name: "小有名气", desc: "获得第1个粉丝" },
-  tip_1:        { icon: "☕", name: "收到打赏", desc: "收到第一次打赏" },
-  inviter_1:    { icon: "🎁", name: "呼朋引伴", desc: "邀请1位朋友注册" },
-  views_100:    { icon: "👁️", name: "人气新星", desc: "作品总阅读破100" },
-  views_1000:   { icon: "🌟", name: "人气作家", desc: "作品总阅读破1000" }
+first_work:   { icon: "✍️", name: "初露锋芒", desc: "发布第一部作品", check: w=>w>=1 },
+works_3:      { icon: "📚", name: "笔耕不辍", desc: "发布3部作品", check: w=>w>=3 },
+first_cmt:    { icon: "💬", name: "有话要说", desc: "发表第一条评论" },
+first_like:   { icon: "👍", name: "眼光独到", desc: "第一次点赞" },
+first_checkin:{ icon: "📅", name: "第一天", desc: "首次签到" },
+checkin_7:    { icon: "🔥", name: "七日坚持", desc: "连续签到7天" },
+read_1h:      { icon: "⏱️", name: "阅读入门", desc: "累计阅读1小时" },
+read_10h:     { icon: "🏆", name: "阅读达人", desc: "累计阅读10小时" },
+read_100:     { icon: "📖", name: "百读不厌", desc: "读过100本书" },
+fan_1:        { icon: "⭐", name: "小有名气", desc: "获得第1个粉丝" },
+tip_1:        { icon: "☕", name: "收到打赏", desc: "收到第一次打赏" },
+inviter_1:    { icon: "🎁", name: "呼朋引伴", desc: "邀请1位朋友注册" },
+views_100:    { icon: "👁️", name: "人气新星", desc: "作品总阅读破100" },
+views_1000:   { icon: "🌟", name: "人气作家", desc: "作品总阅读破1000" },
+allin_7:      { icon: "🔥", name: "全勤王者", desc: "连续7天更新作品" }
 };
 function getBadges(){ try{ return JSON.parse(localStorage.getItem("yc_badges") || "[]"); }catch(e){ return []; } }
 function saveBadges(v){ localStorage.setItem("yc_badges", JSON.stringify(v)); }
 function unlockBadge(key){
-  if(!Store.isLoggedIn) return;
-  const list = getBadges();
-  if(list.includes(key)) return;
-  const b = BADGES[key];
-  if(!b) return;
-  list.push(key);
-  saveBadges(list);
-  toast("🏅 获得徽章：「" + b.name + "」" + b.desc);
+if(!Store.isLoggedIn) return;
+const list = getBadges();
+if(list.includes(key)) return;
+const b = BADGES[key];
+if(!b) return;
+list.push(key);
+saveBadges(list);
+toast("🏅 获得徽章：「" + b.name + "」" + b.desc);
 }
 function badgeWallHtml(){
-  const owned = getBadges();
-  const total = Object.keys(BADGES).length;
-  let h = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px">';
-  for(const key in BADGES){
-    const b = BADGES[key];
-    const has = owned.includes(key);
-    h += '<div style="text-align:center;padding:12px 6px;border-radius:12px;background:' + (has ? 'var(--card);border:1px solid var(--brand)' : 'rgba(0,0,0,.04);border:1px solid var(--line);opacity:.45') + '">' +
-      '<div style="font-size:26px">' + b.icon + '</div>' +
-      '<div style="font-size:12px;font-weight:700;margin-top:4px">' + b.name + '</div>' +
-      '<div style="font-size:10px;color:var(--ink-faint);margin-top:2px;line-height:1.4">' + b.desc + '</div>' +
-      (has ? '<div style="font-size:10px;color:#2E8B57;margin-top:4px">✓ 已获得</div>' : '<div style="font-size:10px;color:#999;margin-top:4px">🔒 未解锁</div>') +
-    '</div>';
-  }
-  return h + '</div><div style="font-size:12px;color:var(--ink-faint);margin-top:8px">已获得 ' + owned.length + '/' + total + ' 枚徽章</div>';
+const owned = getBadges();
+const total = Object.keys(BADGES).length;
+let h = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px">';
+for(const key in BADGES){
+const b = BADGES[key];
+const has = owned.includes(key);
+h += '<div style="text-align:center;padding:12px 6px;border-radius:12px;background:' + (has ? 'var(--card);border:1px solid var(--brand)' : 'rgba(0,0,0,.04);border:1px solid var(--line);opacity:.45') + '">' +
+'<div style="font-size:26px">' + b.icon + '</div>' +
+'<div style="font-size:12px;font-weight:700;margin-top:4px">' + b.name + '</div>' +
+'<div style="font-size:10px;color:var(--ink-faint);margin-top:2px;line-height:1.4">' + b.desc + '</div>' +
+(has ? '<div style="font-size:10px;color:#2E8B57;margin-top:4px">✓ 已获得</div>' : '<div style="font-size:10px;color:#999;margin-top:4px">🔒 未解锁</div>') +
+'</div>';
+}
+return h + '</div><div style="font-size:12px;color:var(--ink-faint);margin-top:8px">已获得 ' + owned.length + '/' + total + ' 枚徽章</div>';
+}
+/* ============ 追更系统 ============ */
+async function toggleFollowWork(workId){
+if(!Store.isLoggedIn){ toast("请先登录，登录后才能追更", "err"); openAuthModal("login"); return; }
+const btn = $("#follow-work-btn");
+if(btn) btn.disabled = true;
+try{
+const exist = await API.getFollowWork(Store.auth.account, workId);
+if(exist && exist.length){
+await API.unfollowWork(Store.auth.account, workId);
+if(btn){ btn.disabled = false; btn.textContent = "🔔 追更"; }
+toast("已取消追更");
+} else {
+await API.followWork(Store.auth.account, workId);
+if(btn){ btn.disabled = false; btn.textContent = "🔔 追更中"; }
+toast("追更成功！作者更新时会通知你");
+}
+}catch(err){
+if(btn) btn.disabled = false;
+toast(err.message || "操作失败", "err");
+}
+}
+async function loadFollowWorkState(workId){
+if(!Store.isLoggedIn) return;
+try{
+const exist = await API.getFollowWork(Store.auth.account, workId);
+const btn = $("#follow-work-btn");
+if(btn) btn.textContent = (exist && exist.length) ? "🔔 追更中" : "🔔 追更";
+}catch(e){}
+}
+async function notifyFollowers(workId, title, chTitle){
+try{
+const followers = await API.listFollowWorksFor(workId);
+if(!followers || !followers.length) return;
+const me = Store.auth ? Store.auth.account : "";
+followers.forEach(f=>{
+if(f.account !== me && f.account !== Store.authorKey) API.addNotification(f.account, "update", "你追更的《" + title + "》更新了第 " + (chTitle || "") + " 章，快去看！").catch(()=>{});
+});
+}catch(e){}
+}
+
+/* ============ 个性签名 ============ */
+async function loadUserBio(account){
+try{
+const r = await API.getUserBio(account);
+return r && r[0] ? r[0].bio : "";
+}catch(e){ return ""; }
+}
+async function saveMyBio(){
+const input = $("#bio-input");
+if(!input) return;
+const bio = input.value.trim().slice(0, 80);
+if(!Store.isLoggedIn){ toast("请先登录", "err"); return; }
+try{
+await API.setUserBio(Store.auth.account, bio);
+toast("签名已保存");
+loadUserBio(Store.auth.account).then(b=>{
+const el = $("#bio-display");
+if(el) el.textContent = b || "这个人很懒，什么都没写~";
+});
+}catch(e){ toast("保存失败", "err"); }
+}
+
+/* ============ 连续更新奖励 ============ */
+function calcStreakDays(){
+const days = Store.writeDays || [];
+if(!days.length) return 0;
+const map = new Set(days);
+let streak = 0;
+const d = new Date();
+while(map.has(d.toDateString())){
+streak++;
+d.setDate(d.getDate() - 1);
+}
+return streak;
+}
+function checkAllinBadge(){
+if(!Store.isLoggedIn) return;
+const streak = calcStreakDays();
+if(streak >= 7){
+unlockBadge("allin_7");
+addPoints(50, "全勤奖励（连续7天更新）").catch(()=>{});
+toast("🔥 连续更新7天！全勤王者徽章 +50积分");
+}
 }
 
 /* ============ 创作日历 ============ */
 function addWriteDay(){
-  const days = Store.writeDays || [];
-  const today = new Date().toDateString();
-  if(!days.includes(today)){
-    days.push(today);
-    Store.writeDays = days;
-  }
+const days = Store.writeDays || [];
+const today = new Date().toDateString();
+if(!days.includes(today)){
+days.push(today);
+Store.writeDays = days;
+}
 }
 function writeDaysThisMonth(){
-  const days = Store.writeDays || [];
-  const now = new Date();
-  const ym = now.getFullYear() + "-" + (now.getMonth()+1);
-  return days.filter(d => {
-    const dt = new Date(d);
-    return (dt.getFullYear() + "-" + (dt.getMonth()+1)) === ym;
-  }).length;
+const days = Store.writeDays || [];
+const now = new Date();
+const ym = now.getFullYear() + "-" + (now.getMonth()+1);
+return days.filter(d => {
+const dt = new Date(d);
+return (dt.getFullYear() + "-" + (dt.getMonth()+1)) === ym;
+}).length;
 }
-
 /* ============ 本月读书报告 ============ */
 function monthlyReportHtml(){
-  if(!Store.isLoggedIn) return "";
-  const now = new Date();
-  const ym = now.getFullYear() + "-" + (now.getMonth()+1);
-  const readMin = parseInt(localStorage.getItem("yc_read_min_" + ym) || "0", 10);
-  const readBooks = (Store.readList || []).length;
-  const viewedBooks = Object.keys(Store.lastRead || {}).length;
-  const streak = Store.checkinStreak || 0;
-  const hours = Math.round(readMin / 60 * 10) / 10;
-  const pct = Math.min(99, Math.max(1, Math.round(readMin / 300 * 100)));
-  return '<div style="background:linear-gradient(135deg,#146B5B,#2E8B57);border-radius:14px;padding:18px;color:#fff">' +
-    '<div style="font-weight:700;margin-bottom:10px">📊 ' + now.getMonth()+1 + '月读书报告</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">' +
-      '<div><div style="font-size:22px;font-weight:800">' + hours + 'h</div><div style="font-size:11px;opacity:.8">本月阅读</div></div>' +
-      '<div><div style="font-size:22px;font-weight:800">' + readBooks + '</div><div style="font-size:11px;opacity:.8">读完的书</div></div>' +
-      '<div><div style="font-size:22px;font-weight:800">' + viewedBooks + '</div><div style="font-size:11px;opacity:.8">看过的书</div></div>' +
-      '<div><div style="font-size:22px;font-weight:800">' + (streak||0) + '天</div><div style="font-size:11px;opacity:.8">最长连签</div></div>' +
-    '</div>' +
-    '<div style="font-size:11px;opacity:.85;margin-top:10px">🎉 你超过了本站 ' + pct + '% 的读者，继续加油！</div>' +
-  '</div>';
+if(!Store.isLoggedIn) return "";
+const now = new Date();
+const ym = now.getFullYear() + "-" + (now.getMonth()+1);
+const readMin = parseInt(localStorage.getItem("yc_read_min_" + ym) || "0", 10);
+const readBooks = (Store.readList || []).length;
+const viewedBooks = Object.keys(Store.lastRead || {}).length;
+const streak = Store.checkinStreak || 0;
+const hours = Math.round(readMin / 60 * 10) / 10;
+const pct = Math.min(99, Math.max(1, Math.round(readMin / 300 * 100)));
+return '<div style="background:linear-gradient(135deg,#146B5B,#2E8B57);border-radius:14px;padding:18px;color:#fff">' +
+'<div style="font-weight:700;margin-bottom:10px">📊 ' + now.getMonth()+1 + '月读书报告</div>' +
+'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">' +
+'<div><div style="font-size:22px;font-weight:800">' + hours + 'h</div><div style="font-size:11px;opacity:.8">本月阅读</div></div>' +
+'<div><div style="font-size:22px;font-weight:800">' + readBooks + '</div><div style="font-size:11px;opacity:.8">读完的书</div></div>' +
+'<div><div style="font-size:22px;font-weight:800">' + viewedBooks + '</div><div style="font-size:11px;opacity:.8">看过的书</div></div>' +
+'<div><div style="font-size:22px;font-weight:800">' + (streak||0) + '天</div><div style="font-size:11px;opacity:.8">最长连签</div></div>' +
+'</div>' +
+'<div style="font-size:11px;opacity:.85;margin-top:10px">🎉 你超过了本站 ' + pct + '% 的读者，继续加油！</div>' +
+'</div>';
 }
-
 /* ============ AI写作助手 ============ */
 function writeAssist(kind){
-  const catSel = $("#nw-cat");
-  const cat = catSel ? catSel.value : "玄幻";
-  const t = $("#nw-title"), i = $("#nw-intro"), box = $("#ai-idea-box");
-  const TITLES = {
-    "玄幻": ["逆天圣尊","万古第一剑","神帝归来","九天玄帝","混沌神主","镇世武神"],
-    "都市": ["重返十八岁","我的合租女神","都市之最强医仙","隐世高手在都市","全能店长","深夜修表铺"],
-    "言情": ["暗恋成婚","时光与你皆甜","偏偏喜欢你","春风不及你","星河入梦来","南风知我意"],
-    "科幻": ["星际拾荒者","末日之后","虫族入侵","时间旅行者","机械之心","火星农场主"],
-    "悬疑": ["迷雾追凶","第七个房间","无声证词","午夜电台","消失的旅人","雨夜来客"],
-    "历史": ["大明小卒","长安往事","靖难风云","盛唐夜话","乱世书生","江南驿丞"],
-    "校园": ["同桌的你","篮球场的夏天","考试之后","毕业那天","文艺委员","黑板上的名字"],
-    "其他": ["山间来信","深夜食堂","百草园记","风起之时","名字里的故事","巷口书店"]
-  };
-  const OUTLINES = {
-    "玄幻": "少年身负神脉，遭宗门弃养，却在绝境中觉醒上古传承，从此逆天改命、踏碎虚空，一步步走向那无人企及的至尊之位……",
-    "都市": "他表面是普通上班族，背地里却身怀绝技。一次意外，让他卷入城市的暗流，从此平凡生活天翻地覆……",
-    "言情": "她回到阔别多年的小城，开了一家花店。某天，一个熟悉的身影推门而入，故事从一束满天星开始……",
-    "科幻": "公元2150年，人类在火星建立了第一座城市。一个年轻的工程师，在废墟中发现了不属于这个时代的信号……",
-    "悬疑": "深夜的小镇，连续有人失踪，唯一的线索是一张老照片。主人公顺着照片追查，却发现真相近在眼前……",
-    "历史": "一个不起眼的小人物，误打误撞卷入时代洪流。他不懂权谋，只想活下去，却不知不觉改变了许多人的命运……",
-    "校园": "高二那年，班里转来一个神秘的新同学。一场误会，一次赌约，让整个夏天的故事就此展开……",
-    "其他": "平凡的一天，主人公收到一封没有署名的信。信里只有一句话：\"有些事，该重新开始了。\""
-  };
-  const IDEAS = [
-    "主角在一场大雨里捡到一本旧书，书里写的故事竟然全是身边人的秘密……",
-    "如果可以和十年前的自己说一句话，你会说什么？",
-    "主角醒来发现全世界只剩自己会说中文，而广播里播放着陌生的语言……",
-    "巷口的老书店深夜不关门，因为老板在等一位特殊的客人。",
-    "毕业十年后的同学聚会，当年的班花带来了一个谁也没想到的人。",
-    "主角买了一杯咖啡，店员递给他时小声说：\"这杯请你的，别回头看。\"",
-    "一个写不出结局的小说家，某天发现自己笔下的人物都活了过来……",
-    "主角每天都会收到一封明天的报纸，直到有一天，报纸头条写着自己的名字。"
-  ];
-  if(kind === "title" && t){
-    const pool = TITLES[cat] || TITLES["其他"];
-    t.value = pool[Math.floor(Math.random()*pool.length)];
-    if(box) box.style.display = "none";
-    toast("书名已生成，不喜欢再点一次！");
-  } else if(kind === "outline" && i){
-    i.value = OUTLINES[cat] || OUTLINES["其他"];
-    if(box) box.style.display = "none";
-    toast("简介已生成，可随意修改！");
-  } else if(kind === "idea" && box){
-    box.textContent = "💡 " + IDEAS[Math.floor(Math.random()*IDEAS.length)];
-    box.style.display = "block";
-  }
+const catSel = $("#nw-cat");
+const cat = catSel ? catSel.value : "玄幻";
+const t = $("#nw-title"), i = $("#nw-intro"), box = $("#ai-idea-box");
+const TITLES = {
+"玄幻": ["逆天圣尊","万古第一剑","神帝归来","九天玄帝","混沌神主","镇世武神"],
+"都市": ["重返十八岁","我的合租女神","都市之最强医仙","隐世高手在都市","全能店长","深夜修表铺"],
+"言情": ["暗恋成婚","时光与你皆甜","偏偏喜欢你","春风不及你","星河入梦来","南风知我意"],
+"科幻": ["星际拾荒者","末日之后","虫族入侵","时间旅行者","机械之心","火星农场主"],
+"悬疑": ["迷雾追凶","第七个房间","无声证词","午夜电台","消失的旅人","雨夜来客"],
+"历史": ["大明小卒","长安往事","靖难风云","盛唐夜话","乱世书生","江南驿丞"],
+"校园": ["同桌的你","篮球场的夏天","考试之后","毕业那天","文艺委员","黑板上的名字"],
+"其他": ["山间来信","深夜食堂","百草园记","风起之时","名字里的故事","巷口书店"]
+};
+const OUTLINES = {
+"玄幻": "少年身负神脉，遭宗门弃养，却在绝境中觉醒上古传承，从此逆天改命、踏碎虚空，一步步走向那无人企及的至尊之位……",
+"都市": "他表面是普通上班族，背地里却身怀绝技。一次意外，让他卷入城市的暗流，从此平凡生活天翻地覆……",
+"言情": "她回到阔别多年的小城，开了一家花店。某天，一个熟悉的身影推门而入，故事从一束满天星开始……",
+"科幻": "公元2150年，人类在火星建立了第一座城市。一个年轻的工程师，在废墟中发现了不属于这个时代的信号……",
+"悬疑": "深夜的小镇，连续有人失踪，唯一的线索是一张老照片。主人公顺着照片追查，却发现真相近在眼前……",
+"历史": "一个不起眼的小人物，误打误撞卷入时代洪流。他不懂权谋，只想活下去，却不知不觉改变了许多人的命运……",
+"校园": "高二那年，班里转来一个神秘的新同学。一场误会，一次赌约，让整个夏天的故事就此展开……",
+"其他": "平凡的一天，主人公收到一封没有署名的信。信里只有一句话：\"有些事，该重新开始了。\""
+};
+const IDEAS = [
+"主角在一场大雨里捡到一本旧书，书里写的故事竟然全是身边人的秘密……",
+"如果可以和十年前的自己说一句话，你会说什么？",
+"主角醒来发现全世界只剩自己会说中文，而广播里播放着陌生的语言……",
+"巷口的老书店深夜不关门，因为老板在等一位特殊的客人。",
+"毕业十年后的同学聚会，当年的班花带来了一个谁也没想到的人。",
+"主角买了一杯咖啡，店员递给他时小声说：\"这杯请你的，别回头看。\"",
+"一个写不出结局的小说家，某天发现自己笔下的人物都活了过来……",
+"主角每天都会收到一封明天的报纸，直到有一天，报纸头条写着自己的名字。"
+];
+if(kind === "title" && t){
+const pool = TITLES[cat] || TITLES["其他"];
+t.value = pool[Math.floor(Math.random()*pool.length)];
+if(box) box.style.display = "none";
+toast("书名已生成，不喜欢再点一次！");
+} else if(kind === "outline" && i){
+i.value = OUTLINES[cat] || OUTLINES["其他"];
+if(box) box.style.display = "none";
+toast("简介已生成，可随意修改！");
+} else if(kind === "idea" && box){
+box.textContent = "💡 " + IDEAS[Math.floor(Math.random()*IDEAS.length)];
+box.style.display = "block";
 }
-
+}
 /* ============ 积分与每日任务 ============ */
 function getTodayKey(){ return new Date().toDateString(); }
 function loadTasks(){
@@ -2074,7 +2073,6 @@ item("📅", "每日签到", t.checkin ? 1 : 0, 1, !!t.checkin, "次") +
 '<div style="font-size:12px;color:var(--ink-faint);margin-top:8px">积分可在下方兑换宠物皮肤，每天 0 点重置任务</div>' +
 '</div>';
 }
-
 /* ============ 宠物皮肤（积分兑换） ============ */
 const PET_SKINS = {
 cat:      { name: "橘猫",    emoji: "🐈",  price: 100, desc: "暖洋洋的橘猫，干饭第一名" },
@@ -2144,7 +2142,6 @@ Store.pet = p;
 toast("已装备「" + PET_SKINS[key].name + "」皮肤");
 renderMe();
 }
-
 /* 每日签到 */
 function dailyCheckin(){
 if(!Store.isLoggedIn){ toast('请先登录再签到', 'err'); openAuthModal('login'); return; }
@@ -2170,7 +2167,6 @@ toast('🎉 签到成功！已连续签到' + Store.checkinStreak + '天，宠�
 toast('🎉 签到成功！已连续签到' + Store.checkinStreak + '天');
 }
 }
-
 /* 阅读时长统计 */
 let readStartTime = null;
 function startReadTimer(){
@@ -2191,7 +2187,6 @@ localStorage.setItem("yc_read_min_" + ym, String(rm + minutes));
 }
 readStartTime = null;
 }
-
 /* 相关推荐 */
 async function loadRelatedBooks(workId, category){
 const container = $("#related-books");
@@ -2213,7 +2208,6 @@ coverHtml(w) +
 container.innerHTML = '';
 }
 }
-
 /* 点赞切换（需登录） */
 /* 分享书籍（裂变：链接带邀请人，对方注册后双方得积分） */
 async function shareBook(id, title){
@@ -2230,7 +2224,61 @@ addShareTask();
 if(Store.isLoggedIn) toast("分享成功！+5 积分（每日首次）");
 }catch(e){ /* 用户取消 */ }
 }
-
+/* 生成分享海报 */
+function sharePoster(id, title, author, intro, theme){
+const invite = Store.isLoggedIn ? ("?invite=" + encodeURIComponent(Store.penName)) : "";
+const url = location.origin + location.pathname + invite + "#/book?id=" + id;
+const THEMES = [["#146B5B","#0E4037"],["#8B3A3A","#4A1C1C"],["#2B4A8B","#16264A"],["#5B3A8B","#2E1A4A"],["#8B6A2B","#4A3A16"],["#3A6B8B","#1C3A4A"],["#8B4A6B","#4A1C3A"],["#4A4A4A","#1C1C1C"]];
+const t = THEMES[Math.min(Math.max(theme||0,0),7)] || THEMES[0];
+const c = document.createElement("canvas");
+c.width = 600; c.height = 800;
+const ctx = c.getContext("2d");
+const grad = ctx.createLinearGradient(0,0,600,800);
+grad.addColorStop(0,t[0]); grad.addColorStop(1,t[1]);
+ctx.fillStyle = grad;
+ctx.fillRect(0,0,600,800);
+ctx.fillStyle = "rgba(255,255,255,.08)";
+ctx.beginPath(); ctx.arc(520,120,180,0,Math.PI*2); ctx.fill();
+ctx.beginPath(); ctx.arc(80,700,140,0,Math.PI*2); ctx.fill();
+ctx.fillStyle = "#fff";
+ctx.font = "700 44px 'Microsoft YaHei',sans-serif";
+ctx.textAlign = "center";
+ctx.fillText((title||"").slice(0,10), 300, 220);
+ctx.font = "20px 'Microsoft YaHei',sans-serif";
+ctx.fillStyle = "rgba(255,255,255,.85)";
+ctx.fillText("作者：" + (author||""), 300, 270);
+ctx.strokeStyle = "rgba(255,255,255,.5)";
+ctx.beginPath(); ctx.moveTo(120,300); ctx.lineTo(480,300); ctx.stroke();
+ctx.font = "17px 'Microsoft YaHei',sans-serif";
+ctx.fillStyle = "rgba(255,255,255,.9)";
+const lines = [];
+let introText = (intro||"这是一本值得一读的好书").slice(0,60);
+while(introText.length > 0){ lines.push(introText.slice(0,18)); introText = introText.slice(18); }
+lines.slice(0,4).forEach((ln,i)=> ctx.fillText(ln, 300, 350 + i*34));
+ctx.fillStyle = "#fff";
+ctx.font = "700 26px 'Microsoft YaHei',sans-serif";
+ctx.fillText("阅川书城", 300, 560);
+ctx.font = "15px 'Microsoft YaHei',sans-serif";
+ctx.fillStyle = "rgba(255,255,255,.7)";
+ctx.fillText("人人可写 · 人人可读", 300, 595);
+ctx.fillText(url.split("#")[0].replace(/https?:\/\//,""), 300, 630);
+try{
+c.toBlob(blob=>{
+if(!blob){ toast("海报生成失败", "err"); return; }
+if(navigator.share && navigator.canShare && navigator.canShare({files:[new File([blob],"poster.png",{type:"image/png"})]})){
+navigator.share({ files:[new File([blob],"poster.png",{type:"image/png"})], title:"阅川书城 · " + title }).catch(()=>{});
+} else {
+const a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = title + "-海报.png";
+a.click();
+URL.revokeObjectURL(a.href);
+toast("海报已生成下载！");
+}
+addShareTask();
+});
+}catch(e){ toast("海报生成失败", "err"); }
+}
 async function toggleLike(workId){
 if(!Store.isLoggedIn){ toast("请先登录，登录后才能点赞", "err"); openAuthModal("login"); return; }
 const btn = $("#like-btn");
@@ -2257,7 +2305,6 @@ if(btn) btn.disabled = false;
 toast(err.message || "操作失败", "err");
 }
 }
-
 /* 发表评论（需登录） */
 async function sendComment(workId){
 if(!Store.isLoggedIn){ toast("请先登录，登录后才能评论", "err"); openAuthModal("login"); return; }
@@ -2294,15 +2341,12 @@ toast(err.message || "评论失败", "err");
 if(btn) btn.disabled = false;
 }
 }
-
 function renderReader(){
 const p = parseHash().params;
 const id = p.get("id");
 const ch = parseInt(p.get("ch") || "0", 10);
 if(!id){ location.hash = "#/library"; return; }
-
 app.innerHTML = '<section class="reader-shell"><div class="loading"><div class="spinner"></div><p>翻开书页…</p></div></section>';
-
 Promise.all([API.getWork(id), API.listChapters(id)]).then(([workArr, chapters])=>{
 const work = workArr && workArr[0];
 if(!work){ location.hash = "#/library"; return; }
@@ -2310,32 +2354,27 @@ if(!chapters || !chapters.length){ location.hash = "#/book?id=" + id; return; }
 const idx = Math.min(Math.max(ch, 0), chapters.length - 1);
 const chapter = chapters[idx];
 Store.lastRead = Object.assign({}, Store.lastRead, { [id]: { ch: idx, workTitle: work.title } });
-
 /* 记录阅读历史 */
 const history = Store.readHistory || [];
 const existingIdx = history.findIndex(h => h.workId === id);
 if(existingIdx >= 0) history.splice(existingIdx, 1);
 history.unshift({ workId: id, ch: idx, workTitle: work.title, time: new Date().toISOString() });
 Store.readHistory = history.slice(0, 50); /* 最多50条 */
-
 /* 阅读给宠物加经验 */
 const pet = getPet();
 if(pet){
 addPetExp(pet, 2);
 }
-
 renderReaderView(work, chapters, idx, chapter);
 }).catch(err=>{
 toast("加载失败：" + err.message, "err");
 location.hash = "#/book?id=" + id;
 });
 }
-
 function renderReaderView(work, chapters, idx, chapter){
 const night = Store.night;
 const fontSize = Store.fontSize;
 document.body.classList.toggle("night", night);
-
 app.innerHTML =
 '<section class="reader-shell">' +
 '<div class="reader-top">' +
@@ -2347,6 +2386,7 @@ app.innerHTML =
 '<div class="rt-chapter">' + esc(chapter.title) + '</div>' +
 '</div>' +
 '<div class="reader-controls">' +
+'<button class="ctrl-btn" onclick="toggleFav(\'' + work.id + '\')" title="加入书架" aria-label="加入书架">📚</button>' +
 '<button class="ctrl-btn" onclick="addBookmark(\'' + work.id + '\',' + idx + ',\'' + esc(work.title) + '\',\'' + esc(chapter.title) + '\')" title="添加书签" aria-label="添加书签">🔖</button>' +
 '<button class="ctrl-btn" onclick="adjustFont(-2)" title="减小字号" aria-label="减小字号">A−</button>' +
 '<button class="ctrl-btn" onclick="adjustFont(2)" title="增大字号" aria-label="增大字号">A+</button>' +
@@ -2357,9 +2397,7 @@ app.innerHTML =
 + '</button>' +
 '</div>' +
 '</div>' +
-
 '<article class="chapter-content" id="chapter-content" style="font-size:' + fontSize + 'px">' + renderContent(chapter.content || "（本章暂无内容）") + '</article>' +
-
 '<div class="reader-nav">' +
 (idx > 0
 ? '<button class="btn btn-ghost" onclick="location.hash=\'#/read?id=' + work.id + '&ch=' + (idx-1) + '\'">← 上一章</button>'
@@ -2371,14 +2409,12 @@ app.innerHTML =
 : '<button class="btn btn-primary" disabled>已是最后一章</button>') +
 '</div>' +
 '<div id="chapter-drawer" style="display:none;max-height:50vh;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px;padding:8px"></div>' +
-'<div class="reader-footer">' + esc(work.title) + ' · 第 ' + (idx+1) + ' 章 / 共 ' + chapters.length + ' 章<br>阅川书城 · 尊重每一位创作者</div>' +
+'<div class="reader-footer">' + esc(work.title) + ' · 第 ' + (idx+1) + ' 章 / 共 ' + chapters.length + ' 章<br>👁 ' + (work.views||0) + ' 人已读 · 阅川书城 · 尊重每一位创作者</div>' +
 '</section>';
-
 /* 阅读进度写入 */
 const progress = (idx+1) / chapters.length;
 window.scrollTo({top:0});
 }
-
 let autoReadTimer = null;
 function toggleAutoRead(workId, total){
 const btn = $("#auto-read-btn");
@@ -2427,7 +2463,6 @@ function toggleNight(){
 Store.night = !Store.night;
 document.body.classList.toggle("night", Store.night);
 }
-
 /* 夜间模式自动：晚上6点到早上7点自动切换 */
 function autoNightMode(){
 const hour = new Date().getHours();
@@ -2437,7 +2472,6 @@ Store.night = shouldNight;
 document.body.classList.toggle("night", shouldNight);
 }
 }
-
 /* 主题切换 */
 function setTheme(theme){
 document.body.classList.remove("theme-green","theme-blue","theme-purple","theme-warm");
@@ -2461,7 +2495,6 @@ themes.map(t =>
 ).join("") + '</div>';
 openModal(html);
 }
-
 /* 书签功能 */
 function addBookmark(workId, chapterIdx, workTitle, chapterTitle){
 const bookmarks = Store.bookmarks || [];
@@ -2492,12 +2525,10 @@ const html = bookmarks.map((b,i)=>
 ).join("");
 alert("我的书签\n\n" + bookmarks.map(b => b.workTitle + " - " + b.chapterTitle).join("\n"));
 }
-
 /* ============ 创作中心 ============ */
 function renderCreate(){
 const editId = parseHash().params.get("edit");
 if(editId) return renderChapterEditor(editId);
-
 /* 游客模式：提示登录后才能创作 */
 if(!Store.isLoggedIn){
 app.innerHTML =
@@ -2524,12 +2555,10 @@ app.innerHTML =
 '</section>';
 return;
 }
-
 app.innerHTML =
 '<section class="page">' +
 '<div class="page-title">创作中心</div>' +
 '<p class="page-sub">在这里写下你的故事，发布后全世界都能看到</p>' +
-
 '<div class="create-hero">' +
 '<h2>你的笔名是？</h2>' +
 '<p>发布作品时会显示这个笔名，之后可以在管理页修改。</p>' +
@@ -2539,17 +2568,16 @@ app.innerHTML =
 '<button class="btn btn-ghost btn-sm" onclick="savePenName()">保存笔名</button>' +
 '</div>' +
 '</div>' +
-
 '<div class="form-card">' +
 '<h3>发布新作品</h3>' +
 '<div class="ai-box" style="background:linear-gradient(135deg,rgba(46,139,87,.08),rgba(20,107,91,.05));border:1px dashed var(--brand);border-radius:12px;padding:12px 14px;margin-bottom:14px">' +
-  '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">🤖</span><b>AI写作助手</b><span style="font-size:11px;color:var(--ink-faint)">免费灵感库，点一下自动生成</span></div>' +
-  '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
-    '<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'title\')">🎲 起书名</button>' +
-    '<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'outline\')">📝 写简介</button>' +
-    '<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'idea\')">💡 章节灵感</button>' +
-  '</div>' +
-  '<div id="ai-idea-box" style="margin-top:8px;font-size:13px;color:var(--ink-soft);line-height:1.7;display:none"></div>' +
+'<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">🤖</span><b>AI写作助手</b><span style="font-size:11px;color:var(--ink-faint)">免费灵感库，点一下自动生成</span></div>' +
+'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
+'<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'title\')">🎲 起书名</button>' +
+'<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'outline\')">📝 写简介</button>' +
+'<button type="button" class="btn btn-ghost btn-sm" onclick="writeAssist(\'idea\')">💡 章节灵感</button>' +
+'</div>' +
+'<div id="ai-idea-box" style="margin-top:8px;font-size:13px;color:var(--ink-soft);line-height:1.7;display:none"></div>' +
 '</div>' +
 '<div class="field"><label>书名 *</label><input id="nw-title" maxlength="30" placeholder="给你的故事起个名字"></div>' +
 '<div class="field-row">' +
@@ -2557,6 +2585,7 @@ app.innerHTML =
 '<div class="field"><label>状态</label><select id="nw-status"><option>连载中</option><option>已完结</option></select></div>' +
 '</div>' +
 '<div class="field"><label>内容简介</label><textarea id="nw-intro" maxlength="500" placeholder="用几句话介绍你的故事，吸引读者点进来…"></textarea><div class="hint">最多 500 字</div></div>' +
+'<div class="field" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="nw-contest" style="width:16px;height:16px"><label for="nw-contest" style="margin:0">🏆 参加本周创作赛（作品进入首页赛事区，按人气评选）</label></div>' +
 '<div class="field"><label>封面配色</label><div class="cat-chips" id="theme-pick" style="margin:0">' +
 [0,1,2,3,4,5,6,7].map(i => '<button type="button" class="cat-chip theme-swatch ts-' + i + (i===0?" active":"") + '" data-theme="' + i + '" title="主题 ' + (i+1) + '"></button>').join("") +
 '</div></div>' +
@@ -2571,13 +2600,11 @@ app.innerHTML =
 '</div>' +
 '<button class="btn btn-primary" onclick="publishWork()">发布作品</button>' +
 '</div>' +
-
 '<div class="section">' +
 '<div class="section-head"><h2 class="section-title">我的作品</h2></div>' +
 '<div id="my-works">' + loadingHtml() + '</div>' +
 '</div>' +
 '</section>';
-
 let chosenTheme = 0;
 chosenCover = ""; /* 全局：本次待发布的封面 base64 */
 $("#theme-pick").addEventListener("click", e=>{
@@ -2587,7 +2614,6 @@ chosenTheme = parseInt(chip.dataset.theme, 10);
 $$("#theme-pick .cat-chip").forEach(c=>c.classList.remove("active"));
 chip.classList.add("active");
 });
-
 const coverInput = $("#nw-cover");
 if(coverInput){
 coverInput.addEventListener("change", ()=>{
@@ -2622,11 +2648,9 @@ img.src = ev.target.result;
 reader.readAsDataURL(file);
 });
 }
-
 $("#nw-cat").value = "玄幻";
 loadMyWorks();
 }
-
 function clearCover(){
 const input = $("#nw-cover");
 if(input) input.value = "";
@@ -2635,7 +2659,6 @@ if(preview){ preview.style.display = "none"; preview.innerHTML = ""; }
 const clear = $("#cover-clear");
 if(clear) clear.style.display = "none";
 }
-
 async function savePenName(){
 const v = $("#pen-input").value.trim();
 if(!v){ toast("笔名不能为空", "err"); return; }
@@ -2655,17 +2678,14 @@ toast(err.message || "笔名保存失败", "err");
 if(btn){ btn.disabled = false; btn.textContent = "保存笔名"; }
 }
 }
-
 async function publishWork(){
 const title = $("#nw-title").value.trim();
 const cat = $("#nw-cat").value;
 const status = $("#nw-status").value;
 const intro = $("#nw-intro").value.trim();
 const author = $("#pen-input").value.trim() || Store.penName || Store.username || "匿名作者";
-
 if(!title){ toast("请填写书名", "err"); return; }
 if(!Store.isLoggedIn){ toast("请先登录再发布作品", "err"); openAuthModal("login"); return; }
-
 const btn = event.target;
 btn.disabled = true;
 try{
@@ -2675,10 +2695,12 @@ await API.updatePenName(Store.auth.account, prompt("为确认身份，请输入�
 Store.penName = author;
 }
 const theme = parseInt($$("#theme-pick .cat-chip.active")[0]?.dataset?.theme || "0", 10);
+const contestBox = $("#nw-contest");
 const res = await API.createWork({
 title, author, category: catTag(cat), intro, status,
 cover_theme: theme, views: 0, author_key: Store.authorKey,
-cover: chosenCover || null
+cover: chosenCover || null,
+contest: (contestBox && contestBox.checked) ? "本周创作赛" : ""
 });
 chosenCover = "";
 Store.penName = author;
@@ -2696,7 +2718,6 @@ toast("发布失败：" + err.message, "err");
 btn.disabled = false;
 }
 }
-
 async function loadMyWorks(){
 const box = $("#my-works");
 try{
@@ -2723,7 +2744,6 @@ box.innerHTML = '<div class="my-works">' + works.map(w=>
 box.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 }
 }
-
 async function deleteWork(id, title){
 if(!confirm("确定要删除《" + title + "》吗？所有章节将一并删除，且无法恢复。")) return;
 try{
@@ -2734,7 +2754,6 @@ renderCreate();
 toast("删除失败：" + err.message, "err");
 }
 }
-
 /* ============ 章节编辑器 ============ */
 async function renderChapterEditor(workId){
 if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); location.hash = "#/create"; return; }
@@ -2752,7 +2771,6 @@ app.innerHTML =
 '<section class="page">' +
 '<div class="page-title">《' + esc(work.title) + '》</div>' +
 '<p class="page-sub">' + esc(work.author) + ' · ' + esc(work.category) + ' · 共 ' + chs.length + ' 章 · 发布后所有人可见</p>' +
-
 '<div class="form-card chapter-editor">' +
 '<h3>写新章节</h3>' +
 '<div class="field"><label>章节标题 *</label><input id="ch-title" maxlength="40" placeholder="例如：第一章 初入江湖"></div>' +
@@ -2764,7 +2782,6 @@ app.innerHTML =
 '<div id="typo-report" style="display:none;background:#FFF7E6;border:1px solid #FFD591;border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px"></div>' +
 '<button class="btn btn-primary" onclick="saveChapter(\'' + workId + '\')">发布章节</button>' +
 '</div>' +
-
 '<div class="chapter-editor">' +
 '<div class="section-head"><h2 class="section-title">章节管理</h2></div>' +
 '<div class="ce-list">' +
@@ -2782,13 +2799,11 @@ app.innerHTML =
 : emptyHtml('<path d="M8 8h32M14 18h24M14 26h18"/>', "还没有章节，写第一章吧"))
 + '</div>' +
 '</div>' +
-
 '<div style="margin-top:26px;display:flex;gap:10px">' +
 '<button class="btn btn-ghost" onclick="location.hash=\'#/book?id=' + workId + '\'">查看作品页</button>' +
 '<button class="btn btn-ghost" onclick="location.hash=\'#/create\'">返回创作中心</button>' +
 '</div>' +
 '</section>';
-
 /* 编辑模式：填充表单 */
 if(window.__editChapterData){
 $("#ch-title").value = window.__editChapterData.title;
@@ -2796,7 +2811,6 @@ $("#ch-content").value = window.__editChapterData.content;
 window.__editChapterData = null;
 $("#ch-title").focus();
 }
-
 /* 章节操作：编辑 / 删除（事件委托，避免正文嵌入 HTML 属性） */
 window.__chapterStore = { workId, chapters: chs };
 const ceList = $(".ce-list");
@@ -2819,13 +2833,11 @@ deleteChapter(st.workId, del.dataset.delid, del.dataset.deltitle);
 app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message), '<button class="btn btn-ghost" onclick="location.hash=\'#/create\'">返回创作中心</button>') + '</section>';
 }
 }
-
 async function saveChapter(workId){
 const title = $("#ch-title").value.trim();
 const content = $("#ch-content").value.trim();
 if(!title){ toast("请填写章节标题", "err"); return; }
 if(!content){ toast("正文不能为空", "err"); return; }
-
 /* 编辑模式判断 */
 if(window.__editingChapterId){
 try{
@@ -2842,6 +2854,13 @@ const chapters = await API.listChapters(workId);
 const sortOrder = chapters.length;
 await API.createChapter({ work_id: workId, title, content, sort_order: sortOrder });
 toast("章节《" + title + "》已发布");
+addWriteDay();
+checkAllinBadge();
+API.getWork(workId).then(arr=>{
+const w = arr && arr[0];
+if(w && w.author_key) API.updateWork(workId, { updated_at: new Date().toISOString() }, w.author_key).catch(()=>{});
+if(w) notifyFollowers(workId, w.title, title);
+}).catch(()=>{});
 }catch(err){
 toast("发布失败：" + err.message, "err");
 return;
@@ -2849,14 +2868,12 @@ return;
 }
 renderChapterEditor(workId);
 }
-
 function editChapter(workId, ch){
 window.__editingChapterId = ch.id;
 window.__editChapterData = { title: ch.title, content: ch.content };
 renderChapterEditor(workId);
 toast("正在编辑该章节，改完点「发布章节」保存");
 }
-
 async function deleteChapter(workId, chId, title){
 if(!confirm("确定删除章节「" + title + "」？")) return;
 try{
@@ -2867,7 +2884,6 @@ renderChapterEditor(workId);
 toast("删除失败：" + err.message, "err");
 }
 }
-
 /* ============ 我的书架 ============ */
 async function renderShelf(){
 app.innerHTML =
@@ -2887,10 +2903,8 @@ app.innerHTML =
 '</div>' +
 '<div id="shelf-grid">' + loadingHtml() + '</div>' +
 '</section>';
-
 loadFavorites();
 }
-
 function switchShelfTab(tab, btn){
 document.querySelectorAll('.shelf-tab').forEach(t => t.classList.remove('active'));
 btn.classList.add('active');
@@ -2900,7 +2914,6 @@ if(tab === 'fav') loadFavorites();
 else if(tab === 'history') loadHistory();
 else if(tab === 'bookmark') loadBookmarks();
 }
-
 async function loadFavorites(){
 const grid = $("#shelf-grid");
 let favs = Store.favorites;
@@ -2917,6 +2930,7 @@ if(!works || !works.length){
 grid.innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "书架上的作品可能已被删除", '<button class="btn btn-ghost" onclick="location.hash=\'#/library\'">去书库逛逛</button>');
 return;
 }
+works.sort((a,b)=> new Date(b.updated_at||b.created_at||0) - new Date(a.updated_at||a.created_at||0));
 grid.innerHTML = '<div class="book-grid">' + works.map(w=>
 '<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
 coverHtml(w) +
@@ -2932,7 +2946,6 @@ coverHtml(w) +
 grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 }
 }
-
 async function loadHistory(){
 const grid = $("#shelf-grid");
 const history = Store.readHistory || [];
@@ -2958,7 +2971,6 @@ coverHtml(w) +
 grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 }
 }
-
 async function loadBookmarks(){
 const grid = $("#shelf-grid");
 const bookmarks = Store.bookmarks || [];
@@ -2983,7 +2995,6 @@ coverHtml(w) +
 grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 }
 }
-
 function toggleFav(id){
 let favs = Store.favorites;
 if(favs.includes(id)){
@@ -3014,7 +3025,6 @@ chips.forEach(c => c.classList.remove("active"));
 if(btn) btn.classList.add("active");
 loadFavorites();
 }
-
 /* ============ 聊天室 ============ */
 let chatTimer = null;
 function renderChat(){
@@ -3031,12 +3041,17 @@ app.innerHTML =
 '</div>' +
 '</div>' +
 '</section>';
-
 loadChatMessages();
 /* 每 5 秒自动刷新 */
-chatTimer = setInterval(loadChatMessages, 5000);
+chatTimer = setInterval(loadChatMessages, 6000);
+if(!window.__chatVisBound){
+window.__chatVisBound = true;
+document.addEventListener("visibilitychange", ()=>{
+if(document.hidden && chatTimer){ clearInterval(chatTimer); chatTimer = null; }
+else if(!document.hidden && location.hash.indexOf("#/chat") === 0 && !chatTimer){ chatTimer = setInterval(loadChatMessages, 6000); }
+});
 }
-
+}
 async function loadChatMessages(){
 const list = $("#chat-list");
 if(!list) return;
@@ -3058,7 +3073,6 @@ list.scrollTop = list.scrollHeight;
 if(list.querySelector(".loading")) list.innerHTML = '<div class="chat-empty">加载失败：' + esc(err.message) + '</div>';
 }
 }
-
 async function sendChat(){
 if(!Store.isLoggedIn){ toast("请先登录，登录后才能发言", "err"); openAuthModal("login"); return; }
 const input = $("#chat-input");
@@ -3076,7 +3090,6 @@ toast(err.message || "发送失败", "err");
 if(btn) btn.disabled = false;
 }
 }
-
 /* ============ 头像框 ============ */
 function setAvatarFrame(frame, el){
 Store.avatarFrame = frame;
@@ -3085,7 +3098,6 @@ if(el) el.classList.add("active");
 toast("头像框已更换！");
 renderMe();
 }
-
 /* ============ 宠物系统 ============ */
 const PET_TYPES = {cat:"🐱", dog:"🐶", rabbit:"🐰", fox:"🦊"};
 function getPet(){
@@ -3159,7 +3171,6 @@ function showPetHelp(){
 toast("【宠物玩法】\n· 领养：选一只喜欢的\n· 喂食：在个人主页喂，+经验\n· 每日签到可喂饱食度\n· 阅读也能帮宠物攒经验\n· 等级越高越可爱！");
 }
 /* 签到时同步宠物饱食度+经验（在dailyCheckin里调用） */
-
 /* ============ AI聊天助手 ============ */
 let aiHistory = [];
 function renderAI(){
@@ -3189,13 +3200,11 @@ app.innerHTML =
 '</div>' +
 '</section>';
 }
-
 /* AI回复引擎：关键词匹配 + 书城知识库 */
 function aiReply(text){
 const t = (text || "").toLowerCase();
 aiHistory.push(text);
 if(aiHistory.length > 20) aiHistory.shift();
-
 /* 问候 */
 if(/你好|嗨|hello|hi|在吗/.test(t)){
 const name = Store.isLoggedIn ? Store.penName || "朋友" : "朋友";
@@ -3285,7 +3294,6 @@ return "我住在书城里，看不到外面的天气 😅 不过我知道：无
 /* 默认回复 */
 return "这个问题有点难住我了 😅 我是书城小助手，最擅长的是：推荐好书、讲解四大名著、解答平台使用问题。\n\n你可以试试问我：\n· 推荐几本好书\n· 红楼梦讲的是什么\n· 怎么创作小说\n· 怎么注册账号";
 }
-
 function aiAsk(pre){
 const input = $("#ai-input");
 const q = (pre || (input ? input.value : "")).trim();
@@ -3293,17 +3301,14 @@ if(!q) return;
 if(input) input.value = "";
 const list = $("#ai-list");
 if(!list) return;
-
 /* 用户消息 */
 list.insertAdjacentHTML("beforeend", '<div class="ai-msg me">' + esc(q) + '</div>');
-
 /* 打字指示 */
 const typing = document.createElement("div");
 typing.className = "ai-msg bot";
 typing.innerHTML = '<span class="typing-dots"><i></i><i></i><i></i></span>';
 list.appendChild(typing);
 list.scrollTop = list.scrollHeight;
-
 /* 模拟思考，然后回复 */
 setTimeout(() => {
 typing.remove();
@@ -3311,13 +3316,11 @@ list.insertAdjacentHTML("beforeend", '<div class="ai-msg bot">' + esc(aiReply(q)
 list.scrollTop = list.scrollHeight;
 }, 500 + Math.random() * 600);
 }
-
 /* ============ 用户主页 ============ */
 function renderUserPage(){
 const name = parseHash().params.get("name") || "";
 if(!name){ location.hash = "#/home"; return; }
 app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
-
 API.getUserProfile(name).then(async profile=>{
 const works = await API.listWorks({q:name}).catch(()=>[]);
 const mine = !!profile.works_count;
@@ -3329,13 +3332,17 @@ following = !!(f && f.length);
 }
 const isMe = Store.isLoggedIn && Store.auth.account === profile.account;
 const myWorks = works.filter(w=>w.author === profile.pen_name);
-
+loadUserBio(profile.account).then(b=>{
+const el = $("#bio-display");
+if(el) el.textContent = b || "这个人很懒，什么都没写~";
+});
 app.innerHTML =
 '<section class="page">' +
 '<div class="me-card">' +
 '<div class="me-avatar">' + esc((profile.pen_name || "阅").slice(0,1).toUpperCase()) + '</div>' +
 '<div class="me-name">' + esc(profile.pen_name) + '</div>' +
 '<div class="me-email">' + (isMe ? esc(profile.account) : "阅川书城作者") + '</div>' +
+'<div class="me-bio" id="bio-display" style="font-size:13px;color:var(--ink-soft);margin-top:6px">这个人很懒，什么都没写~</div>' +
 '<div class="me-stats">' +
 '<div class="me-stat" style="cursor:pointer" onclick="showFollowTab(\'following\')"><b>' + (profile.following_count||0) + '</b><span>关注</span></div>' +
 '<div class="me-stat" style="cursor:pointer" onclick="showFollowTab(\'follower\')"><b>' + (profile.follower_count||0) + '</b><span>粉丝</span></div>' +
@@ -3365,7 +3372,6 @@ coverHtml(w) +
 app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', err.message || "用户不存在", '<button class="btn btn-ghost" onclick="location.hash=\'#/home\'">返回首页</button>') + '</section>';
 });
 }
-
 /* 关注/粉丝列表 */
 async function showFollowTab(type){
 const name = parseHash().params.get("name") || "";
@@ -3392,7 +3398,6 @@ list.innerHTML = '<div class="follow-list">' + users.map(u=>
 list.innerHTML = '<div class="cmt-empty">加载失败：' + esc(err.message) + '</div>';
 }
 }
-
 /* 关注/取关切换（需登录） */
 async function toggleFollow(targetAccount){
 if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
@@ -3418,7 +3423,6 @@ if(btn) btn.disabled = false;
 toast(err.message || "操作失败", "err");
 }
 }
-
 /* ============ 我的（个人中心） ============ */
 function renderMe(){
 /* 未登录：提示先登录 */
@@ -3437,14 +3441,12 @@ app.innerHTML =
 '</section>';
 return;
 }
-
 const u = Store.username || "读者";
 const email = (Store.auth && Store.auth.account) || "";
 const favCount = Store.favorites.length;
 const avatarUrl = Store.avatar || "";
 const initial = (u || "阅").slice(0,1).toUpperCase();
 const af = Store.avatarFrame || "none";
-
 app.innerHTML =
 '<section class="page">' +
 '<div class="me-card">' +
@@ -3459,6 +3461,11 @@ app.innerHTML =
 '<input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">' +
 '<div class="me-name">' + esc(u) + '</div>' +
 '<div class="me-email">' + esc(email) + '</div>' +
+'<div class="me-bio" id="bio-display" style="font-size:13px;color:var(--ink-soft);margin-top:6px">这个人很懒，什么都没写~</div>' +
+'<div class="bio-edit" style="display:flex;gap:8px;margin-top:10px;width:100%;max-width:340px">' +
+'<input id="bio-input" maxlength="80" placeholder="写一句个性签名（80字内）" style="flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:13px">' +
+'<button class="btn btn-ghost btn-sm" onclick="saveMyBio()">保存</button>' +
+'</div>' +
 '<div class="me-stats">' +
 '<div class="me-stat"><b id="me-works-count">0</b><span>我的作品</span></div>' +
 '<div class="me-stat"><b>' + favCount + '</b><span>书架收藏</span></div>' +
@@ -3517,10 +3524,8 @@ skinShopHtml() +
 '<div id="me-works">' + loadingHtml() + '</div>' +
 '</div>' +
 '</section>';
-
 /* 拉取我的作品 */
 loadMyWorksInto("#me-works", "#me-works-count");
-
 /* 关注/粉丝数 + 站长面板 */
 API.getUserProfile(Store.penName).then(p=>{
 const fc = $("#me-following-count");
@@ -3528,20 +3533,17 @@ const fr = $("#me-follower-count");
 if(fc) fc.textContent = p.following_count || 0;
 if(fr) fr.textContent = p.follower_count || 0;
 }).catch(()=>{});
-
 /* 积分 */
 getMyPoints().then(p=>{
 const el = $("#me-points");
 if(el) el.textContent = p;
 });
-
 const ownerEmail = localStorage.getItem("yc_owner") || "";
 const panel = $("#owner-panel");
 if(panel && ownerEmail && Store.auth.account === ownerEmail){
 panel.style.display = "block";
 }
 }
-
 /* 站长发布公告 */
 async function publishAnnouncement(){
 const title = $("#ann-title").value.trim();
@@ -3560,7 +3562,6 @@ toast(err.message || "发布失败", "err");
 btn.disabled = false;
 }
 }
-
 /* 复用 loadMyWorks 的查询逻辑，把结果渲染到指定容器 */
 async function loadMyWorksInto(boxSel, countSel){
 const box = $(boxSel);
@@ -3589,7 +3590,6 @@ box.innerHTML = '<div class="my-works">' + works.map(w=>
 box.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 }
 }
-
 /* ============ 配置引导页 ============ */
 function renderSetup(){
 app.innerHTML =
@@ -3612,7 +3612,6 @@ app.innerHTML =
 '<button class="btn btn-primary" onclick="saveSetup()">保存并进入书城</button>' +
 '</div></section>';
 }
-
 function saveSetup(){
 const url = $("#setup-url").value.trim();
 const key = $("#setup-key").value.trim();
@@ -3624,7 +3623,6 @@ if(owner) localStorage.setItem("yc_owner", owner);
 toast("配置已保存，正在进入书城");
 location.hash = "#/home";
 }
-
 /* ============ 6. 路由与初始化 ============ */
 function doGlobalSearch(){
 const q = $("#global-search").value.trim();
@@ -3642,22 +3640,18 @@ Store.hotSearch = hot;
 location.hash = "#/library?q=" + encodeURIComponent(q);
 }
 }
-
 function setActiveNav(path){
 $$(".main-nav a").forEach(a=>{
 a.classList.toggle("active", a.dataset.nav === path);
 });
 }
-
 async function route(){
 const { path } = parseHash();
 setActiveNav(path);
-
 if(!isConfigured()){
 renderSetup();
 return;
 }
-
 switch(path){
 case "home": renderHome(); break;
 case "library": renderLibrary(); break;
@@ -3679,9 +3673,7 @@ default: renderHome();
 if(path !== "chat" && chatTimer){ clearInterval(chatTimer); chatTimer = null; }
 window.scrollTo({top:0});
 }
-
 window.addEventListener("hashchange", route);
-
 /* PWA: 注册Service Worker */
 if ('serviceWorker' in navigator) {
 window.addEventListener('load', () => {
@@ -3690,10 +3682,8 @@ navigator.serviceWorker.register('/sw.js')
 .catch(err => console.log('SW failed'));
 });
 }
-
 /* 夜间模式自动：晚上自动切换 */
 autoNightMode();
-
 /* 返回顶部按钮：滚动超过300px显示 */
 window.addEventListener('scroll', () => {
 const btn = document.getElementById('back-to-top');
@@ -3703,7 +3693,6 @@ btn.classList.add('show');
 } else {
 btn.classList.remove('show');
 }
-
 /* 阅读进度条 */
 const progress = document.getElementById('reading-progress');
 if(progress){
@@ -3712,17 +3701,14 @@ const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
 progress.style.width = scrolled + '%';
 }
 });
-
 /* 夜间模式恢复 */
 if(Store.night) document.body.classList.add("night");
-
 /* 回车搜索 */
 document.addEventListener("keydown", e=>{
 if(e.key === "Enter" && document.activeElement && document.activeElement.id === "global-search"){
 doGlobalSearch();
 }
 });
-
 /* ============ 原创榜 ============ */
 async function renderRank(){
 app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">RANKING</div><h1>作品榜</h1><p>看看大家最喜欢什么书</p></div>' +
@@ -3767,7 +3753,6 @@ h += '</div>';
 list.innerHTML = h;
 }catch(e){ list.innerHTML = '<p style="text-align:center;color:#999">加载失败：'+esc(e.message||'')+'</p>'; }
 }
-
 /* ============ 作家专区 ============ */
 function renderAuthorZone(){
 if(!Store.isLoggedIn){
@@ -3793,8 +3778,13 @@ app.innerHTML =
 '<div class="section" style="margin-top:24px"><div class="section-head"><h2 class="section-title">作家福利</h2></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px"><div style="background:var(--card);padding:20px;border-radius:12px"><h3>无门槛创作</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">注册即可发布作品，没有签约要求，没有字数限制</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>全版权保留</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">你的作品版权完全属于你，平台不主张任何权利</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>读者直连</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">通过评论、关注、聊天室直接和读者交流</p></div><div style="background:var(--card);padding:20px;border-radius:12px"><h3>打赏支持</h3><p style="color:var(--ink-faint);font-size:14px;margin-top:8px">读者喜欢可以直接打赏支持你创作</p></div></div></div>' +
 '</section>';
 loadAuthorStats();
+loadUserBio(Store.auth.account).then(b=>{
+const el = $("#bio-display");
+if(el) el.textContent = b || "这个人很懒，什么都没写~";
+const input = $("#bio-input");
+if(input) input.value = b || "";
+});
 }
-
 /* 作者数据看板 */
 function statCard(icon, label, val){
 return '<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center">' +
@@ -3866,13 +3856,11 @@ works.map(w =>
 box.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 }
 }
-
 /* ============ 全屏 ============ */
 function toggleFullScreen(){
 if(!document.fullscreenElement){ document.documentElement.requestFullscreen().catch(()=>{}); }
 else { document.exitFullscreen(); }
 }
-
 /* ============ 下载App ============ */
 function renderDownload(){
 const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -3903,12 +3891,10 @@ app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker
 '</div>' +
 '</div></section>';
 }
-
 /* ============ 版权专区 ============ */
 function renderCopyrightZone(){
 app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">COPYRIGHT</div><h1>版权专区</h1><p>尊重原创，保护版权</p></div><div class="section"><div style="background:var(--card);padding:24px;border-radius:12px;line-height:1.8"><h3>版权声明</h3><p style="color:var(--ink-faint);margin-top:12px">1. 阅川书城所有用户发布的原创作品，版权归原作者所有。</p><p style="color:var(--ink-faint)">2. 本站收录的公版名著（如《朝花夕拾》《呐喊》等）已过著作权保护期，可自由传播。</p><p style="color:var(--ink-faint)">3. 未经作者授权，不得擅自转载、复制、商用本站原创作品。</p><p style="color:var(--ink-faint)">4. 如发现侵权内容，请联系管理员下架处理。</p></div></div></section>';
 }
-
 /* ============ 错别字检查 ============ */
 /* 常见错别字/用词错误词典（纯前端规则检查） */
 const TYPO_RULES = [
@@ -3952,13 +3938,11 @@ const TYPO_RULES = [
 { re: /不径而走/g, fix: "不胫而走", desc: "径→胫" },
 { re: /烩炙人口/g, fix: "脍炙人口", desc: "烩→脍" },
 ];
-
 function checkTypos(){
 const ta = $("#ch-content");
 if(!ta){ toast("找不到正文输入框", "err"); return; }
 const text = ta.value;
 if(!text.trim()){ toast("正文是空的，先写点内容", "err"); return; }
-
 const found = [];
 TYPO_RULES.forEach(rule=>{
 let m;
@@ -3967,7 +3951,6 @@ while((m = re.exec(text)) !== null){
 found.push({ match: m[0], index: m.index, desc: rule.desc });
 }
 });
-
 const report = $("#typo-report");
 report.style.display = "block";
 if(found.length === 0){
@@ -3983,7 +3966,6 @@ html += '<div style="margin-top:10px;color:#999;font-size:12px">点击「一键�
 report.innerHTML = html;
 }
 }
-
 function fixTypos(){
 const ta = $("#ch-content");
 if(!ta) return;
@@ -4002,7 +3984,6 @@ ta.value = text;
 toast(fixed > 0 ? "已修正 " + fixed + " 处常见错别字" : "没有需要自动修正的词");
 checkTypos();
 }
-
 /* ============ 打赏弹窗 ============ */
 function openTipModal(workId, authorKey){
 if(!Store.isLoggedIn){ toast("请先登录再打赏", "err"); openAuthModal("login"); return; }
@@ -4048,7 +4029,6 @@ btn.disabled = false; btn.textContent = "打赏 " + chosen + " 元";
 }
 };
 }
-
 /* ============ 头像上传 ============ */
 async function uploadAvatar(input){
 const file = input.files[0];
@@ -4092,7 +4072,6 @@ renderMe();
 toast(e.message || "上传失败", "err");
 }
 }
-
 /* 全屏切换 */
 function toggleFullScreen(){
 if(!document.fullscreenElement){
@@ -4101,7 +4080,6 @@ document.documentElement.requestFullscreen();
 document.exitFullscreen();
 }
 }
-
 /* 邀请链接检测：?invite=笔名 → 记下邀请人，注册成功后双方加分 */
 (function(){
 try{
@@ -4112,7 +4090,41 @@ localStorage.setItem("yc_inviter", inviter);
 }
 }catch(e){}
 })();
-
+/* 搜索联想 */
+(function initSearchSuggest(){
+const input = $("#global-search");
+if(!input) return;
+let timer = null;
+const wrap = document.createElement("div");
+wrap.id = "search-suggest";
+wrap.style.cssText = "position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:998;display:none;max-height:300px;overflow-y:auto";
+const box = input.closest(".search-box");
+if(box) box.appendChild(wrap);
+input.addEventListener("input", ()=>{
+const q = input.value.trim();
+if(q.length < 1){ wrap.style.display = "none"; return; }
+clearTimeout(timer);
+timer = setTimeout(async ()=>{
+try{
+const works = await API.listWorks({q:q, limit:5});
+if(!works || !works.length){
+wrap.innerHTML = '<div style="padding:10px 14px;color:var(--ink-faint);font-size:13px">没有找到相关作品</div>';
+wrap.style.display = "block";
+return;
+}
+wrap.innerHTML = works.map(w=>
+'<div style="padding:9px 14px;cursor:pointer;font-size:13px;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line)" onmousedown="location.hash=\'#/book?id=' + w.id + '\'">' +
+'<span>' + esc(w.title) + '</span>' +
+'<span style="color:var(--ink-faint);font-size:11px;flex:none">' + esc(w.author) + '</span></div>'
+).join("");
+wrap.style.display = "block";
+}catch(e){}
+}, 250);
+});
+document.addEventListener("click", e=>{
+if(!e.target.closest(".search-box")) wrap.style.display = "none";
+});
+})();
 route();
 </script>
 </body>
