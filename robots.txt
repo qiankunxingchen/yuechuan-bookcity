@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://yuechuan.pages.dev/sitemap.xml
