@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
 <link rel="preconnect" href="https://xsmdmttfftepbtnjxvfu.supabase.co">
 <link rel="dns-prefetch" href="https://xsmdmttfftepbtnjxvfu.supabase.co">
 <meta name="description" content="阅川书城——人人可写，人人可读的原创小说平台。在这里创作你的故事，让全世界看见。四大名著、古典小说、原创作品，应有尽有。">
@@ -43,6 +44,17 @@
 --shadow:0 6px 24px rgba(35,51,47,.08);
 --serif:"Noto Serif SC",Georgia,"Songti SC","SimSun",serif;
 --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+}
+/* 深色模式跟随系统 */
+@media (prefers-color-scheme: dark){
+:root{
+--paper:#14181A;--card:#1B2124;--card-soft:#232A2E;
+--ink:#E8EDEB;--ink-soft:#A9B4B0;--ink-faint:#6E7A76;
+--brand:#3BAE93;--brand-deep:#2E8B73;--brand-soft:#1E3A33;
+--accent:#D9A455;--accent-soft:#3A2F1D;
+--line:#2C3538;
+--shadow:0 6px 24px rgba(0,0,0,.4);
+}
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -845,6 +857,12 @@ return this.request("PATCH","notifications",{read:true},"account=eq." + encodeUR
 },
 /* 作品 */
 listContestWorks(){ return this.request("GET","works",null,"select=*&contest=neq.&order=views.desc&limit=6"); },
+listWorksByTag(tag){ return this.request("GET","works",null,"select=*&tags=ilike.*" + encodeURIComponent(tag) + "*&limit=30"); },
+listBooklists(){ return this.request("GET","booklists",null,"select=*&order=created_at.desc&limit=50"); },
+getMyBooklists(account){ return this.request("GET","booklists",null,"select=*&account=eq." + encodeURIComponent(account) + "&order=created_at.desc"); },
+createBooklist(account, name){ return this.request("POST","booklists",{account:account, name:name, works:"[]"}); },
+updateBooklist(id, works, account){ return this.request("PATCH","booklists",{works:JSON.stringify(works)},"id=eq." + id + "&account=eq." + encodeURIComponent(account)); },
+deleteBooklist(id, account){ return this.request("DELETE","booklists",null,"id=eq." + id + "&account=eq." + encodeURIComponent(account)); },
 listWorks({category, sort, q, limit=50} = {}){
 const qs = [];
 qs.push("select=*");
@@ -862,6 +880,18 @@ getFollowWork(account, workId){ return this.request("GET","follow_works",null,"s
 listFollowWorksFor(workId){ return this.request("GET","follow_works",null,"select=account&work_id=eq." + encodeURIComponent(workId) + "&limit=100"); },
 getUserBio(account){ return this.request("GET","user_bio",null,"select=*&account=eq." + encodeURIComponent(account)); },
 setUserBio(account, bio){ return this.request("POST","user_bio",{account:account,bio:bio}); },
+sendDm(fromAccount, toAccount, fromName, content){ return this.request("POST","dm",{from_account:fromAccount, to_account:toAccount, from_name:fromName, content:content}); },
+listDm(account){ return this.request("GET","dm",null,"select=*&to_account=eq." + encodeURIComponent(account) + "&order=created_at.desc&limit=50"); },
+listDmOut(account){ return this.request("GET","dm",null,"select=*&from_account=eq." + encodeURIComponent(account) + "&order=created_at.desc&limit=50"); },
+markDmRead(account){ return this.request("PATCH","dm",{read:true},"to_account=eq." + encodeURIComponent(account) + "&read=eq.false"); },
+reportItem(targetType, targetId, reason){ return this.request("POST","reports",{target_type:targetType, target_id:targetId, reason:reason, account:Store.auth ? Store.auth.account : ""}); },
+getMyProgress(account){ return this.request("GET","user_progress",null,"select=*&account=eq." + encodeURIComponent(account) + "&order=updated_at.desc&limit=200"); },
+upsertProgress(account, workId, ch, title){
+return this.request("GET","user_progress",null,"select=id&account=eq." + encodeURIComponent(account) + "&work_id=eq." + encodeURIComponent(workId)).then(arr=>{
+if(arr && arr.length) return this.request("PATCH","user_progress",{ch:ch, work_title:title, updated_at:new Date().toISOString()},"id=eq." + arr[0].id);
+return this.request("POST","user_progress",{account:account, work_id:workId, ch:ch, work_title:title});
+}).catch(()=>{});
+},
 getWorksByIds(ids){ return this.request("GET","works",null,"select=*&id=in.(" + ids.join(",") + ")"); },
 createWork(data){ return this.request("POST","works",data); },
 updateWork(id, data, authorKey){
@@ -901,7 +931,7 @@ body: JSON.stringify({ email, token, type: "email" })
 },
 /* 公告 */
 listAnnouncements(limit=5){ return this.request("GET","announcements",null,"select=*&order=created_at.desc&limit=" + limit); },
-createAnnouncement(title, content){ return this.request("POST","announcements",{title, content}); },
+createAnnouncement(title, content, isEvent){ return this.request("POST","announcements",{title:title, content:content, is_event:!!isEvent}); },
 /* 评论 */
 listComments(workId, limit=50){ return this.request("GET","comments",null,"select=*&work_id=eq." + workId + "&order=created_at.asc&limit=" + limit); },
 createComment(authorKey, workId, content){ return this.request("POST","rpc/create_comment",{p_author_key:authorKey,p_work_id:workId,p_content:content}); },
@@ -929,6 +959,17 @@ sendMessage(authorKey, content){ return this.request("POST","rpc/send_message",{
 submitTip(authorKey, workId, fromKey, amount, msg){ return this.request("POST","rpc/submit_tip",{p_author_key:authorKey,p_work_id:workId,p_from_key:fromKey,p_amount:amount,p_message:msg}); },
 tipSummary(authorKey){ return this.request("POST","rpc/tip_summary",{p_author_key:authorKey}); },
 listTipsReceived(authorKey, limit){ return this.request("POST","rpc/list_tips_received",{p_author_key:authorKey,p_limit:limit||50}); },
+rateChapter(workId, chIdx, rating, account){
+return this.request("GET","chapter_ratings",null,"select=id&work_id=eq." + encodeURIComponent(workId) + "&ch_idx=eq." + chIdx + "&account=eq." + encodeURIComponent(account) + "&limit=1").then(arr=>{
+if(arr && arr.length) return this.request("PATCH","chapter_ratings",{rating:rating},"id=eq." + arr[0].id);
+return this.request("POST","chapter_ratings",{work_id:workId, ch_idx:chIdx, rating:rating, account:account});
+}).catch(()=>{});
+},
+listChapterRatings(workId){ return this.request("GET","chapter_ratings",null,"select=ch_idx,rating&work_id=eq." + encodeURIComponent(workId) + "&limit=1000").catch(()=>[]); },
+listWants(limit){ return this.request("GET","wants",null,"select=*&order=created_at.desc&limit=" + (limit||50)).catch(()=>[]); },
+createWant(account, penName, title, content, category){ return this.request("POST","wants",{account:account, pen_name:penName, title:title, content:content, category:category||"不限"}); },
+listWantReplies(wantId){ return this.request("GET","want_replies",null,"select=*&want_id=eq." + encodeURIComponent(wantId) + "&order=created_at.asc&limit=100").catch(()=>[]); },
+replyWant(wantId, account, penName, content){ return this.request("POST","want_replies",{want_id:wantId, account:account, pen_name:penName, content:content}); },
 updatePenName(account, pwd, newName){ return this.request("POST","rpc/update_pen_name",{p_account:account,p_pwd:pwd,p_new_name:newName}); },
 updateAvatar(account, url){ return this.request("POST","rpc/update_avatar",{p_account:account,p_avatar_url:url}); },
 /* 积分（points_log 表：account + delta 累加） */
@@ -970,7 +1011,13 @@ set shelfGroup(v){ localStorage.setItem("yc_shelfgroup", v); },
 get hotSearch(){ try{ return JSON.parse(localStorage.getItem("yc_hotsearch") || "{}"); }catch(e){ return {}; } },
 set hotSearch(v){ localStorage.setItem("yc_hotsearch", JSON.stringify(v)); },
 get writeDays(){ try{ return JSON.parse(localStorage.getItem("yc_writedays") || "[]"); }catch(e){ return []; } },
-set writeDays(v){ localStorage.setItem("yc_writedays", JSON.stringify(v)); }
+set writeDays(v){ localStorage.setItem("yc_writedays", JSON.stringify(v)); },
+get readerBg(){ return parseInt(localStorage.getItem("yc_readbg") || "0", 10); },
+set readerBg(v){ localStorage.setItem("yc_readbg", v); },
+get shelfView(){ return localStorage.getItem("yc_shelfview") || "grid"; },
+set shelfView(v){ localStorage.setItem("yc_shelfview", v); },
+get lineHeight(){ const v = parseFloat(localStorage.getItem("yc_lineh")); return v || 1.8; },
+set lineHeight(v){ localStorage.setItem("yc_lineh", v); }
 };
 /* ============ 4. 工具函数 ============ */
 const $ = (sel, root=document) => root.querySelector(sel);
@@ -1177,6 +1224,26 @@ Store.auth = { account: email, username: res.pen_name || email, authorKey: res.a
 Store.penName = res.pen_name || email;
 Store.avatar = res.avatar_url || "";
 toast("登录成功，欢迎回来！");
+/* 封禁检查 */
+API.request("GET","bans",null,"select=reason&account=eq." + encodeURIComponent(email) + "&limit=1").then(ban=>{
+if(ban && ban.length){
+toast("⛔ 账号已被封禁：" + (ban[0].reason || "违反平台规定") + "。如有疑问请联系站长。", "err");
+localStorage.removeItem("yc_auth");
+Store.auth = null; Store.penName = "";
+renderAuthArea();
+}
+}).catch(()=>{});
+/* 跨设备恢复阅读进度 */
+API.getMyProgress(email).then(list=>{
+if(list && list.length){
+let merged = Object.assign({}, Store.lastRead);
+list.forEach(pr=>{
+const old = merged[pr.work_id];
+if(!old || (pr.ch||0) > (old.ch||0)) merged[pr.work_id] = { ch: pr.ch||0, workTitle: pr.work_title||"" };
+});
+Store.lastRead = merged;
+}
+}).catch(()=>{});
 closeAuthModal();
 renderAuthArea();
 if(parseHash().path === "create") renderCreate();
@@ -1213,11 +1280,18 @@ const prof = await API.getUserProfile(inviter).catch(()=>null);
 const inviterAccount = (prof && prof.account) || inviter;
 await API.addPoints(inviterAccount, 10, "邀请注册奖励");
 await API.addPoints(email, 10, "受邀注册奖励");
+await API.request("POST","invites",{inviter:inviterAccount, invitee:email}).catch(()=>{});
 }catch(e){}
 toast("🎁 邀请奖励已发放：你和邀请人各 +10 积分");
 localStorage.removeItem("yc_inviter");
 }
 toast("注册成功，欢迎加入阅川书城！");
+/* 新人礼包：+100积分 + 自动领养宠物 */
+API.addPoints(email, 100, "新人礼包").catch(()=>{});
+if(!Store.pet){
+Store.pet = { type: "cat", name: "小猫 小宝", level: 1, exp: 0, hunger: 100, born: new Date().toISOString(), outfit: "" };
+}
+toast("🎁 新人礼包：+100积分、宠物已领养！");
 closeAuthModal();
 renderAuthArea();
 if(parseHash().path === "create") renderCreate();
@@ -1341,10 +1415,183 @@ return { path: path || "home", params };
 }
 /* ============ 5. 视图渲染 ============ */
 const app = $("#app");
+/* ============ 访问统计埋点 ============ */
+function trackVisit(){
+const today = new Date().toISOString().substring(0,10);
+const uvKey = "yc_uv_" + today;
+const firstToday = !localStorage.getItem(uvKey);
+if(firstToday) localStorage.setItem(uvKey, "1");
+API.request("GET","site_stats",null,"select=*&v_date=eq." + today).then(arr=>{
+if(arr && arr.length){
+const row = arr[0];
+if(firstToday) API.request("PATCH","site_stats",{pv:(row.pv||0)+1, uv:(row.uv||0)+1},"id=eq." + row.id).catch(()=>{});
+else API.request("PATCH","site_stats",{pv:(row.pv||0)+1},"id=eq." + row.id).catch(()=>{});
+} else {
+API.request("POST","site_stats",{v_date:today, pv:1, uv:firstToday?1:0}).catch(()=>{});
+}
+}).catch(()=>{});
+}
+/* ============ 本月阅读之星（同步+榜单） ============ */
+function syncReadStats(){
+if(!Store.isLoggedIn) return;
+const today = new Date().toISOString().substring(0,10);
+if(localStorage.getItem("yc_rssync_" + today)) return;
+localStorage.setItem("yc_rssync_" + today, "1");
+const month = today.substring(0,7);
+const minutes = parseInt(localStorage.getItem("yc_read_min_" + month) || "0", 10);
+if(minutes < 1) return;
+API.request("GET","read_stats",null,"select=*&account=eq." + encodeURIComponent(Store.auth.account) + "&month=eq." + month).then(arr=>{
+if(arr && arr.length){
+const row = arr[0];
+if(minutes > (row.minutes||0)) API.request("PATCH","read_stats",{minutes:minutes, pen_name:Store.penName},"id=eq." + row.id).catch(()=>{});
+} else {
+API.request("POST","read_stats",{account:Store.auth.account, month:month, minutes:minutes, pen_name:Store.penName}).catch(()=>{});
+}
+}).catch(()=>{});
+}
+function loadReadStar(){
+const box = $("#sec-readstar");
+if(!box) return;
+const month = new Date().toISOString().substring(0,7);
+API.request("GET","read_stats",null,"select=*&month=eq." + month + "&order=minutes.desc&limit=5").then(list=>{
+if(!list || !list.length){ box.style.display = "none"; return; }
+box.style.display = "block";
+const medals = ["🥇","🥈","🥉","4","5"];
+box.querySelector(".loading").outerHTML = '<div style="display:flex;flex-direction:column;gap:8px">' + list.map((r,i)=>
+'<div style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px">' +
+'<span style="font-size:18px;width:26px;text-align:center">' + medals[i] + '</span>' +
+'<span style="flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.pen_name || r.account) + '</span>' +
+'<span style="font-size:13px;color:var(--ink-soft)">' + (r.minutes||0) + ' 分钟</span></div>').join("") + '</div>';
+}).catch(()=>{ box.style.display = "none"; });
+}
+/* ============ 离线阅读缓存 ============ */
+function cacheBookForOffline(workId, work, chapters){
+try{
+const cache = JSON.parse(localStorage.getItem("yc_offline") || "{}");
+cache[workId] = { work: {id:work.id, title:work.title, author:work.author, category:work.category, intro:work.intro, cover:work.cover, cover_theme:work.cover_theme}, chapters: (chapters||[]).map(c=>({id:c.id, title:c.title, content:c.content, sort_order:c.sort_order})), time: Date.now() };
+/* 最多缓存5本书 */
+const keys = Object.keys(cache);
+if(keys.length > 5){ const rm = keys.sort((a,b)=>cache[a].time-cache[b].time)[0]; delete cache[rm]; }
+localStorage.setItem("yc_offline", JSON.stringify(cache));
+}catch(e){}
+}
+function getOfflineBook(workId){
+try{ const c = JSON.parse(localStorage.getItem("yc_offline") || "{}"); return c[workId] || null; }catch(e){ return null; }
+}
+function setDefaultTitle(){
+document.title = "阅川书城 - 免费小说阅读与创作平台";
+const m = document.querySelector('meta[name="description"]');
+if(m) m.content = "阅川书城，免费在线小说阅读与创作平台。人人可以写小说、看小说，支持原创作品发布、书架收藏、书单分享。";
+}
+/* 节日氛围 */
+function getFestival(){
+const now = new Date();
+const m = now.getMonth() + 1, d = now.getDate();
+const full = now.getFullYear() + "-" + String(m).padStart(2,"0") + "-" + String(d).padStart(2,"0");
+const map = {
+"2026-09-24":"中秋","2026-09-25":"中秋","2026-09-26":"中秋",
+"2027-10-13":"中秋","2027-10-14":"中秋","2027-10-15":"中秋"
+};
+if(map[full]) return { name: "中秋佳节", emoji: "🌕" };
+if(m === 10 && d >= 1 && d <= 7) return { name: "国庆节", emoji: "🎉" };
+if((m === 12 && d >= 30) || (m === 1 && d <= 3)) return { name: "元旦", emoji: "🎊" };
+if(m === 5 && d >= 1 && d <= 3) return { name: "劳动节", emoji: "🛠" };
+if(m === 6 && d === 1) return { name: "儿童节", emoji: "🎈" };
+return null;
+}
+function festivalBannerHtml(){
+const f = getFestival();
+if(!f) return "";
+document.body.classList.add("festival");
+return '<div style="text-align:center;padding:10px 16px;background:linear-gradient(90deg,#C98A2D,#E0533D);color:#fff;font-size:13px;font-weight:700;border-radius:10px;margin-bottom:12px">' + f.emoji + ' ' + f.name + '快乐！阅川书城陪你过节，好书免费看，动笔即作者</div>';
+}
+/* 书荒广场 */
+async function renderWantedPage(){
+app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
+try{
+const [wants, replies] = await Promise.all([
+API.listWants(50),
+API.request("GET","want_replies",null,"select=want_id&limit=1000").catch(()=>[])
+]);
+const replyCnt = {};
+(replies||[]).forEach(r=>{ replyCnt[r.want_id] = (replyCnt[r.want_id]||0) + 1; });
+let h = '<div class="page-title">📚 书荒广场</div>' +
+'<p class="page-sub">找不到想看的书？发帖求书，书友和作者来推荐！</p>';
+h += '<div class="form-card" style="margin-bottom:16px">' +
+'<div class="field"><label>求书标题</label><input id="want-title" maxlength="30" placeholder="例如：求一本修仙+种田的小说"></div>' +
+'<div class="field"><label>类型（选填）</label><input id="want-cat" maxlength="12" placeholder="例如：玄幻 / 都市 / 悬疑 / 不限"></div>' +
+'<div class="field"><label>描述（选填）</label><textarea id="want-content" maxlength="200" rows="2" placeholder="想看什么类型的？有什么具体要求？"></textarea></div>' +
+'<button class="btn btn-primary" onclick="publishWant()">📮 发布求书</button></div>';
+h += '<div class="section" style="margin:0"><div class="section-head"><h2 class="section-title">📋 求书帖</h2><span style="font-size:12px;color:var(--ink-faint)">共 ' + (wants||[]).length + ' 帖</span></div>';
+if(!(wants||[]).length){
+h += emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "还没有求书帖，发第一帖吧");
+} else {
+h += '<div style="display:flex;flex-direction:column;gap:10px">' + wants.map(w=>
+'<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px">' +
+'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+'<span style="font-weight:700">' + esc(w.title) + '</span>' +
+(w.category && w.category !== "不限" ? '<span style="font-size:11px;background:var(--card-soft);border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--ink-soft)">' + esc(w.category) + '</span>' : '') +
+'<span style="flex:1"></span>' +
+'<span style="font-size:11px;color:var(--ink-faint)">' + esc(w.pen_name || "书友") + ' · ' + fmtTime(w.created_at) + '</span>' +
+'</div>' +
+(w.content ? '<div style="font-size:13px;color:var(--ink-soft);margin:8px 0">' + esc(w.content) + '</div>' : '') +
+'<div style="display:flex;align-items:center;gap:8px;margin-top:6px">' +
+'<button class="btn btn-ghost btn-sm" onclick="toggleWantReplies(\'' + w.id + '\',this)">💬 推荐 ' + (replyCnt[w.id]||0) + '</button>' +
+(Store.isLoggedIn ? '<button class="btn btn-ghost btn-sm" onclick="showWantReplyBox(\'' + w.id + '\',\'' + esc(w.title) + '\')">✍ 推荐一本</button>' : '') +
+'</div>' +
+'<div class="want-replies" style="display:none;margin-top:10px"></div>' +
+'</div>').join("") + '</div>';
+}
+h += '</div>';
+app.innerHTML = '<section class="page">' + h + '</section>';
+}catch(e){
+app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(e.message)) + '</section>';
+}
+}
+async function publishWant(){
+if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+const title = $("#want-title").value.trim();
+if(!title){ toast("请填写求书标题", "err"); return; }
+const content = ($("#want-content") ? $("#want-content").value.trim() : "");
+const cat = ($("#want-cat") ? $("#want-cat").value.trim() : "不限");
+try{
+await API.createWant(Store.auth.account, Store.penName, title, content, cat);
+toast("📮 已发布，坐等推荐！");
+renderWantedPage();
+}catch(e){ toast("发布失败：" + e.message, "err"); }
+}
+async function toggleWantReplies(wantId, btn){
+const box = btn.closest("div").parentElement.querySelector(".want-replies");
+if(!box) return;
+if(box.style.display === "none" || !box.style.display){
+box.style.display = "block";
+box.innerHTML = loadingHtml();
+const replies = await API.listWantReplies(wantId);
+if(!replies.length){
+box.innerHTML = '<div style="font-size:13px;color:var(--ink-faint);padding:8px 0">还没有推荐，来推荐一本吧</div>';
+return;
+}
+box.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">' + replies.map(r=>
+'<div style="background:var(--card-soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px">' +
+'<div style="font-size:13px">' + esc(r.content) + '</div>' +
+'<div style="font-size:11px;color:var(--ink-faint);margin-top:4px">—— ' + esc(r.pen_name || "书友") + ' · ' + fmtTime(r.created_at) + '</div></div>').join("") + '</div>';
+} else {
+box.style.display = "none";
+}
+}
+function showWantReplyBox(wantId, wantTitle){
+const content = prompt("推荐给「" + wantTitle + "」：写下书名/链接/理由");
+if(!content) return;
+API.replyWant(wantId, Store.auth.account, Store.penName, content.trim()).then(()=>{
+toast("✍ 推荐已发布！");
+}).catch(e=>{ toast("失败：" + e.message, "err"); });
+}
 function renderHome(){
+setDefaultTitle();
 app.innerHTML =
 '<section class="page">' +
 '<div id="announce-box"></div>' +
+festivalBannerHtml() +
 '<div class="hero">' +
 '<div class="hero-kicker">YUE CHUAN BOOK CITY</div>' +
 '<h1>人人可写，人人可读<br>让每一部作品都被看见</h1>' +
@@ -1354,6 +1601,23 @@ app.innerHTML =
 '<button class="btn btn-ghost-dark" onclick="location.hash=\'#/library\'">逛书库</button>' +
 '<button class="btn btn-ghost-dark" onclick="location.hash=\'#/chat\'">进聊天室</button>' +
 '</div>' +
+'<div style="margin-top:14px"><button class="btn btn-ghost-dark btn-sm" onclick="location.hash=\'#/wanted\'">📚 书荒广场 · 求书荐书</button></div>' +
+'</div>' +
+'<div class="section" id="sec-readstar" style="display:none">' +
+'<div class="section-head"><h2 class="section-title">🏆 本月阅读之星</h2><span style="font-size:12px;color:var(--ink-faint)">读书时间最长的书友</span></div>' +
+loadingHtml() +
+'</div>' +
+'<div class="section" id="sec-daily">' +
+'<div class="section-head"><h2 class="section-title">📅 今日推荐</h2></div>' +
+loadingHtml() +
+'</div>' +
+'<div class="section" id="sec-for-you" style="display:none">' +
+'<div class="section-head"><h2 class="section-title">🧠 猜你喜欢</h2></div>' +
+loadingHtml() +
+'</div>' +
+'<div class="section" id="sec-event" style="display:none">' +
+'<div class="section-head"><h2 class="section-title">🎉 正在进行的征文活动</h2><a class="section-more" href="#/event">进入活动页 →</a></div>' +
+'<div id="event-banner"></div>' +
 '</div>' +
 '<div class="section" id="sec-contest">' +
 '<div class="section-head"><h2 class="section-title">🏆 本周创作赛</h2><span style="font-size:12px;color:var(--ink-faint)">发布作品时勾选「参加本周创作赛」，按人气评选</span></div>' +
@@ -1378,6 +1642,8 @@ loadingHtml() +
 '</section>';
 /* 公告栏 */
 loadAnnouncements();
+/* 活动横幅 */
+loadEventBanner();
 /* 首页数据：2个请求（views一次拿14本，推荐/热门共用，减少往返） */
 Promise.all([
 API.listWorks({sort:"views", limit:14}),
@@ -1386,6 +1652,43 @@ API.listContestWorks()
 ]).then(([hotPool, newWorks, contestWorks])=>{
 const recommendWorks = hotPool.slice(0, 3);
 const hotWorks = hotPool.slice(0, 5);
+/* 本月阅读之星 */
+loadReadStar();
+/* 今日推荐：按日期从热门书里选一本 */
+const secDaily = $("#sec-daily");
+if(secDaily){
+const pool = hotPool || [];
+if(pool.length){
+const dayNum = new Date().getDate();
+const pick = pool[dayNum % pool.length] || pool[0];
+secDaily.querySelector(".loading").outerHTML = '<div style="display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer" onclick="location.hash=\'#/book?id=' + pick.id + '\'">' +
+coverHtml(pick, "rec-cover") +
+'<div style="flex:1;min-width:0"><div style="font-weight:700">' + esc(pick.title) + '</div>' +
+'<div style="font-size:12px;color:var(--ink-faint);margin:4px 0">' + esc(pick.author) + ' · ' + esc(pick.category) + '</div>' +
+'<div style="font-size:13px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(pick.intro || "经典好书，值得一读") + '</div></div></div>';
+} else {
+secDaily.style.display = "none";
+}
+}
+/* 猜你喜欢：按阅读历史分类推荐 */
+const secForYou = $("#sec-for-you");
+if(secForYou){
+const lastReadMap = Store.lastRead || {};
+const readIds = Object.keys(lastReadMap);
+if(readIds.length && Store.isLoggedIn){
+API.listWorks({sort:"views", limit:20}).then(all=>{
+const fav = all.filter(w=>!readIds.includes(w.id)).slice(0,4);
+if(fav.length){
+secForYou.style.display = "block";
+secForYou.querySelector(".loading").outerHTML = '<div class="book-grid">' + fav.map(w=>
+'<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' + coverHtml(w) +
+'<div class="book-info"><div class="b-title">' + esc(w.title) + '</div><div class="b-meta">' + esc(w.author) + '</div></div></div>').join("") + '</div>';
+}
+}).catch(()=>{});
+} else {
+secForYou.style.display = "none";
+}
+}
 /* 本周创作赛 */
 const secContest = $("#sec-contest");
 if(secContest){
@@ -1450,6 +1753,159 @@ $("#sec-recommend").style.display = "none";
 $("#sec-hot").querySelector(".loading").outerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
 });
 }
+function loadEventBanner(){
+const box = $("#event-banner");
+const sec = $("#sec-event");
+if(!box || !sec) return;
+API.request("GET","announcements",null,"select=*&is_event=eq.true&order=created_at.desc&limit=1").then(list=>{
+if(!list || !list.length){ sec.style.display = "none"; return; }
+const ev = list[0];
+sec.style.display = "block";
+box.innerHTML = '<div style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#E8A33D22,#E0533D22);border:1px solid #E8A33D55;border-radius:14px;padding:14px;cursor:pointer" onclick="location.hash=\'#/event\'">' +
+'<div style="font-size:30px">🎉</div>' +
+'<div style="flex:1;min-width:0">' +
+'<div style="font-weight:700">' + esc(ev.title) + '</div>' +
+'<div style="font-size:12px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(ev.content || "点击查看活动详情") + '</div>' +
+'<div style="font-size:11px;color:var(--ink-faint);margin-top:2px">发布于 ' + fmtDate(ev.created_at) + ' · 参赛作品已开启投票</div>' +
+'</div>' +
+'<span style="font-size:12px;color:#E8A33D;flex:none">去投票 →</span></div>';
+}).catch(()=>{ sec.style.display = "none"; });
+}
+/* 征文活动页 */
+async function renderEventPage(){
+app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
+try{
+const [evs, works] = await Promise.all([
+API.request("GET","announcements",null,"select=*&is_event=eq.true&order=created_at.desc&limit=1").catch(()=>[]),
+API.request("GET","works",null,"select=*&contest=neq.&order=views.desc&limit=30").catch(()=>[])
+]);
+const ev = (evs||[])[0];
+let h = '<div class="page-title">🎉 征文活动</div>';
+if(ev){
+h += '<div style="background:linear-gradient(135deg,#E8A33D22,#E0533D22);border:1px solid #E8A33D55;border-radius:14px;padding:18px;margin-bottom:16px">' +
+'<div style="font-size:22px;font-weight:800;font-family:var(--serif)">' + esc(ev.title) + '</div>' +
+'<div style="font-size:13px;color:var(--ink-soft);margin:8px 0">' + esc(ev.content || "暂无活动说明") + '</div>' +
+'<div style="font-size:12px;color:var(--ink-faint)">📅 发布于 ' + fmtDate(ev.created_at) + ' · 发布作品时勾选「参加本周创作赛」即可参赛 · 按点赞人气投票</div>' +
+'</div>';
+} else {
+h += '<p class="page-sub">暂无进行中的征文活动，站长发布活动公告并勾选「设为征文活动」后展示在这里</p>';
+}
+h += '<div class="section" style="margin:0"><div class="section-head"><h2 class="section-title">📜 参赛作品</h2><span style="font-size:12px;color:var(--ink-faint)">共 ' + (works||[]).length + ' 部 · 按人气排序</span></div>' +
+'<div class="book-grid">' +
+((works||[]).length ? works.map(w=>
+'<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' + coverHtml(w) +
+'<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
+'<div class="b-meta">' + esc(w.author) + ' · 👁 ' + (w.views||0) + ' · 👍 ' + (w.likes||0) + '</div></div></div>'
+).join("") : emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "还没有参赛作品")) +
+'</div></div>';
+app.innerHTML = '<section class="page">' + h + '</section>';
+}catch(e){
+app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(e.message)) + '</section>';
+}
+}
+/* 邀请排行榜 */
+async function renderInvitePage(){
+app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
+try{
+const invs = await API.request("GET","invites",null,"select=inviter&limit=1000").catch(()=>[]);
+const users = await API.request("GET","users",null,"select=account,pen_name&limit=1000").catch(()=>[]);
+const nameMap = {};
+(users||[]).forEach(u=>{ nameMap[u.account] = u.pen_name || u.account; });
+const cnt = {};
+(invs||[]).forEach(r=>{ cnt[r.inviter] = (cnt[r.inviter] || 0) + 1; });
+const sorted = Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,10);
+const myRank = Store.isLoggedIn ? Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).indexOf(Store.auth.account) : -1;
+const medals = ["🥇","🥈","🥉"];
+let h = '<div class="page-title">🏆 邀请排行榜</div>' +
+'<p class="page-sub">分享你的链接邀请好友注册，双方各得 +10 积分，邀请越多排名越高！</p>';
+if(Store.isLoggedIn){
+h += '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px">' +
+'<div style="flex:1"><div style="font-size:13px;color:var(--ink-faint)">我的邀请链接</div>' +
+'<div style="font-size:12px;color:var(--ink-soft);word-break:break-all" id="my-invite-link">' + esc(location.origin + location.pathname + "?invite=" + encodeURIComponent(Store.penName)) + '</div></div>' +
+'<button class="btn btn-accent btn-sm" onclick="copyInviteLink()">复制链接</button></div>';
+if(myRank >= 0) h += '<div style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">我的排名：第 ' + (myRank+1) + ' 名 · 邀请 ' + cnt[Store.auth.account] + ' 人</div>';
+}
+h += '<div class="section" style="margin:0"><div class="section-head"><h2 class="section-title">邀请人数 TOP 10</h2></div>' +
+'<div style="display:flex;flex-direction:column;gap:8px">' +
+(sorted.length ? sorted.map((a,i)=>
+'<div style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px">' +
+'<span style="font-size:20px;width:30px;text-align:center">' + (medals[i] || (i+1)) + '</span>' +
+'<span style="flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nameMap[a] || a) + (Store.isLoggedIn && a === Store.auth.account ? ' <span style="font-size:11px;color:#E8A33D">（我）</span>' : '') + '</span>' +
+'<span style="font-size:13px;color:var(--ink-soft)">邀请 ' + cnt[a] + ' 人</span>' +
+'<span style="font-size:12px;color:#E8A33D">+积分奖励</span>' +
+'</div>').join("") : emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "还没有人参与邀请，做第一个分享的人吧")) +
+'</div></div>';
+app.innerHTML = '<section class="page">' + h + '</section>';
+}catch(e){
+app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(e.message)) + '</section>';
+}
+}
+function copyInviteLink(){
+const link = location.origin + location.pathname + "?invite=" + encodeURIComponent(Store.penName);
+const done = ()=>{ toast("邀请链接已复制，快去分享吧 🎁"); };
+try{
+if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(link).then(done).catch(()=>{ legacyCopy(link); done(); }); }
+else { legacyCopy(link); done(); }
+}catch(e){ legacyCopy(link); done(); }
+}
+/* 新手引导 */
+function maybeShowGuide(){
+try{
+if(localStorage.getItem("yc_guided")) return;
+localStorage.setItem("yc_guided", "1");
+const steps = [
+{ icon: "📖", title: "海量小说免费看", desc: "四大名著、原创佳作都在书库里，收藏追更随时看" },
+{ icon: "✍️", title: "人人可以写小说", desc: "登录后点「开始创作」，发布你的第一部作品，让全世界看见" },
+{ icon: "🪙", title: "赚积分拿奖励", desc: "每日签到、读书打卡、邀请好友都能得积分，换头像框和宠物皮肤" }
+];
+const ov = document.createElement("div");
+ov.id = "guide-overlay";
+ov.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px";
+let step = 0;
+function render(){
+ov.innerHTML = '<div style="background:var(--card);border-radius:18px;padding:30px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)">' +
+'<div style="font-size:52px;margin-bottom:12px">' + steps[step].icon + '</div>' +
+'<div style="font-size:20px;font-weight:800;font-family:var(--serif);margin-bottom:8px">' + steps[step].title + '</div>' +
+'<div style="font-size:14px;color:var(--ink-soft);line-height:1.7;margin-bottom:20px">' + steps[step].desc + '</div>' +
+'<div style="display:flex;gap:10px;justify-content:center">' +
+(step > 0 ? '<button class="btn btn-ghost" onclick="guideGo(-1)">上一步</button>' : '') +
+(step < steps.length - 1
+? '<button class="btn btn-primary" onclick="guideGo(1)">下一步</button>'
+: '<button class="btn btn-accent" onclick="guideDone()">开始阅读 🚀</button>') +
+'</div>' +
+'<div style="font-size:12px;color:var(--ink-faint);margin-top:14px">' + (step+1) + ' / ' + steps.length + '</div></div>';
+}
+window.guideGo = function(d){ step = Math.min(steps.length-1, Math.max(0, step+d)); render(); };
+window.guideDone = function(){ ov.remove(); };
+render();
+document.body.appendChild(ov);
+}catch(e){}
+}
+/* 本周阅读报告 */
+function weeklyReportHtml(){
+try{
+const now = new Date();
+const dow = (now.getDay() + 6) % 7;
+const weekStart = new Date(now); weekStart.setDate(now.getDate() - dow); weekStart.setHours(0,0,0,0);
+let mins = 0, days = 0;
+for(let i=0;i<7;i++){
+const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
+const m = parseInt(localStorage.getItem("yc_read_day_" + d.toDateString()) || "0", 10);
+if(m > 0){ mins += m; days++; }
+}
+const ym = now.getFullYear() + "-" + (now.getMonth()+1);
+const monthMins = parseInt(localStorage.getItem("yc_read_min_" + ym) || "0", 10);
+const total = Store.totalReadTime || 0;
+return '<div style="background:linear-gradient(135deg,#E8A33D22,#8B5CF622);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px">' +
+'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b>📊 本周阅读报告</b><span style="font-size:12px;color:var(--ink-faint)">' + (now.getMonth()+1) + ' 月第 ' + (Math.ceil(now.getDate()/7)) + ' 周</span></div>' +
+'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;text-align:center">' +
+'<div><div style="font-size:22px;font-weight:800;color:#E8A33D">' + mins + '</div><div style="font-size:12px;color:var(--ink-faint)">本周阅读(分钟)</div></div>' +
+'<div><div style="font-size:22px;font-weight:800;color:#E8A33D">' + days + '</div><div style="font-size:12px;color:var(--ink-faint)">阅读天数</div></div>' +
+'<div><div style="font-size:22px;font-weight:800;color:#E8A33D">' + monthMins + '</div><div style="font-size:12px;color:var(--ink-faint)">本月累计</div></div>' +
+'<div><div style="font-size:22px;font-weight:800;color:#E8A33D">' + Math.floor(total/60) + '</div><div style="font-size:12px;color:var(--ink-faint)">累计(小时)</div></div>' +
+'</div></div>';
+}catch(e){ return ""; }
+}
 function loadAnnouncements(){
 const box = $("#announce-box");
 if(!box) return;
@@ -1458,14 +1914,18 @@ if(!list || !list.length){
 box.style.display = "none";
 return;
 }
-const items = list.map(a =>
-'<div class="ann-item">' +
+const closed = JSON.parse(localStorage.getItem("yc_closed_ann") || "{}");
+const items = list.filter(a=>!closed[a.id]).map(a =>
+'<div class="ann-item" style="position:relative;padding-right:34px">' +
 '<span class="ann-badge">公告</span>' +
 '<span class="ann-title">' + esc(a.title) + '</span>' +
 (a.content ? '<span class="ann-content">' + esc(a.content) + '</span>' : "") +
 '<span class="ann-date">' + fmtDate(a.created_at) + '</span>' +
+'<span style="position:absolute;top:6px;right:8px;cursor:pointer;color:var(--ink-faint);font-size:14px" title="关闭此公告" onclick="closeAnnouncement(\'' + a.id + '\')">✕</span>' +
 '</div>').join("");
-box.innerHTML = '<div class="ann-list">' + items + '</div>';
+box.innerHTML = items.length ? '<div class="ann-list">' + items + '</div>' : '<div style="display:none"></div>';
+if(!items.length) box.style.display = "none";
+if(items.length !== list.length && items.length === 0) box.style.display = "none";
 }).catch(()=>{ box.style.display = "none"; });
 }
 function renderLibrary(){
@@ -1487,6 +1947,7 @@ CATEGORIES.map(c => '<button class="cat-chip' + (cat===c?" active":"") + '" oncl
 '</select>' +
 '</div>' +
 '<div id="hot-search" style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--ink-faint)"></div>' +
+'<div id="tag-filter" style="margin:6px 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px"></div>' +
 '<div id="lib-grid">' + loadingHtml() + '</div>' +
 '</section>';
 /* 热门搜索词 */
@@ -1502,6 +1963,15 @@ hotBox.style.display = "none";
 }
 }
 })();
+const tag = params.get("tag") || "";
+(function loadTagFilter(){
+const box = $("#tag-filter");
+if(!box) return;
+const tags = ["热血","甜宠","悬疑","科幻","校园","都市","搞笑","虐心","重生","穿越"];
+box.innerHTML = '<span style="color:var(--ink-faint)">🏷 标签：</span>' +
+'<a class="cat-chip' + (!tag ? " active" : "") + '" href="#/library">全部</a>' +
+tags.map(t => '<a class="cat-chip' + (tag===t ? " active" : "") + '" href="#/library?tag=' + encodeURIComponent(t) + '">' + t + '</a>').join("");
+})();
 const sort = $("#sort-sel").value;
 $("#sort-sel").addEventListener("change", e=>{
 const s = e.target.value;
@@ -1509,7 +1979,22 @@ const base = "#/library" + (cat!=="全部" ? "?cat=" + encodeURIComponent(cat) :
 const qs = s === "views" ? (base.includes("?") ? "&sort=views" : "?sort=views") : "";
 location.hash = base + qs;
 });
-loadLibrary(cat, q, sort);
+if(tag) loadLibraryByTag(tag); else loadLibrary(cat, q, sort);
+}
+async function loadLibraryByTag(tag){
+const grid = $("#lib-grid");
+grid.innerHTML = loadingHtml();
+try{
+const works = await API.listWorksByTag(tag);
+if(!works || !works.length){
+grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "这个标签下还没有作品", '<button class="btn btn-accent" onclick="location.hash=\'#/create\'">去创作</button>');
+return;
+}
+grid.innerHTML = '<div class="book-grid">' + works.map(w=>
+'<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' + coverHtml(w) +
+'<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
+'<div class="b-meta">' + esc(w.author) + ' · ' + (w.views||0) + ' 阅读</div></div></div>').join("") + '</div>';
+}catch(e){ grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(e.message)); }
 }
 async function loadLibrary(cat, q, sort){
 const grid = $("#lib-grid");
@@ -1537,6 +2022,18 @@ app.innerHTML = '<section class="page">' + loadingHtml() + '</section>';
 Promise.all([API.getWork(id), API.listChapters(id)]).then(async ([workArr, chapters])=>{
 const work = workArr && workArr[0];
 if(!work){ app.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "作品不存在或已被删除", '<button class="btn btn-ghost" onclick="location.hash=\'#/library\'">返回书库</button>'); return; }
+/* 动态 SEO */
+document.title = "《" + work.title + "》" + work.author + " - 阅川书城";
+let mDesc = document.querySelector('meta[name="description"]');
+if(!mDesc){ mDesc = document.createElement("meta"); mDesc.name = "description"; document.head.appendChild(mDesc); }
+mDesc.content = "阅川书城《" + work.title + "》" + work.author + " 著，" + (work.intro || work.category + "类作品") + "，免费在线阅读。";
+let ld = document.getElementById("ld-book");
+if(ld) ld.remove();
+ld = document.createElement("script");
+ld.type = "application/ld+json";
+ld.id = "ld-book";
+ld.textContent = JSON.stringify({"@context":"https://schema.org","@type":"Book","name":work.title,"author":{"@type":"Person","name":work.author},"genre":work.category,"description":(work.intro||""),"inLanguage":"zh-CN","numberOfPages":(chs||[]).length});
+document.head.appendChild(ld);
 /* 阅读量 +1（每天每本书只计一次，防刷） */
 const vKey = "yc_view_" + id;
 const vToday = new Date().toDateString();
@@ -1545,11 +2042,16 @@ localStorage.setItem(vKey, vToday);
 API.addViews(id, work.views || 0).catch(()=>{});
 }
 /* 点赞数 / 我是否点过赞 / 评论列表 并行拉取 */
-const [likeCount, myLike, comments] = await Promise.all([
+const [likeCount, myLike, comments, favCount] = await Promise.all([
 API.getLikeCount(id),
 Store.isLoggedIn ? API.getUserLikes(id, Store.auth.account).then(a=>!!(a && a.length)).catch(()=>false) : Promise.resolve(false),
-API.listComments(id).catch(()=>[])
+API.listComments(id).catch(()=>[]),
+API.request("GET","follow_works",null,"select=id&work_id=eq." + id + "&limit=1000").then(a=>((a&&a.length)||0)).catch(()=>0)
 ]);
+/* 总字数统计 */
+let totalChars = 0;
+(chs||[]).forEach(c=>{ totalChars += (c.content||"").length; });
+const charText = totalChars >= 10000 ? (totalChars/10000).toFixed(1) + " 万字" : totalChars + " 字";
 const isMine = work.author_key === Store.authorKey;
 const favs = Store.favorites;
 const isFav = favs.includes(id);
@@ -1567,14 +2069,7 @@ chapterHtml = chs.map((c,i)=>
 ).join("");
 }
 setTimeout(()=>{ loadFollowWorkState(id); }, 0);
-const commentHtml = comments && comments.length
-? comments.map(c =>
-'<div class="cmt-item">' +
-'<div class="cmt-head"><span class="cmt-name" onclick="location.hash=\'#/user?name=' + encodeURIComponent(c.pen_name) + '\'">' + esc(c.pen_name) + '</span>' +
-'<span class="cmt-date">' + fmtTime(c.created_at) + '</span></div>' +
-'<div class="cmt-body">' + esc(c.content) + '</div>' +
-'</div>').join("")
-: '<div class="cmt-empty">还没有评论，来说两句吧～</div>';
+const commentHtml = commentListHtml(comments);
 app.innerHTML =
 '<section class="page">' +
 '<div class="detail-top">' +
@@ -1584,6 +2079,7 @@ app.innerHTML =
 '<div class="detail-tags">' +
 '<span class="tag">' + esc(work.category) + '</span>' +
 '<span class="tag tag-amber">' + esc(work.status) + '</span>' +
+((work.tags||"").split(",").filter(Boolean).slice(0,3).map(t=>'<span class="tag" style="background:var(--card-soft)">#' + esc(t) + '</span>')).join("") +
 '</div>' +
 '<div class="detail-stats">' +
 '<a class="detail-author" href="#/user?name=' + encodeURIComponent(work.author) + '">' + esc(work.author) + '</a>' +
@@ -1596,9 +2092,12 @@ app.innerHTML =
 '<button class="btn btn-primary" onclick="' + (chs.length ? "location.hash=\'#/read?id=" + id + "&ch=" + (last && last.ch !== undefined ? last.ch : 0) + "\'" : "toast(\'这本书还没有章节，等作者更新吧\')") + '">' + (chs.length ? "开始阅读" : "暂无章节") + '</button>' +
 '<button class="btn btn-ghost" id="fav-btn" onclick="toggleFav(\'' + id + '\')">' + (isFav ? "已加入书架" : "加入书架") + '</button>' +
 '<button class="btn btn-ghost" id="follow-work-btn" onclick="toggleFollowWork(\'' + id + '\')">🔔 追更</button>' +
+'<button class="btn btn-ghost" onclick="addToBooklist(\'' + id + '\',\'' + esc(work.title) + '\')">📋 加入书单</button>' +
 '<button class="btn btn-ghost" id="like-btn" onclick="toggleLike(\'' + id + '\')">' + (myLike ? "♥ 已赞" : "♡ 点赞") + ' <span id="like-count">' + (likeCount||0) + '</span></button>' +
 '<button class="btn btn-ghost" onclick="shareBook(\'' + id + '\',\'' + esc(work.title) + '\')">📤 分享</button>' +
 '<button class="btn btn-ghost" onclick="sharePoster(\'' + id + '\',\'' + esc(work.title) + '\',\'' + esc(work.author) + '\',\'' + esc(work.intro || "") + '\',' + (work.cover_theme||0) + ')">🖼 海报</button>' +
+'<button class="btn btn-ghost" onclick="reportItem(\'work\',\'' + id + '\')">🚩 举报</button>' +
+'<button class="btn btn-ghost" onclick="shareBookModal(\'' + esc(work.title) + '\',\'' + id + '\')">🔗 分享</button>' +
 '<button class="btn btn-ghost" onclick="markAsRead(\'' + id + '\',\'' + esc(work.title) + '\')">✅ 读完打卡</button>' +
 (isMine ? '<button class="btn btn-accent" onclick="location.hash=\'#/create?edit=' + id + '\'">管理作品</button>' : "") +
 (!isMine && work.author_key ? '<button class="btn btn-accent" onclick="openTipModal(\'' + id + '\',\'' + (work.author_key||'') + '\')">☕ 打赏作者</button>' : "") +
@@ -1611,8 +2110,12 @@ app.innerHTML =
 '</div>' +
 '<div class="detail-intro"><h3>内容简介</h3>' + (esc(work.intro) || "作者还没有写简介。") + '</div>' +
 '<div class="chapter-list">' +
-'<div class="chapter-list-head"><span>目录 · 共 ' + chs.length + ' 章</span><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="jumpToChapter(\'' + id + '\',' + chs.length + ')">↪ 跳转</button>' + (isMine ? '<button class="btn btn-accent btn-sm" onclick="location.hash=\'#/create?edit=' + id + '\'">写新章节</button>' : "") + '</div></div>' +
+'<div class="chapter-list-head"><span>目录 · 共 ' + chs.length + ' 章 · 约 ' + charText + ' · 📌 ' + favCount + ' 人收藏</span><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="jumpToChapter(\'' + id + '\',' + chs.length + ')">↪ 跳转</button>' + (isMine ? '<button class="btn btn-accent btn-sm" onclick="location.hash=\'#/create?edit=' + id + '\'">写新章节</button>' : "") + '</div></div>' +
 chapterHtml +
+'</div>' +
+'<div class="comment-box">' +
+'<div class="section-head"><h2 class="section-title">🏆 本周打赏榜</h2><span style="font-size:12px;color:var(--ink-faint)">感谢每一位支持创作者的人</span></div>' +
+'<div id="tipper-wall">' + loadingHtml() + '</div>' +
 '</div>' +
 '<div class="comment-box">' +
 '<div class="section-head"><h2 class="section-title">☕ 打赏感谢墙</h2></div>' +
@@ -1633,6 +2136,7 @@ chapterHtml +
 '</section>';
 /* 加载打赏感谢墙 */
 loadTipWall(id);
+loadTopTippers(id);
 /* 加载相关推荐 */
 loadRelatedBooks(id, work.category);
 }).catch(err=>{
@@ -1703,6 +2207,32 @@ setTimeout(()=>{ loadNotifications(); }, 600);
 }).catch(()=>{ toast("操作失败", "err"); });
 }
 /* 打赏感谢墙 */
+/* 本周打赏榜 */
+async function loadTopTippers(workId){
+const box = $("#tipper-wall");
+if(!box) return;
+try{
+const weekStart = new Date();
+weekStart.setDate(weekStart.getDate() - 7);
+const iso = weekStart.toISOString();
+const tips = await API.request("GET","tips",null,"select=from_name,amount&work_id=eq." + encodeURIComponent(workId) + "&created_at=gte." + iso + "&limit=500").catch(()=>[]);
+if(!tips || !tips.length){
+box.innerHTML = '<div style="text-align:center;padding:16px;color:var(--ink-faint);font-size:13px">本周还没有打赏，喜欢就支持一下作者 ☕</div>';
+return;
+}
+const sum = {};
+tips.forEach(t=>{ const n = t.from_name || "读者"; sum[n] = (sum[n]||0) + (t.amount||0); });
+const top = Object.keys(sum).sort((a,b)=>sum[b]-sum[a]).slice(0,5);
+const medals = ["🥇","🥈","🥉","4","5"];
+box.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">' + top.map((n,i)=>
+'<div style="display:flex;align-items:center;gap:10px;background:var(--card-soft);border:1px solid var(--line);border-radius:10px;padding:8px 12px">' +
+'<span style="font-size:16px;width:24px;text-align:center">' + medals[i] + '</span>' +
+'<span style="flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(n) + '</span>' +
+'<span style="font-size:13px;color:#E8A33D;font-weight:700">☕ ' + sum[n] + ' 元</span></div>').join("") + '</div>';
+}catch(e){
+box.innerHTML = '<div style="text-align:center;padding:16px;color:var(--ink-faint);font-size:13px">本周暂无打赏</div>';
+}
+}
 async function loadTipWall(workId){
 const wall = $("#tip-wall");
 if(!wall) return;
@@ -1775,6 +2305,8 @@ first_cmt:    { icon: "💬", name: "有话要说", desc: "发表第一条评论
 first_like:   { icon: "👍", name: "眼光独到", desc: "第一次点赞" },
 first_checkin:{ icon: "📅", name: "第一天", desc: "首次签到" },
 checkin_7:    { icon: "🔥", name: "七日坚持", desc: "连续签到7天" },
+streak_14:    { icon: "⚡", name: "半月书友", desc: "连续签到14天" },
+streak_21:    { icon: "🏆", name: "铁打书友", desc: "连续签到21天" },
 read_1h:      { icon: "⏱️", name: "阅读入门", desc: "累计阅读1小时" },
 read_10h:     { icon: "🏆", name: "阅读达人", desc: "累计阅读10小时" },
 read_100:     { icon: "📖", name: "百读不厌", desc: "读过100本书" },
@@ -1783,7 +2315,8 @@ tip_1:        { icon: "☕", name: "收到打赏", desc: "收到第一次打赏"
 inviter_1:    { icon: "🎁", name: "呼朋引伴", desc: "邀请1位朋友注册" },
 views_100:    { icon: "👁️", name: "人气新星", desc: "作品总阅读破100" },
 views_1000:   { icon: "🌟", name: "人气作家", desc: "作品总阅读破1000" },
-allin_7:      { icon: "🔥", name: "全勤王者", desc: "连续7天更新作品" }
+allin_7:      { icon: "🔥", name: "全勤王者", desc: "连续7天更新作品" },
+finish_book:  { icon: "🏁", name: "完本大师", desc: "完成一部作品" }
 };
 function getBadges(){ try{ return JSON.parse(localStorage.getItem("yc_badges") || "[]"); }catch(e){ return []; } }
 function saveBadges(v){ localStorage.setItem("yc_badges", JSON.stringify(v)); }
@@ -1812,6 +2345,128 @@ h += '<div style="text-align:center;padding:12px 6px;border-radius:12px;backgrou
 '</div>';
 }
 return h + '</div><div style="font-size:12px;color:var(--ink-faint);margin-top:8px">已获得 ' + owned.length + '/' + total + ' 枚徽章</div>';
+}
+/* ============ 私信 ============ */
+function openDmModal(toAccount){
+if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+const mask = document.createElement("div");
+mask.className = "modal-mask show";
+mask.id = "dm-modal";
+mask.innerHTML = '<div class="modal" style="max-width:420px">' +
+'<div class="modal-head"><h3>💌 发私信</h3><button class="modal-close" onclick="document.getElementById(\'dm-modal\').remove()">✕</button></div>' +
+'<div style="padding:20px">' +
+'<textarea id="dm-content" rows="4" maxlength="300" placeholder="想对TA说点什么…" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:14px;resize:vertical"></textarea>' +
+'<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="sendDmNow(\'' + toAccount + '\')">发送</button>' +
+'</div></div>';
+document.body.appendChild(mask);
+}
+async function sendDmNow(toAccount){
+const input = $("#dm-content");
+const content = (input ? input.value : "").trim();
+if(!content){ toast("私信内容不能为空", "err"); return; }
+try{
+await API.sendDm(Store.auth.account, decodeURIComponent(toAccount), Store.penName, content.slice(0,300));
+document.getElementById("dm-modal").remove();
+toast("私信已发送！");
+API.getUserProfile(decodeURIComponent(toAccount)).then(pr=>{
+if(pr && pr.account !== Store.auth.account) API.addNotification(decodeURIComponent(toAccount), "dm", Store.penName + " 给你发了一条私信").catch(()=>{});
+}).catch(()=>{});
+}catch(e){ toast("发送失败：" + e.message, "err"); }
+}
+async function renderDm(){
+if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); location.hash = "#/home"; return; }
+app.innerHTML = '<section class="page"><div class="page-title">💌 我的私信</div><p class="page-sub">收到的私信</p><div id="dm-list">' + loadingHtml() + '</div></section>';
+API.markDmRead(Store.auth.account).catch(()=>{});
+try{
+const [inbox, outbox] = await Promise.all([API.listDm(Store.auth.account), API.listDmOut(Store.auth.account)]);
+const all = (inbox||[]).concat((outbox||[]).map(m=>Object.assign({},m,{_out:true}))).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+if(!all.length){
+$("#dm-list").innerHTML = emptyHtml('<path d="M4 4h32M4 12h24M4 20h16M4 28h8"/>', "还没有私信", '<button class="btn btn-accent" onclick="location.hash=\'#/library\'">去书库逛逛</button>');
+return;
+}
+$("#dm-list").innerHTML = all.map(m=>
+'<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px">' +
+'<div style="display:flex;justify-content:space-between;gap:10px"><b style="font-size:14px">' + (m._out ? "→ " : "") + esc(m.from_name || m.from_account) + '</b><span style="font-size:11px;color:var(--ink-faint)">' + fmtTime(m.created_at) + '</span></div>' +
+'<div style="font-size:14px;color:var(--ink-soft);margin-top:6px;line-height:1.6">' + esc(m.content) + '</div>' +
+'</div>').join("");
+}catch(e){ $("#dm-list").innerHTML = '<p style="text-align:center;color:#999">加载失败：' + esc(e.message) + '</p>'; }
+}
+/* ============ 书单系统 ============ */
+async function addToBooklist(workId, workTitle){
+if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+const lists = await API.getMyBooklists(Store.auth.account).catch(()=>[]);
+if(!lists || !lists.length){
+const r = confirm("你还没有书单，要创建一个吗？");
+if(!r) return;
+const name = prompt("书单名称（例如：我推荐的好书）：", "我的书单");
+if(!name) return;
+if(!guardSensitive(name, "创建书单")) return;
+await API.createBooklist(Store.auth.account, name.slice(0,30));
+toast("书单已创建，现在把书加进去");
+addToBooklist(workId, workTitle);
+return;
+}
+const list = await pickBooklist(lists);
+if(!list) return;
+let works = [];
+try{ works = JSON.parse(list.works || "[]"); }catch(e){ works = []; }
+if(works.includes(workId)){ toast("这本书已在书单里了"); return; }
+works.push(workId);
+await API.updateBooklist(list.id, works, Store.auth.account);
+toast("已加入书单「" + list.name + "」");
+}
+function pickBooklist(lists){
+return new Promise(resolve=>{
+const mask = document.createElement("div");
+mask.className = "modal-mask show";
+mask.innerHTML = '<div class="modal" style="max-width:400px">' +
+'<div class="modal-head"><h3>📋 加入书单</h3><button class="modal-close" onclick="this.closest(\'#picklist\').remove()">✕</button></div>' +
+'<div style="padding:16px;display:flex;flex-direction:column;gap:8px">' +
+lists.map(l=>'<button class="btn btn-ghost" style="text-align:left" data-li="' + l.id + '">📚 ' + esc(l.name) + '</button>').join("") +
+'</div></div>';
+mask.id = "picklist";
+document.body.appendChild(mask);
+mask.querySelectorAll("[data-li]").forEach(b=>{
+b.onclick = ()=>{ const l = lists.find(x=>x.id === b.dataset.li); mask.remove(); resolve(l); };
+});
+});
+}
+async function renderBooklists(){
+app.innerHTML = '<section class="page"><div class="page-title">📋 书单广场</div><p class="page-sub">大家整理的好书清单</p><div id="list-grid">' + loadingHtml() + '</div></section>';
+try{
+const lists = await API.listBooklists();
+if(!lists || !lists.length){
+$("#list-grid").innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "还没有人创建书单", '<button class="btn btn-accent" onclick="location.hash=\'#/library\'">去书库逛逛</button>');
+return;
+}
+$("#list-grid").innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">' + lists.map(l=>{
+let ids = []; try{ ids = JSON.parse(l.works || "[]"); }catch(e){}
+return '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px">' +
+'<div style="font-weight:700;margin-bottom:4px">📚 ' + esc(l.name) + '</div>' +
+'<div style="font-size:12px;color:var(--ink-faint);margin-bottom:10px">收录 ' + ids.length + ' 本书 · ' + fmtDate(l.created_at) + '</div>' +
+'<button class="btn btn-ghost btn-sm" onclick="openBooklist(\'' + l.id + '\')">查看书单</button></div>';
+}).join("") + '</div>';
+}catch(e){ $("#list-grid").innerHTML = '<p style="text-align:center;color:#999">加载失败：' + esc(e.message) + '</p>'; }
+}
+async function openBooklist(id){
+const lists = await API.listBooklists().catch(()=>[]);
+const l = lists.find(x=>x.id === id);
+if(!l){ toast("书单不存在", "err"); return; }
+let ids = []; try{ ids = JSON.parse(l.works || "[]"); }catch(e){}
+app.innerHTML = '<section class="page"><div class="page-title">📚 ' + esc(l.name) + '</div><p class="page-sub">收录 ' + ids.length + ' 本书' + (Store.isLoggedIn && l.account === Store.auth.account ? ' · <a href="javascript:void(0)" onclick="deleteMyList(\'' + id + '\')" style="color:var(--danger)">删除书单</a>' : '') + '</p><div id="list-detail">' + loadingHtml() + '</div></section>';
+if(!ids.length){ $("#list-detail").innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "书单还是空的"); return; }
+try{
+const works = await API.getWorksByIds(ids);
+$("#list-detail").innerHTML = '<div class="book-grid">' + (works||[]).map(w=>
+'<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' + coverHtml(w) +
+'<div class="book-info"><div class="b-title">' + esc(w.title) + '</div><div class="b-meta">' + esc(w.author) + '</div></div></div>').join("") + '</div>';
+}catch(e){ $("#list-detail").innerHTML = '<p style="text-align:center;color:#999">加载失败</p>'; }
+}
+async function deleteMyList(id){
+if(!confirm("确定删除这个书单？")) return;
+await API.deleteBooklist(id, Store.auth.account).catch(()=>{});
+toast("书单已删除");
+openBooklist(id);
 }
 /* ============ 追更系统 ============ */
 async function toggleFollowWork(workId){
@@ -1898,6 +2553,29 @@ toast("🔥 连续更新7天！全勤王者徽章 +50积分");
 }
 }
 
+/* ============ 读书打卡 ============ */
+function readCheckin(){
+if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+const todayKey = new Date().toDateString();
+const todayMin = parseInt(localStorage.getItem("yc_read_day_" + todayKey) || "0", 10);
+if(todayMin < 10){ toast("今天还没读够10分钟，快去读一会儿再来打卡吧 📖", "err"); return; }
+let data = {};
+try{ data = JSON.parse(localStorage.getItem("yc_readcheckin") || "{}"); }catch(e){}
+if(data.last === todayKey){ toast("今天已经打过卡了，明天再来吧"); return; }
+const yesterday = new Date(Date.now() - 86400000).toDateString();
+data.streak = (data.last === yesterday) ? (data.streak || 0) + 1 : 1;
+data.last = todayKey;
+localStorage.setItem("yc_readcheckin", JSON.stringify(data));
+addPoints(10, "读书打卡").catch(()=>{});
+if(data.streak >= 7) unlockBadge("checkin_7");
+toast("📆 读书打卡成功！连续 " + data.streak + " 天，+10积分");
+}
+function readCheckinStatus(){
+try{
+const data = JSON.parse(localStorage.getItem("yc_readcheckin") || "{}");
+return data.streak || 0;
+}catch(e){ return 0; }
+}
 /* ============ 创作日历 ============ */
 function addWriteDay(){
 const days = Store.writeDays || [];
@@ -2050,6 +2728,23 @@ addPoints(10, "每日签到");
 }
 }
 /* 任务卡片HTML */
+function levelHtml(points){
+const LEVELS = [
+{min:0, name:"书童", icon:"📖", next:100},
+{min:100, name:"秀才", icon:"🎓", next:300},
+{min:300, name:"举人", icon:"🎋", next:800},
+{min:800, name:"进士", icon:"📜", next:2000},
+{min:2000, name:"翰林", icon:"🖋️", next:5000},
+{min:5000, name:"大学士", icon:"🏛️", next:0}
+];
+let cur = LEVELS[0], next = LEVELS[1] || null;
+for(const l of LEVELS){ if(points >= l.min){ cur = l; } }
+const nx = LEVELS.find(l => l.min > points);
+const pct = nx ? Math.min(100, Math.round((points - cur.min) / (nx.min - cur.min) * 100)) : 100;
+return '<span style="font-weight:700">' + cur.icon + ' ' + cur.name + '</span>' +
+(nx ? '<div style="margin-top:6px;height:8px;background:rgba(0,0,0,.08);border-radius:99px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#2E8B57,#E8A33D);border-radius:99px"></div></div>' +
+'<div style="font-size:11px;color:var(--ink-faint);margin-top:4px">离 ' + nx.name + ' 还差 ' + (nx.min - points) + ' 积分</div>' : '<div style="font-size:11px;color:var(--ink-faint);margin-top:4px">已达最高等级！</div>');
+}
 function taskCardHtml(){
 if(!Store.isLoggedIn) return "";
 const t = loadTasks();
@@ -2142,6 +2837,58 @@ Store.pet = p;
 toast("已装备「" + PET_SKINS[key].name + "」皮肤");
 renderMe();
 }
+/* 签到日历 */
+function checkinCalendarHtml(){
+try{
+const days = JSON.parse(localStorage.getItem("yc_checkin_days") || "[]");
+const now = new Date();
+const y = now.getFullYear(), m = now.getMonth();
+const first = new Date(y, m, 1);
+const startDow = first.getDay();
+const dim = new Date(y, m+1, 0).getDate();
+let cells = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11px;color:var(--ink-faint);margin-bottom:6px">' + "日一二三四五六".split("").map(d=>'<div>' + d + '</div>').join("") + '</div>';
+cells += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+for(let i=0;i<startDow;i++) cells += '<div></div>';
+for(let d=1;d<=dim;d++){
+const ds = new Date(y, m, d);
+const key = ds.toDateString();
+const isToday = d === now.getDate();
+const checked = days.indexOf(key) >= 0;
+cells += '<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;' +
+(checked ? 'background:#E8A33D;color:#fff;font-weight:700' : isToday ? 'background:var(--card-soft);border:1px solid var(--line)' : 'background:var(--paper);border:1px solid var(--line)') +
+'">' + (checked ? '✓' : d) + '</div>';
+}
+cells += '</div>';
+return '<div class="form-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+'<b>' + y + ' 年 ' + (m+1) + ' 月</b>' +
+'<span style="font-size:12px;color:var(--ink-faint)">连续签到 ' + (Store.checkinStreak || 0) + ' 天 · 本月 ' + days.filter(d=>d.indexOf(now.toDateString().split(" ")[0]) >= 0).length + ' 天</span></div>' + cells + '</div>';
+}catch(e){
+return '<div class="form-card" style="color:var(--ink-faint);font-size:13px">签到日历加载失败</div>';
+}
+}
+/* 我的追更（含更新红点） */
+function myFollowsHtml(){
+const box = $("#me-follows");
+if(!box) return;
+if(!Store.isLoggedIn){ box.innerHTML = '<div style="color:var(--ink-faint);font-size:13px">登录后查看追更</div>'; return; }
+box.innerHTML = loadingHtml();
+API.request("GET","follow_works",null,"select=work_id&account=eq." + encodeURIComponent(Store.auth.account) + "&limit=200").then(async fs=>{
+if(!fs || !fs.length){ box.innerHTML = '<div style="color:var(--ink-faint);font-size:13px">还没有追更的书，去书库找一本吧</div>'; return; }
+const ids = fs.map(f=>f.work_id);
+const works = await Promise.all(ids.map(id=>API.request("GET","works",null,"select=id,title,author,cover,views,updated_at&id=eq." + encodeURIComponent(id)).then(a=>(a&&a[0])||null).catch(()=>null)));
+const list = works.filter(Boolean);
+if(!list.length){ box.innerHTML = '<div style="color:var(--ink-faint);font-size:13px">追更的书已下架或不存在</div>'; return; }
+const threeDays = Date.now() - 3*24*3600*1000;
+box.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">' + list.map(w=>
+'<div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+'<div style="flex:1;min-width:0">' +
+'<div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(w.title) +
+(new Date(w.updated_at).getTime() > threeDays ? ' <span style="font-size:10px;background:#E53E3E;color:#fff;border-radius:6px;padding:1px 6px">近3天有更新</span>' : '') +
+'</div>' +
+'<div style="font-size:12px;color:var(--ink-faint)">' + esc(w.author) + ' · 👁 ' + (w.views||0) + ' · 更新于 ' + fmtTime(w.updated_at) + '</div>' +
+'</div></div>').join("") + '</div>';
+}).catch(()=>{ box.innerHTML = '<div style="color:var(--ink-faint);font-size:13px">追更加载失败</div>'; });
+}
 /* 每日签到 */
 function dailyCheckin(){
 if(!Store.isLoggedIn){ toast('请先登录再签到', 'err'); openAuthModal('login'); return; }
@@ -2153,8 +2900,18 @@ return;
 }
 Store.lastCheckin = today;
 Store.checkinStreak = (Store.checkinStreak || 0) + 1;
+/* 记录签到日历 */
+try{
+let days = JSON.parse(localStorage.getItem("yc_checkin_days") || "[]");
+const dstr = today;
+if(days.indexOf(dstr) < 0) days.push(dstr);
+localStorage.setItem("yc_checkin_days", JSON.stringify(days));
+}catch(e){}
 unlockBadge("first_checkin");
 if(Store.checkinStreak >= 7) unlockBadge("checkin_7");
+if(Store.checkinStreak === 7){ addPoints(50, "连续签到7天礼包"); toast("🔥 连续签到7天！额外 +50 积分"); }
+if(Store.checkinStreak >= 14){ unlockBadge("streak_14"); if(Store.checkinStreak === 14){ addPoints(100, "连续签到14天礼包"); toast("⚡ 连续签到14天！额外 +100 积分"); } }
+if(Store.checkinStreak >= 21){ unlockBadge("streak_21"); if(Store.checkinStreak === 21){ addPoints(200, "连续签到21天礼包"); toast("🏆 连续签到21天！额外 +200 积分"); } }
 /* 签到加积分 */
 addCheckinTask();
 /* 签到给宠物加经验 */
@@ -2184,6 +2941,9 @@ if(Store.totalReadTime >= 600) unlockBadge("read_10h");
 const ym = new Date().getFullYear() + "-" + (new Date().getMonth()+1);
 const rm = parseInt(localStorage.getItem("yc_read_min_" + ym) || "0", 10);
 localStorage.setItem("yc_read_min_" + ym, String(rm + minutes));
+const todayKey = new Date().toDateString();
+const rd = parseInt(localStorage.getItem("yc_read_day_" + todayKey) || "0", 10);
+localStorage.setItem("yc_read_day_" + todayKey, String(rd + minutes));
 }
 readStartTime = null;
 }
@@ -2306,11 +3066,85 @@ toast(err.message || "操作失败", "err");
 }
 }
 /* 发表评论（需登录） */
+/* ============ 评论渲染（回复嵌套+热评置顶+点赞） ============ */
+function commentListHtml(comments){
+if(!comments || !comments.length) return '<div class="cmt-empty">还没有评论，来说两句吧～</div>';
+const top = comments.filter(c=>!c.parent_id).sort((a,b)=>((b.likes||0)-(a.likes||0)) || (new Date(a.created_at)-new Date(b.created_at)));
+const map = {};
+comments.filter(c=>c.parent_id).forEach(c=>{ (map[c.parent_id] = map[c.parent_id] || []).push(c); });
+return top.map(c=>cmtItemHtml(c, map[c.id] || [])).join("");
+}
+function cmtItemHtml(c, replies){
+let rhtml = '';
+if(replies && replies.length){
+rhtml = '<div style="margin:6px 0 0 14px;padding-left:10px;border-left:2px solid var(--line)">' + replies.map(r=>
+'<div class="cmt-item" style="background:var(--paper);padding:8px 10px;border-radius:8px;margin-top:6px">' +
+'<div class="cmt-head"><span class="cmt-name" onclick="location.hash=\'#/user?name=' + encodeURIComponent(r.pen_name) + '\'">' + esc(r.pen_name) + '</span>' +
+'<span class="cmt-date">' + fmtTime(r.created_at) + '</span></div>' +
+'<div class="cmt-body" style="font-size:13px">' + esc(r.content) + '</div>' +
+'</div>').join("") + '</div>';
+}
+return '<div class="cmt-item" data-cid="' + c.id + '">' +
+'<div class="cmt-head"><span class="cmt-name" onclick="location.hash=\'#/user?name=' + encodeURIComponent(c.pen_name) + '\'">' + esc(c.pen_name) + '</span>' +
+'<span class="cmt-date">' + fmtTime(c.created_at) + '</span></div>' +
+'<div class="cmt-body">' + esc(c.content) + '</div>' +
+'<div style="display:flex;gap:14px;font-size:11px;color:var(--ink-faint);margin-top:4px">' +
+'<a href="javascript:void(0)" onclick="likeCommentNow(\'' + c.id + '\',\'' + (c.work_id||"") + '\')" style="color:var(--ink-faint)">👍 ' + (c.likes||0) + '</a>' +
+'<a href="javascript:void(0)" onclick="showReplyBox(\'' + c.id + '\',\'' + esc(c.pen_name).replace(/\\/g,"\\\\").replace(/'/g,"\\'") + '\',\'' + (c.work_id||"") + '\')" style="color:var(--ink-faint)">回复</a>' +
+'<a href="javascript:void(0)" onclick="reportItem(\'comment\',\'' + c.id + '\')" style="color:var(--ink-faint)">举报</a>' +
+'</div>' + rhtml + '</div>';
+}
+async function likeCommentNow(cid, workId){
+if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+try{
+const arr = await API.request("GET","comments",null,"select=likes&id=eq." + cid);
+const cur = (arr && arr[0] && arr[0].likes) || 0;
+await API.request("PATCH","comments",{likes:cur+1},"id=eq." + cid);
+toast("👍 点赞成功");
+if(workId){
+const comments = await API.listComments(workId);
+const list = $("#cmt-list");
+if(list) list.innerHTML = commentListHtml(comments);
+}
+}catch(e){ toast("点赞失败：" + e.message, "err"); }
+}
+function showReplyBox(cid, penName, workId){
+const old = document.getElementById("reply-box");
+if(old) old.remove();
+if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+const mask = document.createElement("div");
+mask.id = "reply-box";
+mask.style.marginTop = "8px";
+mask.innerHTML = '<div style="display:flex;gap:8px">' +
+'<input id="reply-input" maxlength="200" placeholder="回复 @' + penName + '…" style="flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)">' +
+'<button class="btn btn-primary btn-sm" onclick="sendReply(\'' + workId + '\',\'' + cid + '\')">回复</button></div>';
+const target = document.querySelector('.cmt-item[data-cid="' + cid + '"]');
+if(target) target.appendChild(mask);
+else document.body.appendChild(mask);
+const ri = $("#reply-input");
+if(ri) ri.focus();
+}
+async function sendReply(workId, parentId){
+const input = $("#reply-input");
+const content = (input ? input.value : "").trim();
+if(!content){ toast("回复内容不能为空", "err"); return; }
+if(!guardSensitive(content, "回复")) return;
+try{
+await API.request("POST","comments",{work_id:workId, account:Store.auth.account, pen_name:Store.penName, content:content, parent_id:parentId});
+toast("回复已发布");
+const comments = await API.listComments(workId);
+const list = $("#cmt-list");
+if(list) list.innerHTML = commentListHtml(comments);
+}catch(e){ toast("回复失败：" + e.message, "err"); }
+}
 async function sendComment(workId){
 if(!Store.isLoggedIn){ toast("请先登录，登录后才能评论", "err"); openAuthModal("login"); return; }
 const input = $("#cmt-input");
 const content = (input ? input.value : "").trim();
 if(!content){ toast("评论内容不能为空", "err"); return; }
+if(!guardSensitive(content, "发表评论")) return;
+bannedGuard();
+if(localStorage.getItem("yc_ban_check") && JSON.parse(localStorage.getItem("yc_ban_check")||"{}").banned) return;
 const btn = input && input.nextElementSibling;
 if(btn) btn.disabled = true;
 try{
@@ -2326,14 +3160,7 @@ if(input) input.value = "";
 const comments = await API.listComments(workId);
 const list = $("#cmt-list");
 if(list){
-list.innerHTML = comments && comments.length
-? comments.map(c =>
-'<div class="cmt-item">' +
-'<div class="cmt-head"><span class="cmt-name" onclick="location.hash=\'#/user?name=' + encodeURIComponent(c.pen_name) + '\'">' + esc(c.pen_name) + '</span>' +
-'<span class="cmt-date">' + fmtTime(c.created_at) + '</span></div>' +
-'<div class="cmt-body">' + esc(c.content) + '</div>' +
-'</div>').join("")
-: '<div class="cmt-empty">还没有评论，来说两句吧～</div>';
+list.innerHTML = commentListHtml(comments);
 }
 }catch(err){
 toast(err.message || "评论失败", "err");
@@ -2351,9 +3178,12 @@ Promise.all([API.getWork(id), API.listChapters(id)]).then(([workArr, chapters])=
 const work = workArr && workArr[0];
 if(!work){ location.hash = "#/library"; return; }
 if(!chapters || !chapters.length){ location.hash = "#/book?id=" + id; return; }
+cacheBookForOffline(id, work, chapters);
 const idx = Math.min(Math.max(ch, 0), chapters.length - 1);
 const chapter = chapters[idx];
 Store.lastRead = Object.assign({}, Store.lastRead, { [id]: { ch: idx, workTitle: work.title } });
+/* 跨设备进度同步 */
+if(Store.isLoggedIn) API.upsertProgress(Store.auth.account, id, idx, work.title);
 /* 记录阅读历史 */
 const history = Store.readHistory || [];
 const existingIdx = history.findIndex(h => h.workId === id);
@@ -2367,6 +3197,15 @@ addPetExp(pet, 2);
 }
 renderReaderView(work, chapters, idx, chapter);
 }).catch(err=>{
+/* 离线回退：读取缓存 */
+const cached = getOfflineBook(id);
+if(cached && cached.chapters && cached.chapters.length){
+const idx2 = Math.min(Math.max(ch, 0), cached.chapters.length - 1);
+const work2 = cached.work, chapters2 = cached.chapters, chapter2 = cached.chapters[idx2];
+renderReaderView(work2, chapters2, idx2, chapter2);
+toast("📶 网络不可用，正在离线阅读缓存内容");
+return;
+}
 toast("加载失败：" + err.message, "err");
 location.hash = "#/book?id=" + id;
 });
@@ -2374,6 +3213,7 @@ location.hash = "#/book?id=" + id;
 function renderReaderView(work, chapters, idx, chapter){
 const night = Store.night;
 const fontSize = Store.fontSize;
+document.title = "《" + work.title + "》第" + (idx+1) + "章 " + chapter.title + " - 阅川书城";
 document.body.classList.toggle("night", night);
 app.innerHTML =
 '<section class="reader-shell">' +
@@ -2387,9 +3227,13 @@ app.innerHTML =
 '</div>' +
 '<div class="reader-controls">' +
 '<button class="ctrl-btn" onclick="toggleFav(\'' + work.id + '\')" title="加入书架" aria-label="加入书架">📚</button>' +
+'<button class="ctrl-btn" id="tts-btn" onclick="speakChapter(\'' + work.id + '\',' + idx + ',' + chapters.length + ')" title="AI朗读" aria-label="朗读">🔊</button>' +
+'<button class="ctrl-btn" onclick="cycleReaderBg()" title="切换背景色" aria-label="背景色">🎨</button>' +
+'<button class="ctrl-btn" onclick="cycleTtsVoice()" title="切换朗读音色" aria-label="音色">🗣</button>' +
 '<button class="ctrl-btn" onclick="addBookmark(\'' + work.id + '\',' + idx + ',\'' + esc(work.title) + '\',\'' + esc(chapter.title) + '\')" title="添加书签" aria-label="添加书签">🔖</button>' +
 '<button class="ctrl-btn" onclick="adjustFont(-2)" title="减小字号" aria-label="减小字号">A−</button>' +
 '<button class="ctrl-btn" onclick="adjustFont(2)" title="增大字号" aria-label="增大字号">A+</button>' +
+'<button class="ctrl-btn" onclick="cycleLineHeight()" title="切换行距" aria-label="行距">⇕</button>' +
 '<button class="ctrl-btn" onclick="toggleNight()" title="' + (night ? "日间模式" : "夜间模式") + '" aria-label="切换模式">' +
 (night
 ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>'
@@ -2397,7 +3241,7 @@ app.innerHTML =
 + '</button>' +
 '</div>' +
 '</div>' +
-'<article class="chapter-content" id="chapter-content" style="font-size:' + fontSize + 'px">' + renderContent(chapter.content || "（本章暂无内容）") + '</article>' +
+'<article class="chapter-content" id="chapter-content" style="font-size:' + fontSize + 'px;line-height:' + (Store.lineHeight || 1.8) + '">' + renderContent(chapter.content || "（本章暂无内容）") + '</article>' +
 '<div class="reader-nav">' +
 (idx > 0
 ? '<button class="btn btn-ghost" onclick="location.hash=\'#/read?id=' + work.id + '&ch=' + (idx-1) + '\'">← 上一章</button>'
@@ -2408,12 +3252,138 @@ app.innerHTML =
 ? '<button class="btn btn-primary" onclick="location.hash=\'#/read?id=' + work.id + '&ch=' + (idx+1) + '\'">下一章 →</button>'
 : '<button class="btn btn-primary" disabled>已是最后一章</button>') +
 '</div>' +
+'<div class="chapter-rate" style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+'<span style="font-size:13px;color:var(--ink-soft)">这一章写得怎么样？</span>' +
+'<button class="btn btn-ghost btn-sm" onclick="rateChapter(\'' + work.id + '\',' + idx + ',2)">👍 好看</button>' +
+'<button class="btn btn-ghost btn-sm" onclick="rateChapter(\'' + work.id + '\',' + idx + ',1)">😑 一般</button>' +
+'<button class="btn btn-ghost btn-sm" onclick="rateChapter(\'' + work.id + '\',' + idx + ',0)">👎 水</button>' +
+'<span style="font-size:11px;color:var(--ink-faint);flex:1;text-align:right">评分会反馈给作者</span>' +
+'</div>' +
 '<div id="chapter-drawer" style="display:none;max-height:50vh;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:12px;padding:8px"></div>' +
-'<div class="reader-footer">' + esc(work.title) + ' · 第 ' + (idx+1) + ' 章 / 共 ' + chapters.length + ' 章<br>👁 ' + (work.views||0) + ' 人已读 · 阅川书城 · 尊重每一位创作者</div>' +
+(idx >= chapters.length - 1 ? '<div class="section" id="sec-related" style="display:none;margin-top:20px"><div class="section-head"><h2 class="section-title">📚 看完这本书的人还在看</h2></div>' + loadingHtml() + '</div>' : '') +
+'<div class="reader-footer">' + esc(work.title) + ' · 第 ' + (idx+1) + ' 章 / 共 ' + chapters.length + ' 章 · 本章 ' + ((chapter.content||"").length) + ' 字<br>👁 ' + (work.views||0) + ' 人已读 · 约 ' + Math.max(1, Math.round((chapter.content||"").length/300)) + ' 分钟读完 · 阅川书城 · 尊重每一位创作者</div>' +
 '</section>';
 /* 阅读进度写入 */
 const progress = (idx+1) / chapters.length;
 window.scrollTo({top:0});
+window.__readTotal = chapters.length;
+window.__readWorkId = work.id;
+if(idx >= chapters.length - 1) loadRelated(work.id, work.category, work.title, "sec-related");
+/* 应用阅读背景 */
+const bg = Store.readerBg || 0;
+if(bg > 0){
+const BG = [{bg:"#FFFFFF",color:"#2B2B2B"},{bg:"#F7F0E2",color:"#5C4A2E"},{bg:"#E3EFE2",color:"#2E4A2E"},{bg:"#121212",color:"#CCCCCC"}];
+const t = BG[bg];
+const shell = document.querySelector(".reader-shell");
+if(shell) shell.style.background = t.bg;
+const content = $("#chapter-content");
+if(content) content.style.color = t.color;
+}
+/* 手机划屏翻页 */
+const cc = $("#chapter-content");
+if(cc && !cc.dataset.swipeBound){
+cc.dataset.swipeBound = "1";
+let sx = 0;
+cc.addEventListener("touchstart", e=>{ sx = e.touches[0].clientX; }, {passive:true});
+cc.addEventListener("touchend", e=>{
+const dx = e.changedTouches[0].clientX - sx;
+const ch = parseInt(parseHash().params.get("ch") || "0", 10);
+const total = window.__readTotal || 0;
+if(dx < -60 && ch < total - 1) location.hash = "#/read?id=" + window.__readWorkId + "&ch=" + (ch+1);
+else if(dx > 60 && ch > 0) location.hash = "#/read?id=" + window.__readWorkId + "&ch=" + (ch-1);
+}, {passive:true});
+}
+}
+/* ============ AI朗读 ============ */
+let readerVoice = null;
+let readerSpeaking = false;
+function speakChapter(workId, chIdx, total){
+if(!("speechSynthesis" in window)){ toast("当前浏览器不支持朗读", "err"); return; }
+const btn = $("#tts-btn");
+if(readerSpeaking){
+speechSynthesis.cancel();
+readerSpeaking = false;
+if(btn) btn.textContent = "🔊 朗读";
+return;
+}
+const el = $("#chapter-content");
+if(!el) return;
+const text = el.innerText || el.textContent || "";
+if(!text || text.length < 3){ toast("本章没有可朗读的内容", "err"); return; }
+speechSynthesis.cancel();
+const u = new SpeechSynthesisUtterance(text);
+u.lang = "zh-CN";
+u.rate = 1;
+u.pitch = 1;
+const voices = speechSynthesis.getVoices();
+if(readerVoice){ u.voice = readerVoice; }
+else if(voices.length){ const zh = voices.find(v=>v.lang && v.lang.toLowerCase().indexOf("zh") === 0) || voices.find(v=>v.lang && v.lang.indexOf("zh") >= 0) || voices[0]; if(zh) u.voice = zh; }
+u.onend = ()=>{
+readerSpeaking = false;
+const b = $("#tts-btn");
+if(b) b.textContent = "🔊 朗读";
+if(chIdx < total - 1) location.hash = "#/read?id=" + workId + "&ch=" + (chIdx+1);
+};
+u.onerror = ()=>{
+readerSpeaking = false;
+const b = $("#tts-btn");
+if(b) b.textContent = "🔊 朗读";
+};
+readerSpeaking = true;
+if(btn) btn.textContent = "⏸ 停止";
+speechSynthesis.speak(u);
+toast("🔊 AI朗读已开启，读完自动翻章");
+}
+function cycleTtsVoice(){
+if(!("speechSynthesis" in window)){ toast("浏览器不支持", "err"); return; }
+const voices = speechSynthesis.getVoices();
+const zh = voices.filter(v=>v.lang && v.lang.toLowerCase().indexOf("zh") >= 0);
+const pool = zh.length ? zh : voices;
+if(!pool.length){ toast("暂无可切换音色，稍后再试", "err"); return; }
+const idx = pool.indexOf(readerVoice);
+readerVoice = pool[(idx + 1) % pool.length];
+toast("🗣 音色：" + (readerVoice.name || "默认"));
+}
+const READER_BGS = [
+{bg:"#FFFFFF", color:"#2B2B2B", name:"默认白"},
+{bg:"#F7F0E2", color:"#5C4A2E", name:"护眼米黄"},
+{bg:"#E3EFE2", color:"#2E4A2E", name:"护眼绿"},
+{bg:"#121212", color:"#CCCCCC", name:"夜间黑"}
+];
+function cycleLineHeight(){
+const LHS = [1.6, 1.8, 2.0, 2.3];
+const cur = Store.lineHeight || 1.8;
+const idx = LHS.indexOf(cur);
+const next = LHS[(idx + 1) % LHS.length];
+Store.lineHeight = next;
+const cc = $("#chapter-content");
+if(cc) cc.style.lineHeight = next;
+toast("行距：" + next);
+}
+function cycleReaderBg(){
+const cur = Store.readerBg || 0;
+const next = (cur + 1) % READER_BGS.length;
+Store.readerBg = next;
+const t = READER_BGS[next];
+const shell = document.querySelector(".reader-shell");
+if(shell) shell.style.background = t.bg;
+const content = $("#chapter-content");
+if(content) content.style.color = t.color;
+toast("阅读背景：" + t.name);
+}
+/* 键盘左右翻页（全局一次） */
+if(!window.__readKeyBound){
+window.__readKeyBound = true;
+document.addEventListener("keydown", e=>{
+if(!location.hash || location.hash.indexOf("#/read") !== 0) return;
+const p = parseHash().params;
+const ch = parseInt(p.get("ch") || "0", 10);
+const total = window.__readTotal || 0;
+const id = p.get("id");
+if(!id) return;
+if(e.key === "ArrowLeft" && ch > 0) location.hash = "#/read?id=" + id + "&ch=" + (ch-1);
+else if(e.key === "ArrowRight" && ch < total - 1) location.hash = "#/read?id=" + id + "&ch=" + (ch+1);
+});
 }
 let autoReadTimer = null;
 function toggleAutoRead(workId, total){
@@ -2452,6 +3422,11 @@ h += '<div style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13
 });
 drawer.innerHTML = h;
 drawer.style.display = "block";
+}
+async function rateChapter(workId, chIdx, rating){
+if(!Store.isLoggedIn){ toast("请先登录再评分", "err"); openAuthModal("login"); return; }
+await API.rateChapter(workId, chIdx, rating, Store.auth.account);
+toast(rating === 2 ? "👍 感谢好评！作者会看到" : rating === 1 ? "😑 已记录你的评价" : "👎 已记录，作者会反思");
 }
 function adjustFont(delta){
 const next = Math.min(Math.max(Store.fontSize + delta, 14), 26);
@@ -2585,6 +3560,7 @@ app.innerHTML =
 '<div class="field"><label>状态</label><select id="nw-status"><option>连载中</option><option>已完结</option></select></div>' +
 '</div>' +
 '<div class="field"><label>内容简介</label><textarea id="nw-intro" maxlength="500" placeholder="用几句话介绍你的故事，吸引读者点进来…"></textarea><div class="hint">最多 500 字</div></div>' +
+'<div class="field"><label>标签（选填，逗号分隔，最多3个）</label><input id="nw-tags" maxlength="30" placeholder="例如：热血, 校园, 甜宠"></div>' +
 '<div class="field" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="nw-contest" style="width:16px;height:16px"><label for="nw-contest" style="margin:0">🏆 参加本周创作赛（作品进入首页赛事区，按人气评选）</label></div>' +
 '<div class="field"><label>封面配色</label><div class="cat-chips" id="theme-pick" style="margin:0">' +
 [0,1,2,3,4,5,6,7].map(i => '<button type="button" class="cat-chip theme-swatch ts-' + i + (i===0?" active":"") + '" data-theme="' + i + '" title="主题 ' + (i+1) + '"></button>').join("") +
@@ -2662,6 +3638,7 @@ if(clear) clear.style.display = "none";
 async function savePenName(){
 const v = $("#pen-input").value.trim();
 if(!v){ toast("笔名不能为空", "err"); return; }
+if(!guardSensitive(v, "保存笔名")) return;
 if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
 const pwd = prompt("为确认身份，请输入你的密码：");
 if(!pwd) return;
@@ -2686,6 +3663,9 @@ const intro = $("#nw-intro").value.trim();
 const author = $("#pen-input").value.trim() || Store.penName || Store.username || "匿名作者";
 if(!title){ toast("请填写书名", "err"); return; }
 if(!Store.isLoggedIn){ toast("请先登录再发布作品", "err"); openAuthModal("login"); return; }
+if(!guardSensitive(title + intro, "发布作品")) return;
+bannedGuard();
+if(localStorage.getItem("yc_ban_check") && JSON.parse(localStorage.getItem("yc_ban_check")||"{}").banned) return;
 const btn = event.target;
 btn.disabled = true;
 try{
@@ -2700,12 +3680,14 @@ const res = await API.createWork({
 title, author, category: catTag(cat), intro, status,
 cover_theme: theme, views: 0, author_key: Store.authorKey,
 cover: chosenCover || null,
-contest: (contestBox && contestBox.checked) ? "本周创作赛" : ""
+contest: (contestBox && contestBox.checked) ? "本周创作赛" : "",
+tags: ($("#nw-tags") ? $("#nw-tags").value.split(/[,，]/).map(s=>s.trim()).filter(Boolean).slice(0,3).join(",") : "")
 });
 chosenCover = "";
 Store.penName = author;
 toast("《" + title + "》发布成功！现在可以写章节了");
 unlockBadge("first_work");
+if(status === "已完结") unlockBadge("finish_book");
 API.getMyWorks(Store.authorKey).then(ws=>{ if(ws && ws.length >= 3) unlockBadge("works_3"); }).catch(()=>{});
 addWriteDay();
 if(res && res[0]){
@@ -2775,6 +3757,7 @@ app.innerHTML =
 '<h3>写新章节</h3>' +
 '<div class="field"><label>章节标题 *</label><input id="ch-title" maxlength="40" placeholder="例如：第一章 初入江湖"></div>' +
 '<div class="field"><label>正文 *</label><textarea id="ch-content" rows="14" placeholder="开始写正文吧…"></textarea><div class="hint">支持多段落，直接回车分段即可</div></div>' +
+'<div class="field"><label>定时发布（选填，设置后到点自动发布）</label><input id="ch-schedule" type="datetime-local" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"></div>' +
 '<div style="display:flex;gap:10px;margin-bottom:16px">' +
 '<button class="btn btn-ghost" onclick="checkTypos()">🔍 检查错别字</button>' +
 '<button class="btn btn-ghost" onclick="fixTypos()">✨ 一键修正</button>' +
@@ -2808,9 +3791,14 @@ app.innerHTML =
 if(window.__editChapterData){
 $("#ch-title").value = window.__editChapterData.title;
 $("#ch-content").value = window.__editChapterData.content;
+window.__isChapterEditor = true;
 window.__editChapterData = null;
 $("#ch-title").focus();
 }
+restoreDraft(workId);
+const __draftT = $("#ch-title"), __draftC = $("#ch-content");
+if(__draftT) __draftT.addEventListener("input", ()=>autoSaveDraft(workId));
+if(__draftC) __draftC.addEventListener("input", ()=>autoSaveDraft(workId));
 /* 章节操作：编辑 / 删除（事件委托，避免正文嵌入 HTML 属性） */
 window.__chapterStore = { workId, chapters: chs };
 const ceList = $(".ce-list");
@@ -2833,17 +3821,76 @@ deleteChapter(st.workId, del.dataset.delid, del.dataset.deltitle);
 app.innerHTML = '<section class="page">' + emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message), '<button class="btn btn-ghost" onclick="location.hash=\'#/create\'">返回创作中心</button>') + '</section>';
 }
 }
+/* 草稿自动保存（写作页） */
+const DRAFT_KEY = wId => "yc_draft_" + wId;
+function autoSaveDraft(workId){
+const t = $("#ch-title"), c = $("#ch-content");
+if(!t || !c) return;
+localStorage.setItem(DRAFT_KEY(workId), JSON.stringify({title:t.value, content:c.value, time:new Date().toISOString()}));
+}
+function clearDraft(workId){ localStorage.removeItem(DRAFT_KEY(workId)); }
+function restoreDraft(workId){
+try{
+const d = JSON.parse(localStorage.getItem(DRAFT_KEY(workId)) || "null");
+if(d && d.content){
+const t = $("#ch-title"), c = $("#ch-content");
+if(t && c && !c.value){
+t.value = d.title || ""; c.value = d.content || "";
+toast("📝 已恢复上次未发布的草稿");
+}
+}
+}catch(e){}
+}
+/* 定时发布队列检查（全局一次） */
+if(!window.__schedBound){
+window.__schedBound = true;
+setInterval(()=>{
+const s = JSON.parse(localStorage.getItem("yc_schedule") || "null");
+if(!s) return;
+if(new Date(s.time).getTime() > Date.now()) return;
+localStorage.removeItem("yc_schedule");
+API.listChapters(s.workId).then(chs=>{
+return API.createChapter({work_id:s.workId, title:s.title, content:s.content, sort_order:(chs||[]).length});
+}).then(()=>{
+toast("⏰ 定时章节《" + s.title + "》已自动发布！");
+addWriteDay();
+checkAllinBadge();
+API.getWork(s.workId).then(arr=>{
+const w = arr && arr[0];
+if(w && w.author_key) API.updateWork(s.workId,{updated_at:new Date().toISOString()},w.author_key).catch(()=>{});
+if(w) notifyFollowers(s.workId, w.title, s.title);
+}).catch(()=>{});
+}).catch(e=>toast("定时发布失败：" + e.message, "err"));
+}, 30000);
+}
 async function saveChapter(workId){
 const title = $("#ch-title").value.trim();
 const content = $("#ch-content").value.trim();
 if(!title){ toast("请填写章节标题", "err"); return; }
 if(!content){ toast("正文不能为空", "err"); return; }
+if(!guardSensitive(title + content, "发布章节")) return;
+bannedGuard();
+if(localStorage.getItem("yc_ban_check") && JSON.parse(localStorage.getItem("yc_ban_check")||"{}").banned) return;
+/* 定时发布 */
+const schInput = $("#ch-schedule");
+if(schInput && schInput.value && !window.__editingChapterId){
+const t = new Date(schInput.value).getTime();
+if(t > Date.now()){
+localStorage.setItem("yc_schedule", JSON.stringify({workId:workId, title:title, content:content, time:schInput.value}));
+toast("⏰ 已设置定时发布：" + schInput.value);
+clearDraft(workId);
+const t1 = $("#ch-title"), c1 = $("#ch-content"), s1 = $("#ch-schedule");
+if(t1) t1.value = ""; if(c1) c1.value = ""; if(s1) s1.value = "";
+return;
+}
+}
 /* 编辑模式判断 */
 if(window.__editingChapterId){
 try{
 await API.updateChapter(window.__editingChapterId, { title, content });
 window.__editingChapterId = null;
 toast("章节已更新");
+clearDraft(workId);
 }catch(err){
 toast("保存失败：" + err.message, "err");
 return;
@@ -2854,6 +3901,7 @@ const chapters = await API.listChapters(workId);
 const sortOrder = chapters.length;
 await API.createChapter({ work_id: workId, title, content, sort_order: sortOrder });
 toast("章节《" + title + "》已发布");
+clearDraft(workId);
 addWriteDay();
 checkAllinBadge();
 API.getWork(workId).then(arr=>{
@@ -2895,6 +3943,10 @@ app.innerHTML =
 '<button class="shelf-tab" onclick="switchShelfTab(\'history\',this)">🕐 最近阅读</button>' +
 '<button class="shelf-tab" onclick="switchShelfTab(\'bookmark\',this)">🔖 书签</button>' +
 '</div>' +
+'<div style="display:flex;gap:8px;margin-bottom:12px">' +
+'<button class="cat-chip' + ((Store.shelfView||"grid")==="grid" ? " active" : "") + '" onclick="setShelfView(\'grid\')">▦ 封面视图</button>' +
+'<button class="cat-chip' + ((Store.shelfView||"grid")==="list" ? " active" : "") + '" onclick="setShelfView(\'list\')">☰ 列表视图</button>' +
+'</div>' +
 '<div id="shelf-groups" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' +
 '<button class="cat-chip active" onclick="setShelfGroup(\'all\',this)">全部</button>' +
 '<button class="cat-chip" onclick="setShelfGroup(\'reading\',this)">📖 在读</button>' +
@@ -2904,6 +3956,12 @@ app.innerHTML =
 '<div id="shelf-grid">' + loadingHtml() + '</div>' +
 '</section>';
 loadFavorites();
+}
+function setShelfView(v){
+Store.shelfView = v;
+const chips = document.querySelectorAll('.cat-chip');
+chips.forEach(c=>c.classList.remove('active'));
+location.reload();
 }
 function switchShelfTab(tab, btn){
 document.querySelectorAll('.shelf-tab').forEach(t => t.classList.remove('active'));
@@ -2931,16 +3989,25 @@ grid.innerHTML = emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "�
 return;
 }
 works.sort((a,b)=> new Date(b.updated_at||b.created_at||0) - new Date(a.updated_at||a.created_at||0));
-grid.innerHTML = '<div class="book-grid">' + works.map(w=>
+const listView = (Store.shelfView || "grid") === "list";
+const groupBtnHtml = w => '<div style="display:flex;gap:6px;margin-top:6px" onclick="event.stopPropagation()">' +
+'<button class="fg-btn' + ((fg[w.id]||"reading")==="reading"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'reading\')">在读</button>' +
+'<button class="fg-btn' + ((fg[w.id]||"")==="finished"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'finished\')">读完</button>' +
+'<button class="fg-btn' + ((fg[w.id]||"")==="want"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'want\')">想读</button></div>';
+grid.innerHTML = listView
+? '<div style="display:flex;flex-direction:column;gap:8px">' + works.map(w=>
+'<div style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
+'<div style="width:36px;height:36px;border-radius:8px;overflow:hidden;flex:none;font-size:0">' + coverHtml(w) + '</div>' +
+'<div style="flex:1;min-width:0"><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(w.title) + '</div>' +
+'<div style="font-size:12px;color:var(--ink-faint)">' + esc(w.author) + ' · ' + esc(w.category) + '</div></div>' +
+'<div style="display:flex;gap:4px;flex:none" onclick="event.stopPropagation()">' + groupBtnHtml(w) + '</div></div>').join("") + '</div>'
+: '<div class="book-grid">' + works.map(w=>
 '<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
 coverHtml(w) +
 '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
 '<div class="b-meta">' + esc(w.author) + ' · ' + esc(w.category) + '</div>' +
-'<div style="display:flex;gap:6px;margin-top:6px" onclick="event.stopPropagation()">' +
-'<button class="fg-btn' + ((fg[w.id]||"reading")==="reading"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'reading\')">在读</button>' +
-'<button class="fg-btn' + ((fg[w.id]||"")==="finished"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'finished\')">读完</button>' +
-'<button class="fg-btn' + ((fg[w.id]||"")==="want"?" fg-on":"") + '" onclick="setFavGroup(\'' + w.id + '\',\'want\')">想读</button>' +
-'</div></div></div>'
+groupBtnHtml(w) +
+'</div></div>'
 ).join("") + '</div>';
 }catch(err){
 grid.innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(err.message));
@@ -3035,6 +4102,9 @@ app.innerHTML =
 '<p class="page-sub">' + (Store.isLoggedIn ? '以 <b>' + esc(Store.penName) + '</b> 的身份和大家聊天' : '登录后即可发言，游客只能围观') + '</p>' +
 '<div class="chat-shell">' +
 '<div class="chat-list" id="chat-list">' + loadingHtml() + '</div>' +
+'<div style="padding:8px 14px 0;display:flex;gap:6px;flex-wrap:wrap;background:var(--card);border-top:1px solid var(--line)" id="chat-emojis">' +
+["😀","😭","😂","😍","🔥","👍","🎉","🙏","🤔","😡","😴","🤩"].map(e=>'<span style="cursor:pointer;font-size:18px" onclick="insertChatEmoji(\'' + e + '\')">' + e + '</span>').join("") +
+'</div>' +
 '<div class="chat-input-row">' +
 '<input id="chat-input" maxlength="200" placeholder="' + (Store.isLoggedIn ? "说点什么…（回车发送）" : "登录后才能发言") + '"' + (Store.isLoggedIn ? "" : " disabled") + '>' +
 '<button class="btn btn-primary btn-sm" id="chat-send" onclick="sendChat()"' + (Store.isLoggedIn ? "" : " disabled") + '>发送</button>' +
@@ -3073,10 +4143,19 @@ list.scrollTop = list.scrollHeight;
 if(list.querySelector(".loading")) list.innerHTML = '<div class="chat-empty">加载失败：' + esc(err.message) + '</div>';
 }
 }
+function insertChatEmoji(e){
+const input = $("#chat-input");
+if(!input) return;
+input.value += e;
+input.focus();
+}
 async function sendChat(){
 if(!Store.isLoggedIn){ toast("请先登录，登录后才能发言", "err"); openAuthModal("login"); return; }
 const input = $("#chat-input");
 const content = (input ? input.value : "").trim();
+if(!guardSensitive(content, "发送")) return;
+bannedGuard();
+if(localStorage.getItem("yc_ban_check") && JSON.parse(localStorage.getItem("yc_ban_check")||"{}").banned) return;
 if(!content){ toast("消息不能为空", "err"); return; }
 const btn = $("#chat-send");
 if(btn) btn.disabled = true;
@@ -3118,7 +4197,7 @@ return '<div class="pet-card"><div style="text-align:center;flex:1;padding:10px"
 '<button class="pet-btn" onclick="adoptPet(\'fox\')">🦊 小狐</button>' +
 '</div></div></div>';
 }
-const emoji = petEmoji();
+const emoji = (getPet() && getPet().outfit ? getPet().outfit + " " : "") + petEmoji();
 const names = {cat:"小猫", dog:"小狗", rabbit:"小兔", fox:"小狐"};
 const name = petSkinName();
 const level = p.level || 1;
@@ -3137,8 +4216,30 @@ return '<div class="pet-card">' +
 '</div>' +
 '<div class="pet-actions">' +
 '<button class="pet-btn" onclick="feedPet()">🍖 喂食</button>' +
+'<button class="pet-btn" onclick="renamePet()">✏️ 改名</button>' +
+'<button class="pet-btn" onclick="dressPet()">' + ((p.outfit||"") ? "👗 " + p.outfit : "👗 换装") + '</button>' +
 '<button class="pet-btn" onclick="showPetHelp()">❓ 帮助</button>' +
 '</div></div>';
+}
+function renamePet(){
+const p = getPet();
+if(!p){ toast("先领养一只宠物吧", "err"); return; }
+const name = prompt("给你的宠物起个新名字：", p.name || "小宝");
+if(!name) return;
+p.name = name.slice(0, 12);
+Store.pet = p;
+$("#pet-box").innerHTML = petCardHtml();
+toast("宠物改名成功！");
+}
+const PET_OUTFITS = ["🎀","🎩","🧢","🌸","🕶️","🧣"];
+function dressPet(){
+const p = getPet();
+if(!p){ toast("先领养一只宠物吧", "err"); return; }
+const cur = PET_OUTFITS.indexOf(p.outfit || "");
+p.outfit = PET_OUTFITS[(cur + 1) % PET_OUTFITS.length];
+Store.pet = p;
+$("#pet-box").innerHTML = petCardHtml();
+toast("换装完成：" + p.outfit);
 }
 function adoptPet(type){
 Store.pet = { type: type, name: PET_TYPES[type] + " 小宝", level: 1, exp: 0, hunger: 100, born: new Date().toISOString() };
@@ -3350,7 +4451,10 @@ app.innerHTML =
 '</div>' +
 (isMe
 ? '<div class="me-actions"><button class="btn btn-primary" onclick="location.hash=\'#/create\'">开始创作</button><button class="btn btn-ghost" onclick="location.hash=\'#/me\'">我的主页</button></div>'
-: '<div class="me-actions"><button class="btn ' + (following ? "btn-ghost" : "btn-primary") + '" id="follow-btn" onclick="toggleFollow(\'' + encodeURIComponent(profile.account) + '\')">' + (following ? "已关注" : "+ 关注") + '</button></div>') +
+: '<div class="me-actions">' +
+'<button class="btn ' + (following ? "btn-ghost" : "btn-primary") + '" id="follow-btn" onclick="toggleFollow(\'' + encodeURIComponent(profile.account) + '\')">' + (following ? "已关注" : "+ 关注") + '</button>' +
+(Store.isLoggedIn ? '<button class="btn btn-ghost" onclick="openDmModal(\'' + encodeURIComponent(profile.account) + '\')">💌 发私信</button>' : '') +
+'</div>') +
 '</div>' +
 '<div class="section">' +
 '<div class="section-head"><h2 class="section-title">' + esc(profile.pen_name) + ' 的作品</h2></div>' +
@@ -3359,7 +4463,7 @@ app.innerHTML =
 '<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' +
 coverHtml(w) +
 '<div class="book-info"><div class="b-title">' + esc(w.title) + '</div>' +
-'<div class="b-meta">' + esc(w.category) + ' · ' + (w.views||0) + ' 阅读</div></div></div>'
+'<div class="b-meta">' + esc(w.category) + ' · 👁 ' + (w.views||0) + ' · 更新 ' + fmtDate(w.updated_at) + '</div></div></div>'
 ).join("") : emptyHtml('<path d="M8 8h32M14 18h24M14 26h18M14 34h16"/>', "还没有发布作品")) +
 '</div>' +
 '</div>' +
@@ -3475,17 +4579,35 @@ app.innerHTML =
 '<div class="me-actions">' +
 '<button class="btn btn-primary" onclick="location.hash=\'#/create\'">开始创作</button>' +
 '<button class="btn btn-ghost" onclick="location.hash=\'#/shelf\'">我的书架</button>' +
+'<button class="btn btn-ghost" onclick="location.hash=\'#/lists\'">📋 书单广场</button>' +
+'<button class="btn btn-ghost" onclick="location.hash=\'#/invite\'">🏆 邀请榜</button>' +
+'<button class="btn btn-ghost" onclick="location.hash=\'#/event\'">🎉 活动</button>' +
+'<button class="btn btn-ghost" onclick="location.hash=\'#/dm\'">💌 私信</button>' +
 '<button class="btn btn-ghost" onclick="location.hash=\'#/user?name=' + encodeURIComponent(Store.penName) + '\'">我的主页</button>' +
 '<button class="btn btn-danger" onclick="logout()">退出登录</button>' +
 '</div>' +
 '</div>' +
+weeklyReportHtml() +
 '<div class="section">' + monthlyReportHtml() + '</div>' +
 '<div class="section">' +
 '<div class="section-head"><h2 class="section-title">🏅 我的徽章</h2><span style="font-size:12px;color:var(--ink-faint)">完成成就自动解锁</span></div>' +
 '<div class="form-card">' + badgeWallHtml() + '</div>' +
 '</div>' +
 '<div class="section">' +
+'<div class="section-head"><h2 class="section-title">📅 本月签到日历</h2><span style="font-size:12px;color:var(--ink-faint)">每天签到 +10 积分</span></div>' +
+checkinCalendarHtml() +
+'</div>' +
+'<div class="section">' +
+'<div class="section-head"><h2 class="section-title">🔔 我的追更</h2></div>' +
+'<div id="me-follows">' + loadingHtml() + '</div>' +
+'</div>' +
+'<div class="section">' +
 '<div class="section-head"><h2 class="section-title">🪙 我的积分</h2><span id="me-points" style="font-size:20px;font-weight:800;color:#E8A33D">…</span></div>' +
+'<div id="me-level" style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">等级计算中…</div>' +
+'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">' +
+'<button class="btn btn-accent btn-sm" onclick="readCheckin()">📆 读书打卡</button>' +
+'<span style="font-size:12px;color:var(--ink-faint);align-self:center">已连续读书打卡 ' + readCheckinStatus() + ' 天</span>' +
+'</div>' +
 taskCardHtml() +
 '</div>' +
 '<div class="section">' +
@@ -3516,7 +4638,9 @@ skinShopHtml() +
 '<div class="form-card">' +
 '<div class="field"><label>公告标题</label><input id="ann-title" maxlength="30" placeholder="公告标题"></div>' +
 '<div class="field"><label>公告内容</label><textarea id="ann-content" maxlength="200" rows="2" placeholder="公告内容（选填）"></textarea></div>' +
+'<div class="field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ann-is-event" style="width:auto">🎉 设为征文活动（作品页可标注参赛，首页活动入口展示）</label></div>' +
 '<button class="btn btn-primary" onclick="publishAnnouncement()">发布公告</button>' +
+'<div style="margin-top:14px"><button class="btn btn-accent" onclick="location.hash=\'#/admin\'">🛡 站长管理后台（举报/数据）</button></div>' +
 '</div>' +
 '</div>' +
 '<div class="section">' +
@@ -3526,6 +4650,8 @@ skinShopHtml() +
 '</section>';
 /* 拉取我的作品 */
 loadMyWorksInto("#me-works", "#me-works-count");
+/* 追更列表 */
+myFollowsHtml();
 /* 关注/粉丝数 + 站长面板 */
 API.getUserProfile(Store.penName).then(p=>{
 const fc = $("#me-following-count");
@@ -3537,6 +4663,8 @@ if(fr) fr.textContent = p.follower_count || 0;
 getMyPoints().then(p=>{
 const el = $("#me-points");
 if(el) el.textContent = p;
+const lv = $("#me-level");
+if(lv) lv.innerHTML = "🎖 我的等级：" + levelHtml(p);
 });
 const ownerEmail = localStorage.getItem("yc_owner") || "";
 const panel = $("#owner-panel");
@@ -3544,15 +4672,171 @@ if(panel && ownerEmail && Store.auth.account === ownerEmail){
 panel.style.display = "block";
 }
 }
+/* ============ 站长管理后台 ============ */
+async function renderAdmin(){
+const ownerEmail = localStorage.getItem("yc_owner") || "";
+if(!Store.isLoggedIn || Store.auth.account !== ownerEmail){
+toast("只有站长可以访问", "err");
+location.hash = "#/home";
+return;
+}
+app.innerHTML = '<section class="page"><div class="page-title">🛡 站长管理后台</div><p class="page-sub">举报处理与平台数据</p><div id="admin-box">' + loadingHtml() + '</div></section>';
+try{
+const [users, works, comments, stats, reports] = await Promise.all([
+API.request("GET","users",null,"select=id&limit=1000").catch(()=>[]),
+API.request("GET","works",null,"select=id&limit=1000").catch(()=>[]),
+API.request("GET","comments",null,"select=id&limit=1000").catch(()=>[]),
+API.request("GET","site_stats",null,"select=*&order=created_at.desc&limit=1").catch(()=>[]),
+API.request("GET","reports",null,"select=*&order=created_at.desc&limit=100").catch(()=>[])
+]);
+const today = new Date().toISOString().substring(0,10);
+const todayStat = (stats||[]).find(s=>s.v_date === today);
+const rp = reports || [];
+const pending = rp.filter(r=>r.status !== "done").length;
+/* 本周统计 */
+const wkStart = new Date();
+wkStart.setDate(wkStart.getDate() - ((wkStart.getDay() + 6) % 7));
+wkStart.setHours(0,0,0,0);
+const wkIso = wkStart.toISOString();
+const [wkUsers, wkWorks, wkComments] = await Promise.all([
+API.request("GET","users",null,"select=id&created_at=gte." + wkIso + "&limit=1000").catch(()=>[]),
+API.request("GET","works",null,"select=id&created_at=gte." + wkIso + "&limit=1000").catch(()=>[]),
+API.request("GET","comments",null,"select=id&created_at=gte." + wkIso + "&limit=1000").catch(()=>[])
+]);
+let h = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px">' +
+statCard("👥","注册用户",(users||[]).length) + statCard("📚","作品数",(works||[]).length) +
+statCard("💬","评论数",(comments||[]).length) + statCard("📈","今日访问",todayStat ? (todayStat.pv||0) : 0) +
+'</div>' +
+'<div style="background:linear-gradient(135deg,#146B5B22,#E8A33D22);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:16px">' +
+'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b>📊 本周运营周报</b><span style="font-size:12px;color:var(--ink-faint)">本周一至今</span></div>' +
+'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;text-align:center">' +
+'<div><div style="font-size:20px;font-weight:800;color:var(--brand)">' + (wkUsers||[]).length + '</div><div style="font-size:11px;color:var(--ink-faint)">本周新注册</div></div>' +
+'<div><div style="font-size:20px;font-weight:800;color:var(--brand)">' + (wkWorks||[]).length + '</div><div style="font-size:11px;color:var(--ink-faint)">本周新作品</div></div>' +
+'<div><div style="font-size:20px;font-weight:800;color:var(--brand)">' + (wkComments||[]).length + '</div><div style="font-size:11px;color:var(--ink-faint)">本周新评论</div></div>' +
+'<div><div style="font-size:20px;font-weight:800;color:var(--danger)">' + pending + '</div><div style="font-size:11px;color:var(--ink-faint)">待处理举报</div></div>' +
+'</div></div>';
+h += '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px">' +
+'<div style="font-weight:700;margin-bottom:12px">🚩 举报列表 <span style="font-size:12px;color:var(--ink-faint)">（待处理 ' + pending + ' 条 / 共 ' + rp.length + ' 条）</span></div>';
+if(!rp.length){
+h += '<div style="color:var(--ink-faint);font-size:13px">暂无举报，一切清净～</div>';
+} else {
+h += '<div style="display:flex;flex-direction:column;gap:8px">' + rp.map(r=>
+'<div style="display:flex;align-items:center;gap:10px;background:' + (r.status === "done" ? "var(--paper)" : "var(--card-soft)") + ';border:1px solid var(--line);border-radius:10px;padding:10px 12px;flex-wrap:wrap">' +
+'<span style="font-size:12px;background:' + (r.status === "done" ? "#999" : "var(--danger)") + ';color:#fff;border-radius:6px;padding:2px 8px;flex:none">' + (r.status === "done" ? "已处理" : "待处理") + '</span>' +
+'<span style="font-weight:600;flex:none">' + esc(r.target_type) + '</span>' +
+'<span style="font-size:12px;color:var(--ink-soft);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(r.target_id||"") + '">' + esc(r.target_id||"") + '</span>' +
+'<span style="font-size:12px;color:var(--ink-faint)">' + esc(r.account||"游客") + '</span>' +
+'<span style="font-size:12px;color:var(--ink-faint)">' + fmtTime(r.created_at) + '</span>' +
+'<span style="flex:1;min-width:120px;font-size:13px;color:var(--ink-soft)">' + esc(r.reason||"") + '</span>' +
+(r.status !== "done" ? '<button class="btn btn-ghost btn-sm" onclick="markReportDone(\'' + r.id + '\')">✓ 已处理</button>' : '') +
+(r.target_type === "work" ? '<button class="btn btn-danger btn-sm" onclick="takeDownWork(\'' + r.target_id + '\',\'' + r.id + '\')">⬇ 下架作品</button>' : '') +
+'</div>').join("") + '</div>';
+}
+h += '</div>';
+/* 敏感词 + 封禁管理区块 */
+const extraWords = getExtraWords();
+h += '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px">' +
+'<div style="font-weight:700;margin-bottom:8px">🔒 敏感词管理 <span style="font-size:12px;color:var(--ink-faint)">（内置 ' + SENSITIVE_WORDS.length + ' 条 + 自定义 ' + extraWords.length + ' 条）</span></div>' +
+'<div style="display:flex;gap:8px;margin-bottom:10px">' +
+'<input id="admin-word-input" maxlength="12" placeholder="输入要屏蔽的词" style="flex:1">' +
+'<button class="btn btn-primary btn-sm" onclick="addAdminWord()">添加</button></div>' +
+'<div style="display:flex;flex-wrap:wrap;gap:6px">' + extraWords.map(w=>
+'<span style="display:inline-flex;align-items:center;gap:6px;background:var(--card-soft);border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:12px">' + esc(w) +
+'<b style="cursor:pointer;color:var(--danger)" onclick="removeAdminWord(\'' + esc(w) + '\')">✕</b></span>').join("") +
+(extraWords.length ? "" : '<span style="font-size:12px;color:var(--ink-faint)">暂无自定义词</span>') + '</div></div>';
+h += '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px">' +
+'<div style="font-weight:700;margin-bottom:8px">⛔ 用户封禁</div>' +
+'<div style="display:flex;gap:8px;margin-bottom:10px">' +
+'<input id="admin-ban-input" placeholder="要封禁的账号（邮箱）" style="flex:1">' +
+'<input id="admin-ban-reason" maxlength="30" placeholder="封禁原因（选填）" style="flex:1">' +
+'<button class="btn btn-danger btn-sm" onclick="banAccount()">封禁</button></div>';
+const bans = await API.request("GET","bans",null,"select=*&order=created_at.desc&limit=50").catch(()=>[]);
+if(bans && bans.length){
+h += '<div style="display:flex;flex-direction:column;gap:6px">' + bans.map(b=>
+'<div style="display:flex;align-items:center;gap:8px;background:var(--card-soft);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;flex-wrap:wrap">' +
+'<span style="font-weight:600">' + esc(b.account) + '</span>' +
+'<span style="color:var(--ink-soft);font-size:12px">' + esc(b.reason || "违规") + '</span>' +
+'<span style="color:var(--ink-faint);font-size:12px">' + fmtTime(b.created_at) + '</span>' +
+'<span style="flex:1"></span>' +
+'<button class="btn btn-ghost btn-sm" onclick="unbanAccount(\'' + esc(b.account) + '\')">解封</button>' +
+'</div>').join("") + '</div>';
+} else {
+h += '<div style="font-size:12px;color:var(--ink-faint)">暂无封禁账号</div>';
+}
+h += '</div>';
+$("#admin-box").innerHTML = h;
+}catch(e){
+$("#admin-box").innerHTML = emptyHtml('<circle cx="32" cy="32" r="20"/><path d="M32 20v14M32 42h.01"/>', "加载失败：" + esc(e.message));
+}
+}
+async function markReportDone(id){
+try{
+await API.request("PATCH","reports",{status:"done"},"id=eq." + id);
+toast("已标记为处理完成");
+renderAdmin();
+}catch(e){ toast("操作失败：" + e.message, "err"); }
+}
+function addAdminWord(){
+const inp = $("#admin-word-input");
+if(!inp) return;
+const w = (inp.value || "").trim();
+if(!w){ toast("请输入敏感词", "err"); return; }
+const words = getExtraWords();
+if(words.indexOf(w) >= 0 || SENSITIVE_WORDS.indexOf(w) >= 0){ toast("这个词已经在词库中", "err"); return; }
+words.push(w);
+localStorage.setItem("yc_extra_words", JSON.stringify(words));
+toast("已添加敏感词：" + w);
+renderAdmin();
+}
+function removeAdminWord(w){
+let words = getExtraWords();
+words = words.filter(x=>x !== w);
+localStorage.setItem("yc_extra_words", JSON.stringify(words));
+toast("已移除敏感词");
+renderAdmin();
+}
+async function banAccount(){
+const inp = $("#admin-ban-input");
+if(!inp) return;
+const account = (inp.value || "").trim();
+if(!account){ toast("请输入要封禁的账号", "err"); return; }
+const reason = ($("#admin-ban-reason") ? ($("#admin-ban-reason").value || "") : "").trim();
+if(!confirm("确定封禁 " + account + "？封禁后该账号无法评论/发布/聊天。")) return;
+try{
+const existing = await API.request("GET","bans",null,"select=id&account=eq." + encodeURIComponent(account) + "&limit=1").catch(()=>[]);
+if(existing && existing.length){ toast("该账号已在封禁名单", "err"); return; }
+await API.request("POST","bans",{account:account, reason:reason || "违反平台规定"});
+toast("已封禁 " + account);
+renderAdmin();
+}catch(e){ toast("操作失败：" + e.message, "err"); }
+}
+async function unbanAccount(account){
+if(!confirm("确定解封 " + account + "？")) return;
+try{
+await API.request("DELETE","bans",null,"account=eq." + encodeURIComponent(account));
+toast("已解封 " + account);
+renderAdmin();
+}catch(e){ toast("操作失败：" + e.message, "err"); }
+}
+async function takeDownWork(workId, reportId){
+if(!confirm("确定下架这本书？下架后读者仍能看到但会标记为已下架，作者无法再更新。（软下架，不删除作品内容）")) return;
+try{
+await API.request("PATCH","works",{status:"已下架"},"id=eq." + workId);
+await API.request("PATCH","reports",{status:"done"},"id=eq." + reportId).catch(()=>{});
+toast("作品已下架");
+renderAdmin();
+}catch(e){ toast("操作失败：" + e.message, "err"); }
+}
 /* 站长发布公告 */
 async function publishAnnouncement(){
 const title = $("#ann-title").value.trim();
 const content = $("#ann-content").value.trim();
+const isEvent = !!(document.getElementById("ann-is-event") && document.getElementById("ann-is-event").checked);
 if(!title){ toast("请填写公告标题", "err"); return; }
 const btn = event.target;
 btn.disabled = true;
 try{
-await API.createAnnouncement(title, content);
+await API.createAnnouncement(title, content, isEvent);
 toast("公告已发布，首页可见");
 $("#ann-title").value = "";
 $("#ann-content").value = "";
@@ -3659,6 +4943,12 @@ case "book": renderBook(); break;
 case "read": renderReader(); break;
 case "create": renderCreate(); break;
 case "shelf": renderShelf(); break;
+case "lists": renderBooklists(); break;
+case "dm": renderDm(); break;
+case "admin": renderAdmin(); break;
+case "event": renderEventPage(); break;
+case "invite": renderInvitePage(); break;
+case "wanted": renderWantedPage(); break;
 case "me": renderMe(); break;
 case "chat": renderChat(); break;
 case "ai": renderAI(); break;
@@ -3682,6 +4972,8 @@ navigator.serviceWorker.register('/sw.js')
 .catch(err => console.log('SW failed'));
 });
 }
+/* 新手引导 */
+maybeShowGuide();
 /* 夜间模式自动：晚上自动切换 */
 autoNightMode();
 /* 返回顶部按钮：滚动超过300px显示 */
@@ -3714,6 +5006,7 @@ async function renderRank(){
 app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">RANKING</div><h1>作品榜</h1><p>看看大家最喜欢什么书</p></div>' +
 '<div class="shelf-tabs" style="margin-bottom:14px">' +
 '<button class="shelf-tab active" onclick="loadRankTab(\'hot\',this)">🔥 人气榜</button>' +
+'<button class="shelf-tab" onclick="loadRankTab(\'week\',this)">📈 周榜</button>' +
 '<button class="shelf-tab" onclick="loadRankTab(\'new\',this)">🆕 新书榜</button>' +
 '<button class="shelf-tab" onclick="loadRankTab(\'done\',this)">🏁 完结榜</button>' +
 '</div>' +
@@ -3733,6 +5026,12 @@ try{
 let works;
 if(tab === "hot"){ works = await API.listWorks({sort:"views", limit:50}); }
 else if(tab === "new"){ works = await API.listWorks({sort:"created", limit:50}); }
+else if(tab === "week"){
+const all = await API.listWorks({sort:"views", limit:100});
+const weekAgo = Date.now() - 7*24*60*60*1000;
+works = all.filter(w => w.created_at && new Date(w.created_at).getTime() >= weekAgo).slice(0, 50);
+if(!works.length) works = all.slice(0, 50);
+}
 else {
 const all = await API.listWorks({sort:"views", limit:100});
 works = all.filter(w => w.status === "已完结").slice(0, 50);
@@ -3792,6 +5091,109 @@ return '<div style="background:var(--card);border:1px solid var(--line);border-r
 '<div style="font-size:20px;font-weight:800;margin:4px 0 2px">' + val + '</div>' +
 '<div style="font-size:12px;color:var(--ink-faint)">' + label + '</div></div>';
 }
+/* 多平台分享弹层 */
+function shareBookModal(title, id){
+const invite = Store.isLoggedIn ? ("?invite=" + encodeURIComponent(Store.penName)) : "";
+const url = location.origin + location.pathname + invite + "#/book?id=" + id;
+const text = "我在阅川书城发现一本好书《" + title + "》，快来一起看！" + url;
+const shareText = "《" + title + "》超好看！免费在线阅读：" + url;
+const ov = document.createElement("div");
+ov.style.cssText = "position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px";
+ov.onclick = function(e){ if(e.target === ov) ov.remove(); };
+ov.innerHTML = '<div style="background:var(--card);border-radius:18px;padding:24px;max-width:340px;width:100%">' +
+'<div style="font-size:18px;font-weight:800;margin-bottom:4px">分享《' + esc(title) + '》</div>' +
+'<div style="font-size:12px;color:var(--ink-faint);margin-bottom:16px">好友通过你的链接注册，双方各 +10 积分</div>' +
+'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px">' +
+'<button class="btn btn-ghost" onclick="shareToTarget(\'wechat\',\'' + id + '\',this)">💬 微信</button>' +
+'<button class="btn btn-ghost" onclick="shareToTarget(\'qq\',\'' + id + '\',this)">🐧 QQ</button>' +
+'<button class="btn btn-ghost" onclick="shareToTarget(\'weibo\',\'' + id + '\',this)">📢 微博</button>' +
+'<button class="btn btn-ghost" onclick="shareToTarget(\'copy\',\'' + id + '\',this)">🔗 复制</button>' +
+'</div>' +
+'<button class="btn btn-primary" style="width:100%" onclick="sharePoster(\'' + id + '\',\'' + esc(title) + '\',\'' + (Store.penName||"") + '\',\'' + " " + '\',0)">🎨 生成分享海报</button>' +
+'<div style="font-size:11px;color:var(--ink-faint);margin-top:12px;text-align:center">' + esc(url) + '</div>' +
+'</div>';
+document.body.appendChild(ov);
+}
+function shareToTarget(platform, id, btn){
+const invite = Store.isLoggedIn ? ("?invite=" + encodeURIComponent(Store.penName)) : "";
+const url = location.origin + location.pathname + invite + "#/book?id=" + id;
+const enc = encodeURIComponent(url);
+if(platform === "copy"){
+const done = ()=>{ toast("🔗 链接已复制，分享给朋友吧！"); addShareTask(); };
+try{
+if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(()=>{ legacyCopy(url); done(); }); }
+else { legacyCopy(url); done(); }
+}catch(e){ legacyCopy(url); done(); }
+return;
+}
+if(platform === "wechat"){
+const done = ()=>{ toast("💬 微信文案已复制，去粘贴给好友吧！"); addShareTask(); };
+try{
+if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(()=>{ legacyCopy(url); done(); }); }
+else { legacyCopy(url); done(); }
+return;
+}catch(e){ legacyCopy(url); done(); }
+}
+if(platform === "qq"){
+window.open("https://connect.qq.com/widget/shareqq/index.html?url=" + enc + "&title=" + encodeURIComponent("阅川书城 · 一本好书") + "&summary=" + encodeURIComponent("《" + id + "》免费阅读") + "&site=阅川书城");
+addShareTask();
+return;
+}
+if(platform === "weibo"){
+window.open("https://service.weibo.com/share/share.php?url=" + enc + "&title=" + encodeURIComponent("我在阅川书城发现一本好书，快来一起看！") + "&pic=");
+addShareTask();
+return;
+}
+}
+function copyShareLink(title, id){
+const url = location.origin + location.pathname + "#/book?id=" + id;
+const text = "《" + title + "》超好看！免费在线阅读：" + url;
+const done = ()=>{ toast("链接已复制，去分享吧 🔗"); };
+try{
+if(navigator.clipboard && navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(done).catch(()=>{ legacyCopy(text); done(); });
+} else { legacyCopy(text); done(); }
+}catch(e){ legacyCopy(text); done(); }
+}
+function legacyCopy(text){
+const ta = document.createElement("textarea");
+ta.value = text;
+ta.style.position = "fixed"; ta.style.opacity = "0";
+document.body.appendChild(ta);
+ta.select();
+try{ document.execCommand("copy"); }catch(e){}
+document.body.removeChild(ta);
+}
+function loadRelated(workId, category, title, boxId){
+const box = document.getElementById(boxId);
+if(!box) return;
+API.listWorks({category:category, limit:20}).then(all=>{
+const rel = (all||[]).filter(w=>w.id !== workId).slice(0,3);
+if(!rel.length){ box.style.display = "none"; return; }
+box.style.display = "block";
+box.querySelector(".loading").outerHTML = '<div class="book-grid">' + rel.map(w=>
+'<div class="book-card" onclick="location.hash=\'#/book?id=' + w.id + '\'">' + coverHtml(w) +
+'<div class="book-info"><div class="b-title">' + esc(w.title) + '</div><div class="b-meta">' + esc(w.author) + '</div></div></div>').join("") + '</div>';
+}).catch(()=>{ box.style.display = "none"; });
+}
+async function exportWorkTxt(workId){
+const [workArr, chapters] = await Promise.all([API.getWork(workId), API.listChapters(workId)]);
+const work = workArr && workArr[0];
+if(!work){ toast("作品不存在", "err"); return; }
+const chs = chapters || [];
+if(!chs.length){ toast("还没有章节可导出", "err"); return; }
+let text = "《" + work.title + "》\n作者：" + work.author + "\n分类：" + work.category + "\n简介：" + (work.intro || "") + "\n\n";
+chs.forEach((c,i)=>{ text += "第" + (i+1) + "章 " + c.title + "\n\n" + (c.content || "") + "\n\n"; });
+try{
+const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+const a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = work.title + ".txt";
+a.click();
+setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+toast("📥 已导出《" + work.title + "》共" + chs.length + "章");
+}catch(e){ toast("导出失败：" + e.message, "err"); }
+}
 async function loadAuthorStats(){
 const box = $("#author-stats");
 if(!box) return;
@@ -3821,6 +5223,26 @@ const totalViews = works.reduce((s,w)=>s+(w.views||0),0);
 const totalLikes = Object.keys(likeMap).reduce((s,k)=>s+likeMap[k],0);
 const totalComments = Object.keys(cmtMap).reduce((s,k)=>s+cmtMap[k],0);
 const followerCount = follows.length;
+/* 本周涨势：7天快照对比 */
+let weekGain = 0;
+try{
+const now = Date.now();
+works.forEach(w=>{
+const key = "yc_wsnap_" + w.id;
+let snap = null;
+try{ snap = JSON.parse(localStorage.getItem(key) || "null"); }catch(e){}
+if(!snap || (now - snap.t) > 7*24*3600*1000){
+localStorage.setItem(key, JSON.stringify({ v: w.views||0, t: now }));
+} else {
+weekGain += Math.max(0, (w.views||0) - (snap.v||0));
+}
+});
+}catch(e){}
+/* 今日访问 */
+API.request("GET","site_stats",null,"select=*&v_date=eq." + new Date().toISOString().substring(0,10)).then(ss=>{
+const tv = $("#today-visit");
+if(tv && ss && ss[0]) tv.textContent = "📈 今日访问：" + (ss[0].pv||0) + " 次 / " + (ss[0].uv||0) + " 人";
+}).catch(()=>{});
 /* SVG柱状图 */
 const maxV = Math.max(1, ...works.map(w=>w.views||0));
 const bars = works.slice(0,8).map(w=>{
@@ -3835,7 +5257,16 @@ box.innerHTML =
 statCard("👁","总阅读",totalViews) + statCard("♥","总点赞",totalLikes) +
 statCard("💬","总评论",totalComments) + statCard("⭐","粉丝",followerCount) +
 statCard("🪙","我的积分",myPoints) + statCard("📚","作品数",works.length) +
+statCard("🎖","作家等级",(function(){const wc=works.length,tv=totalViews;if(wc>=5&&tv>=10000)return "文坛巨匠";if(wc>=3&&tv>=3000)return "人气作家";if(wc>=2&&tv>=500)return "签约新秀";if(wc>=1)return "见习作家";return "书虫";})()) +
 '</div>' +
+'<div style="background:linear-gradient(135deg,#2E8B5722,#8B5CF622);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px">' +
+'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b>📊 本周作品涨势</b><span style="font-size:12px;color:var(--ink-faint)">按近7天阅读增长统计，每周自动刷新</span></div>' +
+'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;text-align:center">' +
+'<div><div style="font-size:22px;font-weight:800;color:#2E8B57">+' + weekGain + '</div><div style="font-size:12px;color:var(--ink-faint)">本周新增阅读</div></div>' +
+'<div><div style="font-size:22px;font-weight:800;color:#2E8B57">' + totalViews + '</div><div style="font-size:12px;color:var(--ink-faint)">累计阅读</div></div>' +
+'<div><div style="font-size:22px;font-weight:800;color:#2E8B57">' + Math.round(weekGain/7) + '</div><div style="font-size:12px;color:var(--ink-faint)">日均新增</div></div>' +
+'</div></div>' +
+'<div style="font-size:12px;color:var(--ink-faint);margin:-8px 0 14px" id="today-visit">📈 今日访问：…</div>' +
 '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px">' +
 '<div style="font-weight:700;margin-bottom:14px">📊 作品阅读量排行</div>' +
 '<div style="display:flex;align-items:flex-end;gap:8px;height:140px;padding:0 4px">' + bars + '</div>' +
@@ -3849,6 +5280,7 @@ works.map(w =>
 '<div style="text-align:center;min-width:60px"><div style="font-weight:700">' + (w.views||0) + '</div><div style="font-size:11px;color:var(--ink-faint)">阅读</div></div>' +
 '<div style="text-align:center;min-width:60px"><div style="font-weight:700">' + (likeMap[w.id]||0) + '</div><div style="font-size:11px;color:var(--ink-faint)">点赞</div></div>' +
 '<div style="text-align:center;min-width:60px"><div style="font-weight:700">' + (cmtMap[w.id]||0) + '</div><div style="font-size:11px;color:var(--ink-faint)">评论</div></div>' +
+'<button class="btn btn-ghost" style="font-size:12px;padding:6px 10px" onclick="exportWorkTxt(\'' + w.id + '\')">📥 TXT</button>' +
 '<button class="btn btn-ghost" style="font-size:12px;padding:6px 10px" onclick="location.hash=\'#/book?id=' + w.id + '\'">查看</button>' +
 '</div>').join("") +
 '</div>';
@@ -3894,6 +5326,59 @@ app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker
 /* ============ 版权专区 ============ */
 function renderCopyrightZone(){
 app.innerHTML = '<section class="page"><div class="hero"><div class="hero-kicker">COPYRIGHT</div><h1>版权专区</h1><p>尊重原创，保护版权</p></div><div class="section"><div style="background:var(--card);padding:24px;border-radius:12px;line-height:1.8"><h3>版权声明</h3><p style="color:var(--ink-faint);margin-top:12px">1. 阅川书城所有用户发布的原创作品，版权归原作者所有。</p><p style="color:var(--ink-faint)">2. 本站收录的公版名著（如《朝花夕拾》《呐喊》等）已过著作权保护期，可自由传播。</p><p style="color:var(--ink-faint)">3. 未经作者授权，不得擅自转载、复制、商用本站原创作品。</p><p style="color:var(--ink-faint)">4. 如发现侵权内容，请联系管理员下架处理。</p></div></div></section>';
+}
+function closeAnnouncement(id){
+try{
+const closed = JSON.parse(localStorage.getItem("yc_closed_ann") || "{}");
+closed[id] = true;
+localStorage.setItem("yc_closed_ann", JSON.stringify(closed));
+}catch(e){}
+const box = $("#announce-box");
+if(box){ loadAnnouncements(); if(!box.querySelector(".ann-item")) box.style.display = "none"; }
+}
+/* ============ 敏感词自动审核 ============ */
+let SENSITIVE_WORDS = ["傻逼","装逼","操你妈","草你妈","妈的","卧槽你妈","去你妈的","他妈","狗日的","nmsl","cnm","sb","赌博","赌场","博彩","时时彩","百家乐","六合彩","彩票","毒品","冰毒","海洛因","摇头丸","大麻","可卡因","鸦片","迷药","枪支","弹药","手榴弹","炸药","爆炸物","杀人","自杀","割腕","跳楼","嫖娼","卖淫","援交","一夜情","约炮","强奸","轮奸","儿童色情","裸聊","代练","刷单","兼职刷","跑分","洗钱","诈骗","传销","帮信","实名认证秒过","破解版","外挂","私服","代充","赌球","开户送","返利网","高利贷","裸贷","套路贷","办证","刻章","发票代开","作弊器","刷赞","刷粉","僵尸粉","代考","枪手","找小姐","包养","成人视频","黄色网站","a片","av资源","口交","性交","阴茎","阴道","肛交","精液","裸体自拍"];
+function getExtraWords(){
+try{ return JSON.parse(localStorage.getItem("yc_extra_words") || "[]"); }catch(e){ return []; }
+}
+function checkSensitive(text){
+if(!text) return [];
+const t = String(text).toLowerCase();
+const hit = [];
+const words = SENSITIVE_WORDS.concat(getExtraWords());
+for(const w of words){
+if(w && t.indexOf(w) >= 0) hit.push(w);
+}
+return hit;
+}
+function guardSensitive(text, actionName){
+const hit = checkSensitive(text);
+if(hit.length){
+toast("⛔ 内容包含违规词：" + hit.slice(0,3).join("、") + "，请修改后再" + actionName, "err");
+return false;
+}
+return true;
+}
+/* 封禁拦截：写操作前检查（5分钟缓存） */
+function bannedGuard(){
+if(!Store.isLoggedIn) return false;
+const now = Date.now();
+const cached = localStorage.getItem("yc_ban_check");
+if(cached){
+try{
+const c = JSON.parse(cached);
+if(now - c.t < 5*60*1000) return !!c.banned;
+}catch(e){}
+}
+const account = Store.auth.account;
+API.request("GET","bans",null,"select=id&account=eq." + encodeURIComponent(account) + "&limit=1").then(b=>{
+localStorage.setItem("yc_ban_check", JSON.stringify({t:now, banned:!!(b&&b.length)}));
+if(b && b.length){
+toast("⛔ 你的账号已被封禁，无法进行此操作", "err");
+location.hash = "#/home";
+}
+}).catch(()=>{});
+return false;
 }
 /* ============ 错别字检查 ============ */
 /* 常见错别字/用词错误词典（纯前端规则检查） */
@@ -3983,6 +5468,16 @@ return typeof rule.fix === "function" ? rule.fix(m) : rule.fix;
 ta.value = text;
 toast(fixed > 0 ? "已修正 " + fixed + " 处常见错别字" : "没有需要自动修正的词");
 checkTypos();
+}
+/* ============ 举报 ============ */
+async function reportItem(type, targetId){
+if(!Store.isLoggedIn){ toast("请先登录", "err"); openAuthModal("login"); return; }
+const reason = prompt("请填写举报原因（例如：内容不当、抄袭、广告等）：");
+if(!reason) return;
+try{
+await API.reportItem(type, targetId, reason.slice(0,100));
+toast("已提交举报，我们会尽快处理 🙏");
+}catch(e){ toast("提交失败：" + e.message, "err"); }
 }
 /* ============ 打赏弹窗 ============ */
 function openTipModal(workId, authorKey){
@@ -4097,12 +5592,37 @@ if(!input) return;
 let timer = null;
 const wrap = document.createElement("div");
 wrap.id = "search-suggest";
+function clearSearchHistory(){
+Store.searchHistory = [];
+const w = document.getElementById("search-suggest");
+if(w) w.style.display = "none";
+toast("搜索历史已清空");
+}
+function searchHistoryGo(n){
+const arr = window.__hisList || [];
+if(!arr[n]) return;
+const i = document.getElementById("global-search");
+if(i) i.value = arr[n];
+const w = document.getElementById("search-suggest");
+if(w) w.style.display = "none";
+doGlobalSearch();
+}
+wrap.addEventListener("mousedown", e=>e.preventDefault());
 wrap.style.cssText = "position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:998;display:none;max-height:300px;overflow-y:auto";
 const box = input.closest(".search-box");
 if(box) box.appendChild(wrap);
 input.addEventListener("input", ()=>{
 const q = input.value.trim();
-if(q.length < 1){ wrap.style.display = "none"; return; }
+if(q.length < 1){
+const hist = (Store.searchHistory || []).slice();
+if(hist.length){
+window.__hisList = hist.slice(0,6);
+wrap.innerHTML = '<div style="padding:8px 14px;font-size:12px;color:var(--ink-faint);display:flex;justify-content:space-between;border-bottom:1px solid var(--line)"><span>🔍 最近搜索</span><a href="javascript:void(0)" onclick="clearSearchHistory()" style="color:var(--danger)">清空</a></div>' +
+hist.slice(0,6).map((h,n)=>'<div style="padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--line)" onmousedown="searchHistoryGo(' + n + ')">' + esc(h) + '</div>').join("");
+wrap.style.display = "block";
+}
+return;
+}
 clearTimeout(timer);
 timer = setTimeout(async ()=>{
 try{
@@ -4125,6 +5645,8 @@ document.addEventListener("click", e=>{
 if(!e.target.closest(".search-box")) wrap.style.display = "none";
 });
 })();
+trackVisit();
+syncReadStats();
 route();
 </script>
 </body>
