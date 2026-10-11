@@ -787,6 +787,7 @@ cursor:pointer;transition:all .2s;
 <footer class="site-footer">
 <div class="f-logo">阅川书城</div>
 <p>人人可写，人人可读 · 让每一部作品都被看见<br>本站为原创小说分享平台，作品版权归作者所有</p>
+<p style="margin-top:6px;font-size:12px;color:#7FBF7F">🟢 当前在线 <span id="online-count" style="font-weight:700;color:#A5D6A5">…</span> 人</p>
 </footer>
 <div id="toast-wrap"></div>
 <script>
@@ -810,6 +811,37 @@ if(u && k) return { url: u, key: k };
 return null;
 }
 function isConfigured(){ return !!getConfig(); }
+/* ============ 在线人数 ============ */
+function genSid(){
+  let s = localStorage.getItem("yc_sid");
+  if(!s){ s = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); localStorage.setItem("yc_sid", s); }
+  return s;
+}
+function onlineBeat(){
+  const cfg = getConfig(); if(!cfg) return;
+  const iso = new Date().toISOString();
+  fetch(cfg.url.replace(/\/+$/,"") + "/rest/v1/online_users", {
+    method: "POST",
+    headers: { "apikey": cfg.key, "Authorization": "Bearer " + cfg.key, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({ sid: genSid(), last_seen: iso })
+  }).catch(function(){});
+}
+function onlineCount(){
+  const cfg = getConfig(); if(!cfg) return;
+  const iso = new Date(Date.now() - 3*60*1000).toISOString();
+  fetch(cfg.url.replace(/\/+$/,"") + "/rest/v1/online_users?select=sid&last_seen=gt." + encodeURIComponent(iso) + "&limit=1", {
+    headers: { "apikey": cfg.key, "Authorization": "Bearer " + cfg.key, "Prefer": "count=exact" }
+  }).then(function(r){
+    const cr = r.headers.get("content-range");
+    if(cr){ const n = parseInt(cr.split("/")[1], 10); const el = document.getElementById("online-count"); if(el){ el.textContent = isNaN(n) ? "…" : String(n); } }
+  }).catch(function(){});
+}
+function initOnline(){
+  onlineBeat();
+  onlineCount();
+  setInterval(onlineBeat, 45000);
+  setInterval(onlineCount, 30000);
+}
 /* ============ 2. 数据层（Supabase REST） ============ */
 const API = {
 /* 简单内存缓存：GET请求5分钟内不重复请求 */
@@ -1624,7 +1656,6 @@ app.innerHTML =
 '<div id="announce-box"></div>' +
 festivalBannerHtml() +
 '<div class="hero">' +
-'<div style="font-size:18px;color:#E8C98A;letter-spacing:8px;margin-bottom:10px;animation:petBounce 3s ease-in-out infinite;text-shadow:0 2px 10px rgba(0,0,0,.35);font-family:var(--serif);font-weight:900">赵俊瑜</div>' +
 '<div class="hero-kicker">YUE CHUAN BOOK CITY</div>' +
 '<h1>人人可写，人人可读<br>让每一部作品都被看见</h1>' +
 '<p>阅川书城是一个开放的小说创作与阅读空间。无论是灵感乍现的短篇，还是细水长流的长篇连载，都可以在这里安家。没有门槛，动笔即是作者。</p>' +
@@ -6003,6 +6034,7 @@ if(!e.target.closest(".search-box")) wrap.style.display = "none";
 })();
 trackVisit();
 syncReadStats();
+initOnline();
 route();
 </script>
 <button id="support-btn" onclick="showSupportModal()" title="支持站长" aria-label="支持站长" style="position:fixed;right:20px;bottom:24px;z-index:999;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;font-size:24px;background:linear-gradient(135deg,#E8A33D,#E0533D);color:#fff;box-shadow:0 6px 18px rgba(224,83,61,.35);transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">☕</button>
