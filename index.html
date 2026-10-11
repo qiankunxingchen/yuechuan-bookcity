@@ -6003,5 +6003,28 @@ trackVisit();
 syncReadStats();
 route();
 </script>
+<button id="support-btn" onclick="showSupportModal()" title="支持站长" aria-label="支持站长" style="position:fixed;right:20px;bottom:24px;z-index:999;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;font-size:24px;background:linear-gradient(135deg,#E8A33D,#E0533D);color:#fff;box-shadow:0 6px 18px rgba(224,83,61,.35);transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">☕</button>
+<div id="support-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(18,14,8,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center" onclick="closeSupportModal(event)">
+<div style="background:var(--card);border-radius:18px;padding:24px 28px;text-align:center;max-width:320px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pageFadeIn .25s ease" onclick="event.stopPropagation()">
+<h3 style="font-family:var(--serif);margin:0 0 6px">☕ 支持阅川书城</h3>
+<p style="font-size:13px;color:var(--ink-soft);line-height:1.7;margin:8px 0 14px">如果你喜欢这个网站，可以请站长喝杯奶茶。每一份支持，都是继续做下去的动力！</p>
+<img src="https://aka.doubaocdn.com/s/7RbXncXZnG" alt="微信收款码" style="width:230px;border-radius:12px;border:1px solid var(--line)">
+<p style="font-size:12px;color:var(--ink-faint);margin:12px 0 0">微信扫码 · 金额随心 · 感谢你的善意</p>
+<button class="btn btn-ghost" style="margin-top:14px" onclick="closeSupportModal()">关闭</button>
+</div>
+</div>
+<script>
+function showSupportModal(){
+var m = document.getElementById("support-modal");
+if(m){ m.style.display = "flex"; }
+}
+function closeSupportModal(e){
+if(e && e.target && e.target.id === "support-modal"){
+document.getElementById("support-modal").style.display = "none";
+return;
+}
+document.getElementById("support-modal").style.display = "none";
+}
+</script>
 </body>
 </html>
