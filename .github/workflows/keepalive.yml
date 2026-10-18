@@ -12,6 +12,6 @@ jobs:
           code=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "apikey: sb_publishable_xx7x4i2GPuZ6ET32usY_7Q__CIG7s3Y" \
             -H "Authorization: Bearer sb_publishable_xx7x4i2GPuZ6ET32usY_7Q__CIG7s3Y" \
-            "https://xsmdmttfftepbtnjxvfu.supabase.co/rest/v1/books?select=id&limit=1")
+            "https://xsmdmttfftepbtnjxvfu.supabase.co/rest/v1/works?select=id&limit=1")
           echo "Supabase ping status: $code"
-          if [ "$code" != "200" ]; then echo "Ping failed"; fi
+          if [ "$code" != "200" ]; then echo "Ping failed"; exit 1; fi
